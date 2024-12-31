@@ -19,6 +19,4 @@ jobs:
           ssh-private-key: ${{ secrets.PI_SSH_KEY }}
 
       - name: Deploy to Raspberry Pi
-        run: |
-          ssh rioredwards@192.168.86.150 "mkdir -p ~/pi-site && rm -rf ~/pi-site/*"
-          scp -r ./* rioredwards@192.168.86.150:~/pi-site/
+        run: touch test.txt
