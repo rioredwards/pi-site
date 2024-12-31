@@ -16,7 +16,8 @@ jobs:
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.PI_SSH_KEY }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Deploy to Raspberry Pi
-        run: touch test.txt
+        run: |
+          ssh rioredwards@192.168.86.150 "touch hello.txt"
