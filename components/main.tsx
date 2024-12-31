@@ -11,8 +11,14 @@ export function Main() {
 
   useEffect(() => {
     async function fetchPhotos() {
-      const photos = await getPhotos()
-      setPhotos(photos)
+      const response = await getPhotos()
+      if (response.data) {
+        // Sort photos by id in descending order
+        response.data.sort((a, b) => b.id - a.id)
+        setPhotos(response.data)
+      } else {
+        console.error(response.error)
+      }
     }
     fetchPhotos()
   }, [])

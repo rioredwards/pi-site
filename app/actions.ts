@@ -1,11 +1,15 @@
 "use server";
-
+import { existsSync, mkdirSync, readFileSync } from "fs";
 import { readdir, writeFile } from "fs/promises";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
 import { Photo } from "../lib/types";
 
 export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
+
+const IMG_UPLOAD_DIR = join(process.cwd(), "public/images");
+const META_UPLOAD_DIR = join(process.cwd(), "public/meta");
+const IMG_READ_DIR = "/api/assets/images/";
 
 export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
   const file = formData.get("file") as File;
@@ -29,25 +33,28 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Generate a unique filename
-    const filename = file.name.replaceAll(" ", "_");
-    const uniqueFilename = `${uuidv4()}-${filename}`;
-    const uploadDir = join(process.cwd(), "public/images");
-    const filesLength = (await readdir(uploadDir)).filter(
-      (file) => !(file === ".gitignore")
-    ).length;
-    const filePath = join(uploadDir, uniqueFilename);
+    const imgFilename = file.name.replaceAll(" ", "_");
+    const uniqueImgFilename = `${uuidv4()}-${imgFilename}`;
+    const isNewDir = createDirIfNotExists(IMG_UPLOAD_DIR);
+    const imgFilesLength = isNewDir ? 0 : (await readdir(IMG_UPLOAD_DIR)).length;
+    const imgFilePath = join(IMG_UPLOAD_DIR, uniqueImgFilename);
 
-    // Ensure the upload directory exists
-    await writeFile(filePath, buffer);
+    // Write the image file to the images directory
+    await writeFile(imgFilePath, buffer);
+    // Write metadata to an associated JSON file
+    const metadata: Photo = {
+      id: imgFilesLength + 1,
+      src: IMG_READ_DIR + uniqueImgFilename,
+      alt: `Dog photo ${imgFilesLength + 1}`,
+    };
+    // Create the upload directory if it doesn't exist
+    createDirIfNotExists(META_UPLOAD_DIR);
+    const metadataFilePath = join(META_UPLOAD_DIR, `${uniqueImgFilename}.json`);
+    await writeFile(metadataFilePath, JSON.stringify(metadata, null, 2));
 
     const response: APIResponse<Photo> = {
       error: undefined,
-      data: {
-        id: filesLength + 1,
-        src: "/api/assets/images/" + uniqueFilename,
-        alt: `Dog photo ${filesLength + 1}`,
-      },
+      data: metadata,
     };
     return response;
   } catch (error) {
@@ -56,13 +63,37 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
   }
 }
 
-export async function getPhotos() {
-  const uploadDir = join(process.cwd(), "public/images");
-  const files = (await readdir(uploadDir)).filter((file) => !(file === ".gitignore"));
-  const photos = files.map((file, index) => ({
-    id: index + 1,
-    src: "/api/assets/images/" + file,
-    alt: `Dog photo ${index + 1}`,
-  }));
-  return photos.sort((a, b) => a.id - b.id);
+export async function getPhotos(): Promise<APIResponse<Photo[]>> {
+  try {
+    const isNewDir = createDirIfNotExists(META_UPLOAD_DIR);
+    if (isNewDir) {
+      return { data: [], error: undefined };
+    }
+    const files = await readdir(META_UPLOAD_DIR);
+    const photos = await Promise.all(
+      files.map((file) => {
+        const metadataFilePath = join(META_UPLOAD_DIR, file);
+        const metadata = JSON.parse(readFileSync(metadataFilePath, "utf-8"));
+        return metadata;
+      })
+    );
+    const response: APIResponse<Photo[]> = {
+      error: undefined,
+      data: photos,
+    };
+    return response;
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    return { data: undefined, error: errorMsg };
+  }
+}
+
+// Helper function to create a directory if it doesn't exist
+// Returns true if the directory was created, false if it already exists
+function createDirIfNotExists(dir: string): boolean {
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+    return true;
+  }
+  return false;
 }
