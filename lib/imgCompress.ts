@@ -1,21 +1,28 @@
-// From https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob, needed for Safari:
-if (!HTMLCanvasElement.prototype.toBlob) {
-  Object.defineProperty(HTMLCanvasElement.prototype, "toBlob", {
-    value: function (callback: BlobCallback, type?: string, quality?: any) {
-      const binStr = atob(this.toDataURL(type, quality).split(",")[1]),
-        len = binStr.length,
-        arr = new Uint8Array(len);
+function defineWindowUrlIfNotDefined() {
+  if (typeof window === "undefined") return;
 
-      for (let i = 0; i < len; i++) {
-        arr[i] = binStr.charCodeAt(i);
-      }
-
-      callback(new Blob([arr], { type: type || "image/png" }));
-    },
-  });
+  window.URL = window.URL || window.webkitURL;
 }
 
-window.URL = window.URL || window.webkitURL;
+function defineCanvasToBlobIfNotDefined() {
+  if (typeof window === "undefined") return;
+
+  if (!HTMLCanvasElement.prototype.toBlob) {
+    Object.defineProperty(HTMLCanvasElement.prototype, "toBlob", {
+      value: function (callback: BlobCallback, type?: string, quality?: any) {
+        const binStr = atob(this.toDataURL(type, quality).split(",")[1]),
+          len = binStr.length,
+          arr = new Uint8Array(len);
+
+        for (let i = 0; i < len; i++) {
+          arr[i] = binStr.charCodeAt(i);
+        }
+
+        callback(new Blob([arr], { type: type || "image/png" }));
+      },
+    });
+  }
+}
 
 // Modified from https://stackoverflow.com/a/32490603, cc by-sa 3.0
 // -2 = not jpeg, -1 = no data, 1..8 = orientations
@@ -116,6 +123,9 @@ export function reduceFileSize(
   maxHeight: number,
   quality: number
 ): Promise<Blob> {
+  defineWindowUrlIfNotDefined();
+  defineCanvasToBlobIfNotDefined();
+
   return new Promise((resolve, reject) => {
     if (file.size <= acceptFileSize) {
       resolve(file);
