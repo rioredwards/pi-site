@@ -1,5 +1,5 @@
 "use server";
-import { existsSync, mkdirSync, readFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, unlinkSync } from "fs";
 import { readdir, writeFile } from "fs/promises";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
@@ -34,7 +34,8 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     const buffer = Buffer.from(bytes);
 
     const imgFilename = file.name.replaceAll(" ", "_");
-    const uniqueImgFilename = `${uuidv4()}-${imgFilename}`;
+    const imgId = uuidv4();
+    const uniqueImgFilename = `${imgId}-${imgFilename}`;
     const isNewDir = createDirIfNotExists(IMG_UPLOAD_DIR);
     const imgFilesLength = isNewDir ? 0 : (await readdir(IMG_UPLOAD_DIR)).length;
     const imgFilePath = join(IMG_UPLOAD_DIR, uniqueImgFilename);
@@ -43,13 +44,15 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     await writeFile(imgFilePath, buffer);
     // Write metadata to an associated JSON file
     const metadata: Photo = {
-      id: imgFilesLength + 1,
+      id: imgId,
+      imgFilename: uniqueImgFilename,
+      order: imgFilesLength + 1,
       src: IMG_READ_DIR + uniqueImgFilename,
       alt: `Dog photo ${imgFilesLength + 1}`,
     };
     // Create the upload directory if it doesn't exist
     createDirIfNotExists(META_UPLOAD_DIR);
-    const metadataFilePath = join(META_UPLOAD_DIR, `${uniqueImgFilename}.json`);
+    const metadataFilePath = join(META_UPLOAD_DIR, `${imgId}.json`);
     await writeFile(metadataFilePath, JSON.stringify(metadata, null, 2));
 
     const response: APIResponse<Photo> = {
@@ -86,6 +89,39 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
     const errorMsg = error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
   }
+}
+
+export async function deletePhoto(
+  id: string,
+  imgFilename: string
+): Promise<APIResponse<undefined>> {
+  return new Promise((resolve, reject) => {
+    const metadataFilePath = join(META_UPLOAD_DIR, `${id}.json`);
+    if (!existsSync(metadataFilePath)) {
+      resolve({ data: undefined, error: "Photo not found" });
+    } else {
+      try {
+        // Delete the metadata file
+        unlinkSync(metadataFilePath);
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "Request failed...";
+        reject({ data: undefined, error: errorMsg });
+      }
+    }
+    // Delete the associated image file
+    const imgFilePath = join(IMG_UPLOAD_DIR, imgFilename);
+    if (!existsSync(imgFilePath)) {
+      resolve({ data: undefined, error: "Photo not found" });
+    } else {
+      try {
+        // Delete the metadata file
+        unlinkSync(imgFilePath);
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "Request failed...";
+        reject({ data: undefined, error: errorMsg });
+      }
+    }
+  });
 }
 
 // Helper function to create a directory if it doesn't exist

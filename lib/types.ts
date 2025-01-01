@@ -1,5 +1,7 @@
 export type Photo = {
-  id: number
-  src: string
-  alt: string
-}
+  id: string;
+  order: number;
+  imgFilename: string;
+  src: string;
+  alt: string;
+};
