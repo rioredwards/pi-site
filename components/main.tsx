@@ -4,10 +4,13 @@ import { useEffect, useState } from 'react'
 import { deletePhoto as deletePhotoFile, getPhotos } from '../app/actions'
 import { PhotoUpload } from '../components/photo-upload'
 import { ImgCard } from '../components/ui/imgCard'
+import { useToast } from '../hooks/use-toast'
 import { Photo } from '../lib/types'
 
 export function Main() {
   const [photos, setPhotos] = useState<Photo[]>([])
+  const { toast } = useToast()
+
 
   useEffect(() => {
     async function fetchPhotos() {
@@ -29,13 +32,21 @@ export function Main() {
 
   async function deletePhoto(id: string) {
     const targetPhoto = photos.find((photo) => photo.id === id) as Photo;
-    console.log("Delete photo: ", targetPhoto)
     const res = await deletePhotoFile(id, targetPhoto.imgFilename)
     if (res.error) {
       console.error(res.error)
-      return
+      toast({
+        title: "Error",
+        description: "There was a problem deleting your photo.",
+        variant: "destructive",
+      })
+      return;
     }
     setPhotos((prevPhotos) => prevPhotos.filter((photo) => photo.id !== id))
+    toast({
+      title: "Success",
+      description: "Your photo has been deleted.",
+    })
   }
 
   return (
@@ -44,7 +55,7 @@ export function Main() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {photos.map((photo) => (
           <ImgCard
-            id={photo.order}
+            id={photo.id}
             src={photo.src}
             alt={photo.alt}
             key={photo.id}

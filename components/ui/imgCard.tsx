@@ -1,7 +1,7 @@
 import Image from 'next/image';
 
 interface Props {
-  id: number;
+  id: string;
   src: string;
   alt: string;
   deletePhoto: (id: string) => void;
@@ -17,7 +17,7 @@ export function ImgCard({ id, src, alt, deletePhoto }: Props) {
       <button
         onClick={() => {
           console.log("Delete photo: ", id);
-          deletePhoto(id.toString())
+          deletePhoto(id)
         }}
         className="absolute z-10 top-2 right-2 p-1 text-white bg-red-500 rounded-full"
       >
@@ -42,7 +42,6 @@ export function ImgCard({ id, src, alt, deletePhoto }: Props) {
         fill
         className="object-cover"
         sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-        priority={id <= 4} // Load first 4 images immediately
       />
     </div>
   );

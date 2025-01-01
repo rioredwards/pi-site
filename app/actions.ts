@@ -95,33 +95,23 @@ export async function deletePhoto(
   id: string,
   imgFilename: string
 ): Promise<APIResponse<undefined>> {
-  return new Promise((resolve, reject) => {
-    const metadataFilePath = join(META_UPLOAD_DIR, `${id}.json`);
-    if (!existsSync(metadataFilePath)) {
-      resolve({ data: undefined, error: "Photo not found" });
-    } else {
-      try {
-        // Delete the metadata file
-        unlinkSync(metadataFilePath);
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Request failed...";
-        reject({ data: undefined, error: errorMsg });
-      }
+  const metadataFilePath = join(META_UPLOAD_DIR, `${id}.json`);
+  const imgFilePath = join(IMG_UPLOAD_DIR, imgFilename);
+
+  if (!existsSync(metadataFilePath) || !existsSync(imgFilePath)) {
+    return { data: undefined, error: "Photo not found" };
+  } else {
+    try {
+      // Delete the metadata file
+      unlinkSync(metadataFilePath);
+      // Delete the image file
+      unlinkSync(imgFilePath);
+      return { data: undefined, error: undefined };
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : "Request failed...";
+      return { data: undefined, error: errorMsg };
     }
-    // Delete the associated image file
-    const imgFilePath = join(IMG_UPLOAD_DIR, imgFilename);
-    if (!existsSync(imgFilePath)) {
-      resolve({ data: undefined, error: "Photo not found" });
-    } else {
-      try {
-        // Delete the metadata file
-        unlinkSync(imgFilePath);
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Request failed...";
-        reject({ data: undefined, error: errorMsg });
-      }
-    }
-  });
+  }
 }
 
 // Helper function to create a directory if it doesn't exist

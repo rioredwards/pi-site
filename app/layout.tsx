@@ -1,5 +1,6 @@
 import Footer from '@/components/footer'
 import Header from '@/components/header'
+import { Toaster } from "@/components/ui/toaster"
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
@@ -27,6 +28,7 @@ export default function RootLayout({
         <main className="flex-1 container mx-auto max-w-7xl">
           {children}
         </main>
+        <Toaster />
         <Footer />
       </body>
     </html>
