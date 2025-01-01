@@ -31,7 +31,7 @@ export function Main() {
       }
     }
     fetchPhotos()
-  }, [])
+  }, [toast])
 
   function addPhoto(photo: Photo) {
     setPhotos((prevPhotos) => [photo, ...prevPhotos])
