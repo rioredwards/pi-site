@@ -1,6 +1,8 @@
 "use server";
+
 import { existsSync, mkdirSync, readFileSync, unlinkSync } from "fs";
 import { readdir, writeFile } from "fs/promises";
+import { cookies } from "next/headers";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
 import { Photo } from "../lib/types";
@@ -12,6 +14,12 @@ const META_UPLOAD_DIR = join(process.cwd(), "public/meta");
 const IMG_READ_DIR = "/api/assets/images/";
 
 export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("sessionId");
+  if (!sessionId) {
+    throw new Error("No session ID found");
+  }
+
   const file = formData.get("file") as File;
   if (!file) {
     throw new Error("No file uploaded");
@@ -46,6 +54,7 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     const metadata: Photo = {
       id: imgId,
       imgFilename: uniqueImgFilename,
+      sessionId: sessionId.value,
       order: imgFilesLength + 1,
       src: IMG_READ_DIR + uniqueImgFilename,
       alt: `Dog photo ${imgFilesLength + 1}`,
@@ -122,4 +131,20 @@ function createDirIfNotExists(dir: string): boolean {
     return true;
   }
   return false;
+}
+
+export async function createCookie(): Promise<APIResponse<string>> {
+  const cookieStore = await cookies();
+  const newSessionId = uuidv4();
+  cookieStore.set("sessionId", newSessionId);
+  return { data: newSessionId, error: undefined };
+}
+
+export async function getCookie(): Promise<APIResponse<string>> {
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("sessionId");
+  if (!sessionId) {
+    return { data: undefined, error: "No session ID found" };
+  }
+  return { data: sessionId.value, error: undefined };
 }

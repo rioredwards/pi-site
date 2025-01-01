@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast'
 import Image from 'next/image'
 import { useRef, useState } from 'react'
 import { uploadPhoto } from '../app/actions'
+import { useCookie } from '../context/CookieCtx'
 import { Photo } from '../lib/types'
 
 interface Props {
@@ -15,9 +16,20 @@ export function PhotoUpload({ addPhoto }: Props) {
   const [file, setFile] = useState<File | null>(null)
   const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { cookie } = useCookie()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!cookie) {
+      toast({
+        title: "Error",
+        description: "You must enable cookies to upload a photo.",
+        variant: "destructive",
+      })
+      return;
+    }
+
     if (!file) {
       toast({
         title: "Error",
@@ -60,7 +72,7 @@ export function PhotoUpload({ addPhoto }: Props) {
     <section className='flex flex-col items-center justify-center mb-4'>
       <form onSubmit={handleSubmit} className={"w-80 p-4 flex flex-col justify-center items-center rounded-lg" + (file ? " border border-blue-200 hover:shadow-sm" : "")}>
         {!file && <Label htmlFor="photo" className={(file ? "hidden" : "") + " cursor-pointer text-center w-48 h-12 bg-gray-200 rounded-lg flex items-center justify-center"}>
-          Upload a dog photo</Label>}
+          Upload Your Dog <span className='text-2xl ml-2'> 🐶</span> </Label>}
         {file &&
           <>
             <p className="text-center mb-4">Upload this dog?</p>

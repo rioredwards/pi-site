@@ -3,6 +3,7 @@ import Header from '@/components/header'
 import { Toaster } from "@/components/ui/toaster"
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { CookieProvider } from '../context/CookieCtx'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -24,12 +25,14 @@ export default function RootLayout({
         content="telephone=no, date=no, email=no, address=no"
       />
       <body className={`${inter.className} min-h-screen flex flex-col`}>
-        <Header />
-        <main className="flex-1 container mx-auto max-w-7xl">
-          {children}
-        </main>
-        <Toaster />
-        <Footer />
+        <CookieProvider>
+          <Header />
+          <main className="flex-1 container mx-auto max-w-7xl">
+            {children}
+          </main>
+          <Toaster />
+          <Footer />
+        </CookieProvider>
       </body>
     </html>
   )

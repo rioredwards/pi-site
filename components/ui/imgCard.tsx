@@ -1,17 +1,20 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import BounceLoader from 'react-spinners/BounceLoader';
+import { useCookie } from '../../context/CookieCtx';
 
 interface Props {
   id: string;
   src: string;
   alt: string;
+  sessionId: string;
   deletePhoto: (id: string) => void;
 }
 
-export function ImgCard({ id, src, alt, deletePhoto }: Props) {
+export function ImgCard({ id, src, alt, sessionId, deletePhoto }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { cookie } = useCookie()
 
   const handleDelete = () => {
     setShowConfirm(true);
@@ -26,11 +29,13 @@ export function ImgCard({ id, src, alt, deletePhoto }: Props) {
     setShowConfirm(false);
   };
 
+  const isOwner = cookie === sessionId;
+
   return (
     <div
       className="relative aspect-square overflow-hidden rounded-lg transition-transform hover:scale-[1.02] hover:shadow-lg group"
     >
-      <button
+      {isOwner && <button
         onClick={handleDelete}
         className="absolute z-10 top-2 right-2 p-1 text-white bg-gray-400 rounded-full opacity-50 hidden group-hover:block group-focus-within:block"
         tabIndex={-1}
@@ -49,7 +54,7 @@ export function ImgCard({ id, src, alt, deletePhoto }: Props) {
             d="M6 18L18 6M6 6l12 12"
           />
         </svg>
-      </button>
+      </button>}
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center">
           <BounceLoader color={"rgb(15, 220, 220)"} loading={true} size={25} />
