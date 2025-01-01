@@ -1,5 +1,6 @@
 "use client"
 
+import shuffle from 'lodash.shuffle'
 import { useEffect, useState } from 'react'
 import BounceLoader from 'react-spinners/BounceLoader'
 import { deletePhoto as deletePhotoFile, getPhotos } from '../app/actions'
@@ -18,9 +19,8 @@ export function Main() {
     async function fetchPhotos() {
       const response = await getPhotos()
       if (response.data) {
-        // Sort photos by id in descending order
-        response.data.sort((a, b) => b.order - a.order)
-        setPhotos(response.data)
+        const shuffledPhotos = shuffle(response.data)
+        setPhotos(shuffledPhotos)
       } else {
         console.error(response.error)
         toast({
