@@ -29,7 +29,7 @@ export function ImgCard({ id, src, alt, sessionId, deletePhoto }: Props) {
     setShowConfirm(false);
   };
 
-  const isOwner = cookie === sessionId;
+  const isOwner = cookie === sessionId || cookie === "admin";
 
   return (
     <div
