@@ -59,7 +59,7 @@ export function PhotoUpload({ addPhoto }: Props) {
   return (
     <section className='flex flex-col items-center justify-center mb-4'>
       <form onSubmit={handleSubmit} className={"w-80 p-4 flex flex-col justify-center items-center rounded-lg" + (file ? " border border-blue-200 hover:shadow-sm" : "")}>
-        {!file && <Label htmlFor="photo" className={(file ? "hidden" : "") + " cursor-pointer block text-center w-48 h-12 bg-gray-200 rounded-lg flex items-center justify-center"}>
+        {!file && <Label htmlFor="photo" className={(file ? "hidden" : "") + " cursor-pointer text-center w-48 h-12 bg-gray-200 rounded-lg flex items-center justify-center"}>
           Upload a dog photo</Label>}
         {file &&
           <>

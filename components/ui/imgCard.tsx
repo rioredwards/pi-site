@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { useState } from 'react';
 
 interface Props {
   id: string;
@@ -8,18 +9,28 @@ interface Props {
 }
 
 export function ImgCard({ id, src, alt, deletePhoto }: Props) {
-  console.log("ImgCard: ", id, src, alt);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleDelete = () => {
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    deletePhoto(id);
+    setShowConfirm(false);
+  };
+
+  const cancelDelete = () => {
+    setShowConfirm(false);
+  };
 
   return (
     <div
-      className="relative aspect-square overflow-hidden rounded-lg transition-transform hover:scale-[1.02] hover:shadow-lg"
+      className="relative aspect-square overflow-hidden rounded-lg transition-transform hover:scale-[1.02] hover:shadow-lg group"
     >
       <button
-        onClick={() => {
-          console.log("Delete photo: ", id);
-          deletePhoto(id)
-        }}
-        className="absolute z-10 top-2 right-2 p-1 text-white bg-red-500 rounded-full"
+        onClick={handleDelete}
+        className="absolute z-10 top-2 right-2 p-1 text-white bg-gray-400 rounded-full opacity-50 hidden group-hover:block group-focus-within:block"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -43,6 +54,27 @@ export function ImgCard({ id, src, alt, deletePhoto }: Props) {
         className="object-cover"
         sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
       />
+      {showConfirm && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white bg-opacity-75 p-4 rounded-lg shadow-lg">
+            <p>Are you sure you want to delete this dog?</p>
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg"
+              >
+                Yes
+              </button>
+              <button
+                onClick={cancelDelete}
+                className="px-4 py-2 bg-gray-300 rounded-lg"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
