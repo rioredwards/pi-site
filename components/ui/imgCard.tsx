@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { useState } from 'react';
+import BounceLoader from 'react-spinners/BounceLoader';
 
 interface Props {
   id: string;
@@ -10,6 +11,7 @@ interface Props {
 
 export function ImgCard({ id, src, alt, deletePhoto }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const handleDelete = () => {
     setShowConfirm(true);
@@ -31,6 +33,7 @@ export function ImgCard({ id, src, alt, deletePhoto }: Props) {
       <button
         onClick={handleDelete}
         className="absolute z-10 top-2 right-2 p-1 text-white bg-gray-400 rounded-full opacity-50 hidden group-hover:block group-focus-within:block"
+        tabIndex={-1}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -47,12 +50,19 @@ export function ImgCard({ id, src, alt, deletePhoto }: Props) {
           />
         </svg>
       </button>
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <BounceLoader color={"rgb(15, 220, 220)"} loading={true} size={25} />
+        </div>
+      )}
       <Image
         src={src}
         alt={alt}
         fill
-        className="object-cover"
+        className={`object-cover`}
         sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        onLoadStart={() => setLoading(true)}
+        onLoadingComplete={() => setLoading(false)}
       />
       {showConfirm && (
         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">

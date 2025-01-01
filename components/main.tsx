@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react'
+import BounceLoader from 'react-spinners/BounceLoader'
 import { deletePhoto as deletePhotoFile, getPhotos } from '../app/actions'
 import { PhotoUpload } from '../components/photo-upload'
 import { ImgCard } from '../components/ui/imgCard'
@@ -50,8 +51,9 @@ export function Main() {
   }
 
   return (
-    <div className="container px-4 py-8 mx-auto">
+    <div className="container px-4 py-8 mx-auto min-h-96">
       <PhotoUpload addPhoto={addPhoto} />
+      {!photos.length && (<div className='mt-24 flex justify-center items-center'><BounceLoader color={"rgb(15, 220, 220)"} loading={true} size={25} /></div>)}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {photos.map((photo) => (
           <ImgCard
