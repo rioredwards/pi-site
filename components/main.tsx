@@ -23,6 +23,11 @@ export function Main() {
         setPhotos(response.data)
       } else {
         console.error(response.error)
+        toast({
+          title: "Error",
+          description: "There was a problem fetching photos. Try reloading the page.",
+          variant: "destructive",
+        })
       }
     }
     fetchPhotos()

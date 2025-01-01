@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useRef, useState } from 'react'
 import { uploadPhoto } from '../app/actions'
 import { useCookie } from '../context/CookieCtx'
+import { reduceFileSize } from '../lib/imgCompress'
 import { Photo } from '../lib/types'
 
 interface Props {
@@ -40,7 +41,16 @@ export function PhotoUpload({ addPhoto }: Props) {
     }
 
     const formData = new FormData()
-    formData.append('file', file)
+
+    // If file size > 500kB, resize such that width <= 1000, quality = 0.9
+    const MAX_FILE_SIZE = 500 * 1000; // 500kB
+    const MAX_WIDTH = 1000; // 1000px
+    const MAX_HEIGHT = 1000; // 1000px
+    const QUALITY = 0.9; // 90%
+
+    const resizedImg = await reduceFileSize(file, MAX_FILE_SIZE, MAX_WIDTH, MAX_HEIGHT, QUALITY);
+
+    formData.append('file', resizedImg)
 
     const res = await uploadPhoto(formData)
     if (res.error || !res.data) {
