@@ -70,3 +70,38 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Act as a border */
+  .gradient-btn-wrapper,
+  .gradient-card-wrapper {
+    @apply relative overflow-hidden;
+  }
+
+  /* Gradient */
+  .gradient-card-wrapper::before,
+  .gradient-btn-wrapper::before {
+    background: conic-gradient(
+      rgba(244, 114, 181, 0.6) 0deg,
+      rgba(192, 132, 252, 0.4) 60deg,
+      rgba(132, 152, 252, 0.2) 120deg,
+      transparent 300deg
+    );
+
+    @apply absolute animate-border-spin content-[''];
+  }
+
+  .gradient-btn-wrapper::before {
+    @apply rounded-full left-[-50%] top-[-350%] h-[800%] w-[200%];
+  }
+
+  .gradient-card-wrapper::before {
+    @apply rounded-2xl left-[-100%] top-[-100%] h-[300%] w-[300%];
+  }
+
+  /* Body */
+  .gradient-btn-content,
+  .gradient-card-content {
+    @apply absolute left-[1px] top-[1px] h-[calc(100%-2px)] w-[calc(100%-2px)];
+  }
+}
