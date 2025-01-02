@@ -1,5 +1,8 @@
-import { PawPrint } from 'lucide-react'
-import Link from 'next/link'
+import { PawPrint } from 'lucide-react';
+import Link from 'next/link';
+import BlueSky from './svg/Bluesky';
+import Facebook from './svg/Facebook';
+import Instagram from './svg/Instagram';
 
 export default function Footer() {
   return (
@@ -12,7 +15,7 @@ export default function Footer() {
               <span className="font-bold text-lg">DogTownUSA</span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
-              Your pet&apos;s paradise - where tails never stop wagging. Providing top-notch care and services for your furry friends since 2010.
+              Dog dog dog dog dog dog dog dog dog dog dog dog dog dog dog
             </p>
           </div>
 
@@ -21,22 +24,22 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Grooming
+                  Dog
                 </Link>
               </li>
               <li>
                 <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Daycare
+                  Dog
                 </Link>
               </li>
               <li>
                 <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Training
+                  Dog
                 </Link>
               </li>
               <li>
                 <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Boarding
+                  Dog
                 </Link>
               </li>
             </ul>
@@ -47,22 +50,22 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  About Us
+                  Dog
                 </Link>
               </li>
               <li>
                 <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Careers
+                  Dog
                 </Link>
               </li>
               <li>
                 <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Contact
+                  Dog
                 </Link>
               </li>
               <li>
                 <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  FAQ
+                  Dog
                 </Link>
               </li>
             </ul>
@@ -73,17 +76,17 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Privacy Policy
+                  Dog
                 </Link>
               </li>
               <li>
                 <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Terms of Service
+                  Dog
                 </Link>
               </li>
               <li>
                 <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Accessibility
+                  Dog
                 </Link>
               </li>
             </ul>
@@ -96,13 +99,13 @@ export default function Footer() {
           </p>
           <div className="flex gap-4">
             <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-              Facebook
+              <Facebook />
             </Link>
             <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-              Twitter
+              <BlueSky />
             </Link>
             <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-              Instagram
+              <Instagram />
             </Link>
           </div>
         </div>

@@ -1,19 +1,14 @@
-'use client'
-
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { PawPrint } from 'lucide-react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+'use client';
+import { cn } from '@/lib/utils';
+import { PawPrint } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Header() {
   const pathname = usePathname()
 
   const navigation = [
-    { name: 'Home', href: '/' },
-    { name: 'Services', href: '/' },
-    { name: 'About', href: '/' },
-    { name: 'Contact', href: '/' },
+    { name: 'About', href: '/about' },
   ]
 
   return (
@@ -26,7 +21,7 @@ export default function Header() {
           </Link>
         </div>
 
-        <nav className="hidden md:flex gap-6">
+        <nav className="flex gap-6">
           {navigation.map((item) => (
             <Link
               key={item.name}
@@ -43,10 +38,6 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm">Sign In</Button>
-          <Button size="sm">Get Started</Button>
-        </div>
       </div>
     </header>
   )
