@@ -91,13 +91,13 @@ export function PhotoUpload({ addPhoto }: Props) {
       <form onSubmit={handleSubmit} className={"rounded-2xl" + (file ? " gradient-card-wrapper w-[400px] h-[400px] hover:shadow-sm" : "")}>
         <div className={'flex flex-col justify-center items-center h-full w-full' + (file ? " gradient-card-content rounded-2xl bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 px-12" : "")}>
           {!file && <div className='gradient-btn-wrapper rounded-full w-[300px] h-[75px]'>
-            <Label htmlFor="photo" className={(file ? "hidden" : "") + " gradient-btn-content rounded-full bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 cursor-pointer text-center flex items-center justify-center font-bold"}>
+            <Label htmlFor="photo" className={(file ? "hidden" : "") + " gradient-btn-content rounded-full bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 cursor-pointer text-center flex items-center justify-center font-bold transition"}>
               Upload Your Dog <span className='text-2xl ml-2'> 🐶</span> </Label>
           </div>}
           {file &&
             <>
               <p className="text-center mb-2 font-bold text-lg">Upload this Dog?</p>
-              <div className='h-[1px] w-full bg-gray-200 mb-6' />
+              <div className='h-[1px] w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6' />
               <Label htmlFor="photo"
                 className="w-48 h-48 mb-8 relative aspect-square overflow-hidden rounded-lg cursor-pointer"
               ><Image
@@ -118,16 +118,17 @@ export function PhotoUpload({ addPhoto }: Props) {
             ref={fileInputRef}
           />
           {file && <div className="flex space-x-2 w-full">
-            <Button onClick={handleCancel} variant="outline" className='bg-gray-100 hover:bg-gray-200 flex-1'>
+            <Button onClick={handleCancel} variant="outline" className='bg-gray-200 hover:bg-gray-300 flex-1 transition'>
               Cancel
             </Button>
             <Button type="submit"
               disabled={isSubmitting}
-              variant="default" className='bg-cyan-400 hover:bg-cyan-500 flex-1'>
+              variant="default" className='text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-medium flex-1 transition'>
               {!isSubmitting ? "Upload" : <>
                 <PulseLoader color="white" loading={true} size={5} />
               </>}
             </Button>
+            {/* <button type="button" class="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Purple to Pink</button> */}
           </div>}
         </div>
       </form>
