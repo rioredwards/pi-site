@@ -17,7 +17,7 @@ export default function AboutPage() {
             <LucideComputer key={3} className="h-16 w-16 text-orange-500" />,
             <LucideEqual key={4} className="h-10 w-10 translate-y-4" />,
             <LucideSmile key={5} className="h-16 w-16 text-yellow-500" />]} />
-            <GradientText text="They make me Happy!" />
+            <GradientText  >They make me Happy!</GradientText>
           </div>
         </Flashcard>
       </section>

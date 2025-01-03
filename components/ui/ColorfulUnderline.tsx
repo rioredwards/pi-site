@@ -4,7 +4,7 @@ import React from 'react'
 interface ColorfulUnderlineProps {
   children: React.ReactNode
   className?: string
-  color?: string
+  color?: 'blue' | 'red' | 'yellow' | 'green' | 'orange' | 'purple' | 'pink'
   size?: 's' | 'm' | 'l'
 }
 
@@ -26,15 +26,25 @@ export function ColorfulUnderline({
     l: "-mt-[2px]"
   }
 
+  const colorUnderlineVariants = {
+    blue: 'bg-blue-500 group-hover:bg-blue-600',
+    red: 'bg-red-500 group-hover:bg-red-600',
+    yellow: 'bg-yellow-500 group-hover:bg-yellow-600',
+    green: 'bg-green-500 group-hover:bg-green-600',
+    orange: 'bg-orange-500 group-hover:bg-orange-600',
+    purple: 'bg-purple-500 group-hover:bg-purple-600',
+    pink: 'bg-pink-500 group-hover:bg-pink-600',
+  }
+
   const underlineClass = cn(
     'block w-full',
-    `bg-${color}-500`,
+    colorUnderlineVariants[color],
     thicknessClasses[size],
     topMarginClasses[size]
   )
 
   return (
-    <span className={cn("inline-block relative", className)}>
+    <span className={cn("inline-block relative group cursor-pointer", className)}>
       {children}
       <span className={underlineClass} />
     </span>

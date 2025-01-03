@@ -1,11 +1,17 @@
 import { cn } from "@/lib/utils"
-import { ReactNode } from "react"
+import { PropsWithChildren, ReactNode } from "react"
 
 
-export function GradientText({ text }: { text: string }) {
+interface GradientTextProps extends PropsWithChildren {
+  className?: string
+}
+
+export function GradientText({ children, className }: GradientTextProps) {
   return (
-    <h2 className="text-3xl my-4 font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 animate-pulse">
-      {text}
+    <h2
+      className={cn(className, "text-3xl my-4 font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500")}
+    >
+      {children}
     </h2>
   )
 }
