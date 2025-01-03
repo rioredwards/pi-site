@@ -1,5 +1,5 @@
 import { exec } from "child_process";
-import os from "os";
+import os, { platform } from "os";
 import { promisify } from "util";
 
 const execAsync = promisify(exec);
@@ -14,6 +14,7 @@ function getCpuUsage() {
 }
 
 async function getCpuTemp() {
+  if (platform() !== "linux") return 0;
   const { stdout } = await execAsync("vcgencmd measure_temp");
   // in celsius! OBVIOUSLY!
   return parseFloat(stdout.replace("temp=", "").replace("'C", ""));
@@ -31,7 +32,7 @@ export async function getSystemDetails() {
   const totalMem = os.totalmem();
   const freeMem = os.freemem();
   const usedMem = totalMem - freeMem;
- 
+
   const cpuTemp = await getCpuTemp();
 
   return {
