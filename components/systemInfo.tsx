@@ -1,18 +1,8 @@
+import { SystemInfo as SystemInfoType } from "../lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Progress } from "./ui/progress";
 
-interface Props {
-  os: typeof import("os");
-  cpuTemp: number;
-  cpuUsage: string[];
-  memoryUsage: {
-    total: number;
-    used: number;
-    free: number;
-  };
-}
-
-export function SystemInfo({ os, cpuTemp, cpuUsage, memoryUsage }: Props) {
+export function SystemInfo({ hostname, platform, architecture, cpuTemp, cpuUsage, memoryUsage }: SystemInfoType) {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
@@ -21,9 +11,9 @@ export function SystemInfo({ os, cpuTemp, cpuUsage, memoryUsage }: Props) {
       <CardContent className="space-y-4">
         <div className="space-y-2">
           {[
-            ["Hostname", os.hostname()],
-            ["Platform", os.platform()],
-            ["Architecture", os.arch()],
+            ["Hostname", hostname],
+            ["Platform", platform],
+            ["Architecture", architecture],
             ["CPU Temperature", `${cpuTemp.toFixed(1)}°C`],
           ].map(([label, value]) => (
             <div key={label} className="flex justify-between text-sm">
