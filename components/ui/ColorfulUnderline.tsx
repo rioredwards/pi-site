@@ -44,7 +44,7 @@ export function ColorfulUnderline({
   )
 
   return (
-    <span className={cn("inline-block relative group cursor-pointer", className)}>
+    <span className={cn("inline-block relative group", className)}>
       {children}
       <span className={underlineClass} />
     </span>

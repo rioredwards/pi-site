@@ -1,8 +1,9 @@
 import { PawPrint } from 'lucide-react';
 import Link from 'next/link';
 import BlueSky from './svg/Bluesky';
-import Facebook from './svg/Facebook';
-import Instagram from './svg/Instagram';
+import GitHub from './svg/GitHub';
+import LinkedIn from './svg/LinkedIn';
+import YouTube from './svg/YouTube';
 
 export default function Footer() {
   return (
@@ -98,14 +99,34 @@ export default function Footer() {
             © {new Date().getFullYear()} DogTownUSA. All rights reserved.
           </p>
           <div className="flex gap-4">
-            <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-              <Facebook />
+            <Link
+              href="https://www.linkedin.com/in/rio-edwards/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <LinkedIn className="w-8" />
             </Link>
-            <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-              <BlueSky />
+            <Link
+              href="https://bsky.app/profile/rioredwards.bsky.social"
+              target="_blank"
+              rel="noreferrer"
+
+            >
+              <BlueSky className="w-8" />
             </Link>
-            <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-              <Instagram />
+            <Link
+              href="https://www.youtube.com/channel/UCZdVYjS_Os_4e7DZAZSRxBQ"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <YouTube className="w-8" />
+            </Link>
+            <Link
+              href="https://github.com/rioredwards/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <GitHub className="w-8" />
             </Link>
           </div>
         </div>

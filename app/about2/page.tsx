@@ -9,6 +9,7 @@ import {
   LucideMessageCircleQuestion,
   LucidePlus,
   LucideSmile,
+  MessageCircleMore,
 } from 'lucide-react';
 import Image from "next/image";
 import Link from "next/link";
@@ -137,6 +138,7 @@ export default function AboutPage() {
       <section>
         <Card>
           <CardHeader>
+            <CardIcon ><MessageCircleMore key={5} className="text-red-500 w-full h-full" /></CardIcon>
             <CardTitle>Contact Me</CardTitle>
           </CardHeader>
           <CardContent>
@@ -144,16 +146,32 @@ export default function AboutPage() {
               <div>
                 <p className="mb-4">Feel free to reach out!</p>
                 <div className="flex gap-4">
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    <LinkedIn className="w-8 text-red-500" />
+                  <Link
+                    href="https://www.linkedin.com/in/rio-edwards/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <LinkedIn className="w-8" />
                   </Link>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Link
+                    href="https://bsky.app/profile/rioredwards.bsky.social"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     <BlueSky className="w-8" />
                   </Link>
-                  <Link href="#" className="te:texuted-foreground hover:text-primary transition-colors">
+                  <Link
+                    href="https://www.youtube.com/channel/UCZdVYjS_Os_4e7DZAZSRxBQ"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     <YouTube className="w-8" />
                   </Link>
-                  <Link href="#" className="te:texuted-foreground hover:text-primary transition-colors">
+                  <Link
+                    href="https://github.com/rioredwards/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     <GitHub className="w-8" />
                   </Link>
                 </div>
