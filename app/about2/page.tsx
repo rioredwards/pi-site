@@ -21,6 +21,7 @@ import RaspberryPi from "../../components/svg/RaspberryPi";
 import YouTube from "../../components/svg/YouTube";
 import { ColorfulUnderline } from "../../components/ui/ColorfulUnderline";
 import PillHighlight from "../../components/ui/pillHighlight";
+import { RotatingGradientBorder } from "../../components/ui/rotatingGradientBorder";
 
 
 export default function AboutPage() {
@@ -45,29 +46,31 @@ export default function AboutPage() {
       </section>
 
       <section id="what-is-this?" className="mb-12">
-        <Card>
-          <CardHeader >
-            <CardIcon ><LucideMessageCircleQuestion key={5} className="text-blue-500 w-full h-full" /></CardIcon>
-            <CardTitle>What is this?</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col md:flex-row-reverse items-start gap-6">
-            <Image
-              src="/myImages/My-Pi.jpeg"
-              alt="A Raspberry Pi"
-              width={400}
-              height={300}
-              className="rounded-lg w-full md:w-2/4"
-            />
-            <p>
-              Over the holidays, I got a <PillHighlight color="red">Raspberry Pi <RaspberryPi className="inline mr-[2px] -mt-[2px] w-[16px]" /></PillHighlight> as a gift from my sister (best gift ever!).
-              After some tinkering and late-night coding sessions, this little project came to life—my first
-              <span className="font-bold"> self-hosted website</span>!
-              <br /><br />
-              Naturally, the <span className="italic">theme</span> is <span className="font-bold">dog photos</span> because, my life pretty much revolves
-              around these majestic furballs. 🐶
-            </p>
-          </CardContent>
-        </Card>
+        <RotatingGradientBorder>
+          <Card>
+            <CardHeader >
+              <CardIcon ><LucideMessageCircleQuestion key={5} className="text-blue-500 w-full h-full" /></CardIcon>
+              <CardTitle>What is this?</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col md:flex-row-reverse items-start gap-6">
+              <Image
+                src="/myImages/My-Pi.jpeg"
+                alt="A Raspberry Pi"
+                width={400}
+                height={300}
+                className="rounded-lg w-full md:w-2/4"
+              />
+              <p>
+                Over the holidays, I got a <PillHighlight color="red">Raspberry Pi <RaspberryPi className="inline mr-[2px] -mt-[2px] w-[16px]" /></PillHighlight> as a gift from my sister (best gift ever!).
+                After some tinkering and late-night coding sessions, this little project came to life—my first
+                <span className="font-bold"> self-hosted website</span>!
+                <br /><br />
+                Naturally, the <span className="italic">theme</span> is <span className="font-bold">dog photos</span> because, my life pretty much revolves
+                around these majestic furballs. 🐶
+              </p>
+            </CardContent>
+          </Card>
+        </RotatingGradientBorder>
       </section>
 
 

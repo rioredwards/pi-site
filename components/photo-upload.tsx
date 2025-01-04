@@ -91,7 +91,7 @@ export function PhotoUpload({ addPhoto }: Props) {
       <form onSubmit={handleSubmit} className={"rounded-2xl" + (file ? " gradient-card-wrapper w-[400px] h-[400px] hover:shadow-sm" : "")}>
         <div className={'flex flex-col justify-center items-center h-full w-full' + (file ? " gradient-card-content rounded-2xl bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 px-12" : "")}>
           {!file && <div className='gradient-btn-wrapper rounded-full w-[300px] h-[75px]'>
-            <Label htmlFor="photo" className={(file ? "hidden" : "") + " gradient-btn-content rounded-full bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 cursor-pointer text-center flex items-center justify-center font-bold transition"}>
+            <Label htmlFor="photo" className={(file ? "hidden" : "") + " gradient-btn-content rounded-full  border border-gray-200  hover:border-gray-300 cursor-pointer text-center flex items-center justify-center font-bold transition"}>
               Upload Your Dog <span className='text-2xl ml-2'> 🐶</span> </Label>
           </div>}
           {file &&
