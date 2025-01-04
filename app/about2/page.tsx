@@ -1,10 +1,22 @@
-import { Button } from "@/components/ui/button";
+import BlueSky from "@/components/svg/Bluesky";
+import Facebook from "@/components/svg/Facebook";
+import Instagram from "@/components/svg/Instagram";
 import { Card, CardContent, CardHeader, CardIcon, CardTitle } from "@/components/ui/card";
-import { Blocks, Github, Lightbulb, Linkedin, LucideComputer, LucideDog, LucideEqual, LucideMessageCircleQuestion, LucidePlus, LucideSmile, Youtube } from 'lucide-react';
+import {
+  Blocks,
+  Lightbulb,
+  LucideComputer,
+  LucideDog,
+  LucideEqual,
+  LucideMessageCircleQuestion,
+  LucidePlus,
+  LucideSmile,
+} from 'lucide-react';
 import Image from "next/image";
 import Link from "next/link";
 import { Flashcard } from "../../components/flashcard";
 import { FunIcons, GradientText } from '../../components/funText';
+import LinkedIn from "../../components/svg/LinkedIn";
 import RaspberryPi from "../../components/svg/RaspberryPi";
 import { ColorfulUnderline } from "../../components/ui/ColorfulUnderline";
 import PillHighlight from "../../components/ui/pillHighlight";
@@ -125,33 +137,25 @@ export default function AboutPage() {
       <section>
         <Card>
           <CardHeader>
-            <CardTitle>Questions/Comments/Concerns</CardTitle>
+            <CardTitle>Contact Me</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col md:flex-row items-start gap-6 mb-6">
               <div>
                 <p className="mb-4">Feel free to reach out!</p>
-                <div className="flex flex-wrap gap-4">
-                  <Button asChild>
-                    <Link href="https://www.linkedin.com/in/rioredwards/" target="_blank" rel="noopener noreferrer">
-                      <Linkedin className="mr-2 h-4 w-4" /> LinkedIn
-                    </Link>
-                  </Button>
-                  <Button asChild>
-                    <Link href="https://www.youtube.com/@rioredwards" target="_blank" rel="noopener noreferrer">
-                      <Youtube className="mr-2 h-4 w-4" /> YouTube
-                    </Link>
-                  </Button>
-                  <Button asChild>
-                    <Link href="https://bsky.app/profile/rioredwards.com" target="_blank" rel="noopener noreferrer">
-                      Bluesky
-                    </Link>
-                  </Button>
-                  <Button asChild>
-                    <Link href="https://github.com/rioredwards" target="_blank" rel="noopener noreferrer">
-                      <Github className="mr-2 h-4 w-4" /> GitHub
-                    </Link>
-                  </Button>
+                <div className="flex gap-4">
+                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                    <Facebook className="w-8" />
+                  </Link>
+                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                    <BlueSky className="w-8" />
+                  </Link>
+                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                    <Instagram className="w-8" />
+                  </Link>
+                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                    <LinkedIn className="w-8" />
+                  </Link>
                 </div>
               </div>
             </div>
