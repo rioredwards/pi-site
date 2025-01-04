@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { PropsWithChildren, useState } from 'react'
+import { Button } from "@/components/ui/button";
+import { CardContent, CardWithGradientBorder } from "@/components/ui/card";
+import { PropsWithChildren, useState } from 'react';
 
 interface FlashcardProps extends PropsWithChildren {
   question: string
@@ -12,7 +12,7 @@ export function Flashcard({ question, children }: FlashcardProps) {
   const [isRevealed, setIsRevealed] = useState(false)
 
   return (
-    <Card className="w-full mx-auto">
+    <CardWithGradientBorder className="rounded-lg">
       <CardContent className="p-6">
         <div className="text-center">
           <h3 className="text-lg font-semibold mb-4">{question}</h3>
@@ -25,6 +25,6 @@ export function Flashcard({ question, children }: FlashcardProps) {
           {!isRevealed && <Button onClick={() => setIsRevealed(!isRevealed)}>Reveal Answer</Button>}
         </div>
       </CardContent>
-    </Card>
+    </CardWithGradientBorder>
   )
 }
