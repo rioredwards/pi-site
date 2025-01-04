@@ -1,6 +1,4 @@
 import BlueSky from "@/components/svg/Bluesky";
-import Facebook from "@/components/svg/Facebook";
-import Instagram from "@/components/svg/Instagram";
 import { Card, CardContent, CardHeader, CardIcon, CardTitle } from "@/components/ui/card";
 import {
   Blocks,
@@ -16,8 +14,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Flashcard } from "../../components/flashcard";
 import { FunIcons, GradientText } from '../../components/funText';
+import GitHub from "../../components/svg/GitHub";
 import LinkedIn from "../../components/svg/LinkedIn";
 import RaspberryPi from "../../components/svg/RaspberryPi";
+import YouTube from "../../components/svg/YouTube";
 import { ColorfulUnderline } from "../../components/ui/ColorfulUnderline";
 import PillHighlight from "../../components/ui/pillHighlight";
 
@@ -145,16 +145,16 @@ export default function AboutPage() {
                 <p className="mb-4">Feel free to reach out!</p>
                 <div className="flex gap-4">
                   <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    <Facebook className="w-8" />
+                    <LinkedIn className="w-8 text-red-500" />
                   </Link>
                   <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
                     <BlueSky className="w-8" />
                   </Link>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    <Instagram className="w-8" />
+                  <Link href="#" className="te:texuted-foreground hover:text-primary transition-colors">
+                    <YouTube className="w-8" />
                   </Link>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    <LinkedIn className="w-8" />
+                  <Link href="#" className="te:texuted-foreground hover:text-primary transition-colors">
+                    <GitHub className="w-8" />
                   </Link>
                 </div>
               </div>
