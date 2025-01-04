@@ -21,7 +21,7 @@ import RaspberryPi from "../../components/svg/RaspberryPi";
 import YouTube from "../../components/svg/YouTube";
 import { ColorfulUnderline } from "../../components/ui/ColorfulUnderline";
 import PillHighlight from "../../components/ui/pillHighlight";
-import { RotatingGradientBorder } from "../../components/ui/rotatingGradientBorder";
+import { RotatingGradientBorder } from "../../components/ui/RotatingGradientBorder";
 
 
 export default function AboutPage() {
@@ -46,7 +46,7 @@ export default function AboutPage() {
       </section>
 
       <section id="what-is-this?" className="mb-12">
-        <RotatingGradientBorder>
+        <RotatingGradientBorder className="rounded-lg">
           <Card>
             <CardHeader >
               <CardIcon ><LucideMessageCircleQuestion key={5} className="text-blue-500 w-full h-full" /></CardIcon>
