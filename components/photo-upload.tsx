@@ -105,9 +105,8 @@ export function PhotoUpload({ addPhoto }: Props) {
               htmlFor="photo"
               className={cn(
                 "py-4 px-8 rounded-full flex items-center justify-center cursor-pointer text-lg font-bold",
-                "border-4 text-primary",
-                "bg-white ",
-                "bg-neumorphic"
+                "text-primary",
+                "bg-white "
               )}>
               <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-primary group-hover:text-transparent transition-all">
                 <LucideDog className="h-6 w-6 mr-2 -mt-[2px] inline-block text-primary group-hover:text-red-500 transition-all" />
@@ -128,9 +127,8 @@ export function PhotoUpload({ addPhoto }: Props) {
             <div
               className={cn(
                 "flex flex-col items-center py-12 px-14",
-                "border-4 text-primary rounded-2xl",
-                "bg-white",
-                "shadow-neumorphic bg-neumorphic"
+                "text-primary rounded-2xl",
+                "bg-white"
               )}>
               <p className="text-center mb-4 font-bold text-2xl">Upload this Dog?</p>
               <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-8" />
