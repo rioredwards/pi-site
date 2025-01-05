@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { LucideDog } from "lucide-react";
 import Image from "next/image";
 import { useRef, useState } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
@@ -10,6 +11,7 @@ import { useCookie } from "../context/CookieCtx";
 import { reduceFileSize } from "../lib/imgCompress";
 import { Photo } from "../lib/types";
 import { cn } from "../lib/utils";
+import { GradientText } from "./funText";
 import { RotatingGradientBorder } from "./ui/RotatingGradientBorder";
 
 interface Props {
@@ -96,16 +98,21 @@ export function PhotoUpload({ addPhoto }: Props) {
             borderRadius="9999px"
             containerClassName="group"
             borderClassName="!opacity-[0.6] transition-all"
-            shadowClassName="!opacity-[0] group-hover:!opacity-[0.4] transition-all"
+            shadowClassName="!opacity-[0] group-hover:!opacity-[0.2] transition-all"
             backgroundColor="transparent">
             <Label
               htmlFor="photo"
               className={cn(
                 "py-4 px-8 rounded-full flex items-center justify-center cursor-pointer text-lg font-bold",
-                "border-2 group-hover:border-transparent text-primary",
-                "bg-white group-hover:bg-transparent group-hover:text-white"
+                "border-2 text-primary",
+                "bg-white "
               )}>
-              Upload Your Dog <span className="text-2xl ml-2"> 🐶</span>
+              <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-primary group-hover:text-transparent transition-all">
+                <LucideDog className="h-6 w-6 mr-2 -mt-[2px] inline-block text-primary group-hover:text-red-500 transition-all" />
+                Upload Your Dog
+              </GradientText>
+              {/* <LucideDog className="h-6 w-6 ml-2 mt-[2px]" /> */}
+              {/* <span className="text-2xl ml-2"> 🐶</span> */}
             </Label>
           </RotatingGradientBorder>
         )}
