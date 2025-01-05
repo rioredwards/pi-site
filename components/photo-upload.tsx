@@ -9,6 +9,7 @@ import { uploadPhoto } from "../app/actions";
 import { useCookie } from "../context/CookieCtx";
 import { reduceFileSize } from "../lib/imgCompress";
 import { Photo } from "../lib/types";
+import { cn } from "../lib/utils";
 import { RotatingGradientBorder } from "./ui/RotatingGradientBorder";
 
 interface Props {
@@ -88,57 +89,53 @@ export function PhotoUpload({ addPhoto }: Props) {
 
   return (
     <section className="flex flex-col items-center justify-center mb-8">
-      <RotatingGradientBorder className="rounded-2xl">
-        <form onSubmit={handleSubmit} className={"rounded-2xl" + (file ? " hover:shadow-sm" : "")}>
-          <div
-            className={
-              "flex flex-col justify-center items-center" +
-              (file
-                ? " rounded-2xl bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 px-12"
-                : "")
-            }>
-            {!file && (
+      <form onSubmit={handleSubmit}>
+        {/* Upload Dog Btn */}
+        {!file && (
+          <RotatingGradientBorder
+            borderRadius="9999px"
+            containerClassName="group"
+            borderClassName="!opacity-[0.6] transition-all"
+            shadowClassName="!opacity-[0] group-hover:!opacity-[0.4] transition-all"
+            backgroundColor="transparent">
+            <Label
+              htmlFor="photo"
+              className={cn(
+                "py-4 px-8 rounded-full flex items-center justify-center cursor-pointer text-lg font-bold",
+                "border-2 group-hover:border-transparent text-primary",
+                "bg-white group-hover:bg-transparent group-hover:text-white"
+              )}>
+              Upload Your Dog <span className="text-2xl ml-2"> 🐶</span>
+            </Label>
+          </RotatingGradientBorder>
+        )}
+        {/* Confirmation & Preview Card */}
+        {file && (
+          <RotatingGradientBorder
+            borderRadius="1rem"
+            containerClassName="group"
+            borderClassName="!opacity-[0.6] transition-all"
+            shadowClassName="!opacity-[0] group-hover:!opacity-[0.4] transition-all">
+            <div className="flex flex-col items-center py-12 px-14">
+              <p className="text-center mb-4 font-bold text-2xl">Upload this Dog?</p>
+              <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-8" />
               <Label
                 htmlFor="photo"
-                className={
-                  (file ? "hidden" : "") +
-                  "  rounded-full  border border-gray-200  hover:border-gray-300 cursor-pointer text-center flex items-center justify-center font-bold transition"
-                }>
-                Upload Your Dog <span className="text-2xl ml-2"> 🐶</span>{" "}
+                className="w-72 h-72 mb-8 relative aspect-square overflow-hidden rounded-lg cursor-pointer">
+                <Image
+                  src={URL.createObjectURL(file)}
+                  alt="Dog photo"
+                  width={0}
+                  height={0}
+                  fill={true}
+                  className="object-cover"
+                />
               </Label>
-            )}
-            {file && (
-              <>
-                <p className="text-center mb-2 font-bold text-lg">Upload this Dog?</p>
-                <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6" />
-                <Label
-                  htmlFor="photo"
-                  className="w-48 h-48 mb-8 relative aspect-square overflow-hidden rounded-lg cursor-pointer">
-                  <Image
-                    src={URL.createObjectURL(file)}
-                    alt="Dog photo"
-                    width={0}
-                    height={0}
-                    fill={true}
-                    className="object-cover"
-                  />
-                </Label>
-              </>
-            )}
-            <Input
-              id="photo"
-              type="file"
-              accept="image/*"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="hidden"
-              ref={fileInputRef}
-            />
-            {file && (
+              {/* Confirm or Cancel Buttons */}
               <div className="flex space-x-2 w-full">
                 <Button
                   onClick={handleCancel}
-                  variant="outline"
-                  className="bg-gray-200 hover:bg-gray-300 flex-1 transition">
+                  className="bg-gray-200 hover:bg-gray-300 flex-1 transition text-gray-800">
                   Cancel
                 </Button>
                 <Button
@@ -154,12 +151,20 @@ export function PhotoUpload({ addPhoto }: Props) {
                     </>
                   )}
                 </Button>
-                {/* <button type="button" class="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Purple to Pink</button> */}
               </div>
-            )}
-          </div>
-        </form>
-      </RotatingGradientBorder>
+            </div>
+          </RotatingGradientBorder>
+        )}
+        {/* Hidden File Input (controlled using labels above because styling these is annoying) */}
+        <Input
+          id="photo"
+          type="file"
+          accept="image/*"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          className="hidden"
+          ref={fileInputRef}
+        />
+      </form>
     </section>
   );
 }

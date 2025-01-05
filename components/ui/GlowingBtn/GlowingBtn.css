@@ -1,0 +1,281 @@
+button.glow {
+  /* Properties controlled by JavaScript
+     Fallback for browsers not supporting CSS Properties and Values API
+   */
+  --glow-left: 50%;
+  --glow-top: 50%;
+  --glow-opacity: 0.75;
+
+  /* the button transition duration property */
+  --button-press-duration: 50ms;
+  /* the button transition delay property */
+  --button-pressed-duration: 10ms;
+  /* Colors of glow gradient in HSL 
+     They're raw because they need to work with custom alpha
+   */
+  /* --color-glow-from-raw: 253, 80%, 6%; */
+  --color-glow-from-raw: 253, 54%, 46%;
+  --color-glow-to-raw: 253, 88%, 64%;
+
+  /* Glass effect inner shadows */
+  --glass-shadows: inset 0 2px 1px 0 hsla(0, 0%, 100%, 0.4),
+    inset 0 2em 2em 0 hsla(0, 0%, 100%, 0.12), inset 0 -3px 0.25em 0 hsla(0, 0%, 100%, 0.12),
+    inset 0 -0.25em 1em 0 hsla(0, 0%, 100%, 0.12),
+    inset 0 -2em 2em 0 hsla(var(--glowing-btn-background-raw), 0.05),
+    inset 0 0.25em 0.5em 0 hsla(0, 0%, 100%, 0.2);
+
+  /* Optical alignment corection  */
+  padding: 1em 2em 1.05em 2em;
+  /* Make corners round btw. 50% won't work as expected  */
+  border-radius: 999px;
+  /* Improve performance */
+  contain: content;
+  /* remove blue highligt on mobile chromium browsers */
+  -webkit-tap-highlight-color: transparent;
+
+  /* Add shadows */
+  box-shadow: 
+    /* Use glass effect */ var(--glass-shadows),
+    /* Outer glow shadows */ -3.3px 0 5.9px hsla(var(--color-glow-from-raw), 0.01),
+    -11.2px 0 19.9px hsla(var(--color-glow-from-raw), 0.02),
+    -50px 0 89px hsla(var(--color-glow-from-raw), 0.1),
+    3.3px 0 5.9px hsla(var(--color-glow-to-raw), 0.01),
+    11.2px 0 19.9px hsla(var(--color-glow-to-raw), 0.02),
+    50px 0 89px hsla(var(--color-glow-to-raw), 0.1);
+
+  /* Make background glow slightly */
+  background: linear-gradient(
+    60deg,
+    hsla(var(--color-glow-from-raw), 0.2),
+    hsla(var(--color-glow-to-raw), 0.2)
+  );
+  /* Make button stay pressed for a bit longer */
+  transition: transform var(--button-press-duration) ease-in var(--button-pressed-duration),
+    box-shadow var(--button-press-duration) ease-in var(--button-pressed-duration);
+  will-change: transform, box-shadow;
+  transform-origin: bottom center;
+  /* Hide glow overflow */
+  overflow: hidden;
+  /* Glow will be relative to the button */
+  position: relative;
+}
+
+/* Glowing circle */
+button.glow::after {
+  /* Make sure it shows */
+  content: "";
+  /* Position it */
+  width: 7em;
+  height: 7em;
+  position: absolute;
+  top: var(--glow-top);
+  left: var(--glow-left);
+  transform: translate(-50%, -50%);
+  z-index: -1;
+  border-radius: 50%;
+  /* Make background glow with a gradient */
+  background: linear-gradient(
+    60deg,
+    hsl(var(--color-glow-from-raw)),
+    hsl(var(--color-glow-to-raw))
+  );
+  /* Add large blur */
+  filter: blur(3em);
+  opacity: var(--glow-opacity);
+  transition: transform var(--button-press-duration) ease-in var(--button-pressed-duration),
+    opacity var(--button-press-duration) ease-in var(--button-pressed-duration), top 80ms linear,
+    left 80ms linear;
+}
+
+button.glow:hover,
+button.glow:focus {
+  /* Let's create anticipation before the button press */
+  transform: translatey(-1px);
+  /* Make the button glow a bit more */
+  background: linear-gradient(
+    60deg,
+    hsla(var(--color-glow-from-raw), 0.25),
+    hsla(var(--color-glow-to-raw), 0.25)
+  );
+  box-shadow: var(--glass-shadows), -3.3px 0 5.9px hsla(var(--color-glow-from-raw), 0.08),
+    -11.2px 0 19.9px hsla(var(--color-glow-from-raw), 0.1),
+    -50px 0 89px hsla(var(--color-glow-from-raw), 0.18),
+    3.3px 0 5.9px hsla(var(--color-glow-to-raw), 0.08),
+    11.2px 0 19.9px hsla(var(--color-glow-to-raw), 0.1),
+    50px 0 89px hsla(var(--color-glow-to-raw), 0.18);
+}
+
+button.glow:active {
+  /* Transform acording to the perspective */
+  transform: translatey(0.18em) scale(0.98);
+  background: linear-gradient(
+    60deg,
+    hsla(var(--color-glow-from-raw), 0.4),
+    hsla(var(--color-glow-to-raw), 0.4)
+  );
+  box-shadow: var(--glass-shadows), -3.3px 0 5.9px hsla(var(--color-glow-from-raw), 0.1),
+    -11.2px 0 19.9px hsla(var(--color-glow-from-raw), 0.2),
+    -50px 0 89px hsla(var(--color-glow-from-raw), 0.3),
+    3.3px 0 5.9px hsla(var(--color-glow-to-raw), 0.1),
+    11.2px 0 19.9px hsla(var(--color-glow-to-raw), 0.2),
+    50px 0 89px hsla(var(--color-glow-to-raw), 0.3);
+
+  transition: transform var(--button-press-duration) ease-in,
+    box-shadow var(--button-press-duration) ease-in;
+
+  /* On touch screens make press transition faster */
+}
+
+@media (hover: none) and (pointer: coarse) {
+  button.glow:active {
+    transition: transform calc(var(--button-press-duration) / 4) ease-in,
+      box-shadow calc(var(--button-press-duration) / 4) ease-in;
+  }
+}
+
+/* Use CSS Properties and Values API
+It enables transitions for css properties 
+*/
+@property --glow-left {
+  syntax: "<length-percentage>";
+  inherits: true;
+  initial-value: 50%;
+}
+
+@property --glow-top {
+  syntax: "<length-percentage>";
+  inherits: true;
+  initial-value: 50%;
+}
+
+@property --glow-opacity {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0.75;
+}
+
+/*  Generic button styles */
+button {
+  font-size: calc(1rem + 1.5vmin);
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px solid hsla(0, 0%, 100%, 0.2);
+  color: hsl(4, 3%, 99%);
+  color: var(--glowing-btn-color-on-primary);
+  background: hsla(253, 80%, 60%, 0.6);
+  background: var(--glowing-btn-color-primary);
+
+  /* Don't forget about keyboard only styles */
+}
+button.focus-visible {
+  /* Add simple outline */
+  outline: 2px hsla(253, 80%, 60%, 0.6) solid;
+  outline: 2px var(--glowing-btn-color-primary) solid;
+  outline-offset: 0.5rem;
+}
+button:focus-visible {
+  /* Add simple outline */
+  outline: 2px hsla(253, 80%, 60%, 0.6) solid;
+  outline: 2px var(--glowing-btn-color-primary) solid;
+  outline-offset: 0.5rem;
+}
+
+/* Style button's text */
+button.glow p {
+  font-weight: 500;
+  mix-blend-mode: overlay;
+  text-rendering: optimizeSpeed;
+  pointer-events: none;
+}
+
+/* Make shadows stronger on dark background */
+@media (color-index: 48) {
+  button.glow {
+    background: linear-gradient(
+      60deg,
+      hsla(var(--color-glow-from-raw), 0.15),
+      hsla(var(--color-glow-to-raw), 0.15)
+    );
+
+    --glass-shadows: inset 0 2px 1px 0 hsla(0, 0%, 100%, 0.2),
+      inset 0 2em 2em 0 hsla(0, 0%, 100%, 0.06), inset 0 -3px 0.25em 0 hsla(0, 0%, 100%, 0.06),
+      inset 0 -0.25em 1em 0 hsla(0, 0%, 100%, 0.06),
+      inset 0 -2em 2em 0 hsla(var(--glowing-btn-background-raw), 0.025),
+      inset 0 0.25em 0.5em 0 hsla(0, 0%, 100%, 0.1);
+  }
+
+  button.glow:hover {
+    background: linear-gradient(
+      60deg,
+      hsla(var(--color-glow-from-raw), 0.2),
+      hsla(var(--color-glow-to-raw), 0.2)
+    );
+
+    box-shadow: var(--glass-shadows), -3.3px 0 5.9px hsla(var(--color-glow-from-raw), 0.04),
+      -11.2px 0 19.9px hsla(var(--color-glow-from-raw), 0.1),
+      -50px 0 89px hsla(var(--color-glow-from-raw), 0.16),
+      3.3px 0 5.9px hsla(var(--color-glow-to-raw), 0.04),
+      11.2px 0 19.9px hsla(var(--color-glow-to-raw), 0.1),
+      50px 0 89px hsla(var(--color-glow-to-raw), 0.16);
+  }
+
+  button.glow:active {
+    box-shadow: var(--glass-shadows), -3.3px 0 5.9px hsla(var(--color-glow-from-raw), 0.085),
+      -11.2px 0 19.9px hsla(var(--color-glow-from-raw), 0.125),
+      -50px 0 89px hsla(var(--color-glow-from-raw), 0.24),
+      3.3px 0 5.9px hsla(var(--color-glow-to-raw), 0.085),
+      11.2px 0 19.9px hsla(var(--color-glow-to-raw), 0.125),
+      50px 0 89px hsla(var(--color-glow-to-raw), 0.24);
+  }
+}
+@media (prefers-color-scheme: dark) {
+  button.glow {
+    background: linear-gradient(
+      60deg,
+      hsla(var(--color-glow-from-raw), 0.15),
+      hsla(var(--color-glow-to-raw), 0.15)
+    );
+
+    --glass-shadows: inset 0 2px 1px 0 hsla(0, 0%, 100%, 0.2),
+      inset 0 2em 2em 0 hsla(0, 0%, 100%, 0.06), inset 0 -3px 0.25em 0 hsla(0, 0%, 100%, 0.06),
+      inset 0 -0.25em 1em 0 hsla(0, 0%, 100%, 0.06),
+      inset 0 -2em 2em 0 hsla(var(--glowing-btn-background-raw), 0.025),
+      inset 0 0.25em 0.5em 0 hsla(0, 0%, 100%, 0.1);
+  }
+
+  button.glow:hover {
+    background: linear-gradient(
+      60deg,
+      hsla(var(--color-glow-from-raw), 0.2),
+      hsla(var(--color-glow-to-raw), 0.2)
+    );
+
+    box-shadow: var(--glass-shadows), -3.3px 0 5.9px hsla(var(--color-glow-from-raw), 0.04),
+      -11.2px 0 19.9px hsla(var(--color-glow-from-raw), 0.1),
+      -50px 0 89px hsla(var(--color-glow-from-raw), 0.16),
+      3.3px 0 5.9px hsla(var(--color-glow-to-raw), 0.04),
+      11.2px 0 19.9px hsla(var(--color-glow-to-raw), 0.1),
+      50px 0 89px hsla(var(--color-glow-to-raw), 0.16);
+  }
+
+  button.glow:active {
+    box-shadow: var(--glass-shadows), -3.3px 0 5.9px hsla(var(--color-glow-from-raw), 0.085),
+      -11.2px 0 19.9px hsla(var(--color-glow-from-raw), 0.125),
+      -50px 0 89px hsla(var(--color-glow-from-raw), 0.24),
+      3.3px 0 5.9px hsla(var(--color-glow-to-raw), 0.085),
+      11.2px 0 19.9px hsla(var(--color-glow-to-raw), 0.125),
+      50px 0 89px hsla(var(--color-glow-to-raw), 0.24);
+  }
+}
+
+/* Setup color variables */
+:root {
+  /* Light mode colors */
+  --glowing-btn-background-raw: 234, 9%, 69%;
+  --glowing-btn-background: hsl(var(--glowing-btn-background-raw));
+  --glowing-btn-color-on-background: hsl(0, 24%, 94%);
+  --glowing-btn-color-primary: hsla(253, 80%, 60%, 0.6);
+  --glowing-btn-color-on-primary: hsl(0, 0%, 100%);
+
+  /* Dark mode colors */
+}
