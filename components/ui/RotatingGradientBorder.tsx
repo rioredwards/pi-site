@@ -1,4 +1,12 @@
+import 'culori/css';
+import { formatCss, useMode as getMode, modeOklch } from 'culori/fn';
 import * as React from "react";
+
+function convertToOklch(color: string): string {
+  const oklch = getMode(modeOklch);
+  const oklchColor = oklch(color);
+  return formatCss(oklchColor) || color;
+}
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
@@ -63,8 +71,8 @@ interface Props {
   shadowOpacity?: number
   shadowBlur?: number
   shadowSoftEdge?: number
-  rotate?: boolean
-  rotateSpeed?: number
+  spinAnimation?: boolean
+  spinAnimationSpeed?: number
 }
 
 const RotatingGradientBorder = React.forwardRef<
@@ -73,28 +81,30 @@ const RotatingGradientBorder = React.forwardRef<
   Props
 >(({
   border = true,
-  borderColors = ["oklch(70% 0.1875 205.71)", "oklch(80.38% 0.2193 146.65)", "oklch(54.85% 0.2442 269.47)"],
-  borderOpacity = 1,
-  borderCover = 0.5,
-  borderWidth = 2,
+  borderColors = ["red", "blue", "red", "blue",],
+  borderOpacity = .6,
+  borderCover = 100,
+  borderWidth = 1,
   borderSkew = 0,
   borderSoftEdge = .01,
   shadow = true,
   shadowSkew = 0,
-  shadowOpacity = 0.5,
+  shadowOpacity = 0.4,
   shadowWidth = 3,
   shadowBlur = 6,
   shadowSoftEdge = .01,
-  rotate = true,
-  rotateSpeed = 3,
+  spinAnimation = true,
+  spinAnimationSpeed = 3,
   children,
   ...props
 }, ref) => {
-  const borderBgStyle = createBgStyle(borderColors, borderCover, borderSkew, borderSoftEdge);
-  const shadowBgStyle = createBgStyle(borderColors, borderCover, shadowSkew, shadowSoftEdge);
+  const oklchBorderColors = borderColors.map(convertToOklch);
+
+  const borderBgStyle = createBgStyle(oklchBorderColors, borderCover, borderSkew, borderSoftEdge);
+  const shadowBgStyle = createBgStyle(oklchBorderColors, borderCover, shadowSkew, shadowSoftEdge);
 
   const sharedStyle: React.CSSProperties = {
-    animation: rotate ? `spin ${rotateSpeed}s infinite linear` : "none",
+    animation: spinAnimation ? `spin ${spinAnimationSpeed}s infinite linear` : "none",
     position: "absolute",
     zIndex: -1,
     borderRadius: "inherit",

@@ -11,7 +11,7 @@ const CardWithGradientBorder = React.forwardRef<
     className={cn(
       className,
     )}
-    borderColors={["oklch(70% 0.2875 20)", "oklch(80.38% 0.2193 66.65)", "oklch(54.85% 0.2442 269.47)"]}
+    // borderColors={["oklch(70% 0.2875 20)", "oklch(80.38% 0.2193 66.65)", "oklch(54.85% 0.2442 269.47)"]}
     ref={ref} >
     <Card
       className={cn(
