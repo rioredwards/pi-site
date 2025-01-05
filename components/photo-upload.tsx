@@ -99,13 +99,15 @@ export function PhotoUpload({ addPhoto }: Props) {
             containerClassName="group"
             borderClassName="!opacity-[0.6] transition-all"
             shadowClassName="!opacity-[0] group-hover:!opacity-[0.2] transition-all"
-            backgroundColor="transparent">
+            // backgroundColor="transparent"
+          >
             <Label
               htmlFor="photo"
               className={cn(
                 "py-4 px-8 rounded-full flex items-center justify-center cursor-pointer text-lg font-bold",
-                "border-2 text-primary",
-                "bg-white "
+                "border-4 text-primary",
+                "bg-white ",
+                "bg-neumorphic"
               )}>
               <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-primary group-hover:text-transparent transition-all">
                 <LucideDog className="h-6 w-6 mr-2 -mt-[2px] inline-block text-primary group-hover:text-red-500 transition-all" />
@@ -123,9 +125,16 @@ export function PhotoUpload({ addPhoto }: Props) {
             containerClassName="group"
             borderClassName="!opacity-[0.6] transition-all"
             shadowClassName="!opacity-[0] group-hover:!opacity-[0.4] transition-all">
-            <div className="flex flex-col items-center py-12 px-14">
+            <div
+              className={cn(
+                "flex flex-col items-center py-12 px-14",
+                "border-4 text-primary rounded-2xl",
+                "bg-white",
+                "shadow-neumorphic bg-neumorphic"
+              )}>
               <p className="text-center mb-4 font-bold text-2xl">Upload this Dog?</p>
               <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-8" />
+
               <Label
                 htmlFor="photo"
                 className="w-72 h-72 mb-8 relative aspect-square overflow-hidden rounded-lg cursor-pointer">

@@ -91,6 +91,7 @@ const RotatingGradientBorder = React.forwardRef<HTMLDivElement, React.PropsWithC
     const containerStylesMerged: React.CSSProperties = {
       ...containerStyleProps,
       position: "relative",
+      zIndex: 1,
     };
 
     return (

@@ -56,6 +56,12 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        neumorphic: "8px 8px 16px #0000001a, -8px -8px 16px #0000000a",
+      },
+      backgroundImage: {
+        neumorphic: "linear-gradient(315deg, #0000000a, #0000001a)",
+      },
       keyframes: {
         "border-spin": {
           "100%": {
