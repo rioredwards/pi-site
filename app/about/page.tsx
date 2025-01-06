@@ -27,22 +27,23 @@ import RaspberryPi from "../../components/svg/RaspberryPi";
 import YouTube from "../../components/svg/YouTube";
 import { ColorfulUnderline } from "../../components/ui/ColorfulUnderline";
 import PillHighlight from "../../components/ui/pillHighlight";
+import { RotatingGradientBorder } from "../../components/ui/RotatingGradientBorder";
 
 export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <section className="mb-12 mt-12">
+      <section className="mb-16 mt-8">
         <div className="flex flex-col items-center gap-12">
           <Image
             src="/myImages/Rio-With-Pups.jpg"
             alt="Rio, a software developer and dog-lover"
             width={400}
             height={400}
-            className="rounded-full w-72 md:w-80"
+            className="rounded-full w-72 md:w-96"
           />
 
           <div className="bg-background p-6 rounded-lg shadow-md -mt-20">
-            <p className="text-2xl font-bold">
+            <p className="text-2xl font-bold text-foreground">
               Hello! <span className="reverse inline-block">👋</span>{" "}
             </p>
           </div>
@@ -190,8 +191,12 @@ export default function AboutPage() {
                   it.
                 </li>
                 <li>
-                  <strong>Tech stack:</strong> I built the site using Next.js and ShadCN, with some
-                  AI assistance from V0.
+                  <strong>Tech stack:</strong> I built this site using Next.js, React.js, ShadCN,
+                  Tailwind, and Node.js. I had some fun making custom components, like these
+                  <RotatingGradientBorder containerClassName="mx-1 inline-block">
+                    <span className="px-2">Glowing Gradient Borders</span>
+                  </RotatingGradientBorder>
+                  .
                 </li>
                 <li>
                   <strong>Persistence:</strong> No database here! Images are stored as files in a
