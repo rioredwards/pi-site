@@ -21,11 +21,7 @@ CardWithGradientBorder.displayName = "CardWithGradientBorder";
 
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn("border bg-card text-card-foreground shadow-sm", className)}
-      {...props}
-    />
+    <div ref={ref} className={cn("bg-card text-card-foreground shadow-sm", className)} {...props} />
   )
 );
 Card.displayName = "Card";
@@ -57,7 +53,7 @@ const CardIcon = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
     <div
       ref={ref}
       className={cn(
-        "mb-0 mr-4 md:static md:mb-8 md:mr-0 text-6xl w-12 h-12 p-2 rounded-2xl bg-transparent border border-slate-100 hover:bg-slate-100 hover:border-slate-200 cursor-pointer text-card-foreground",
+        "mb-0 mr-4 md:static md:mb-8 md:mr-0 text-6xl w-12 h-12 p-2 rounded-2xl bg-transparent border border-border hover:bg-slate-100 hover:border-slate-200 cursor-pointer text-card-foreground",
         className
       )}
       {...props}
