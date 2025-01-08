@@ -52,6 +52,7 @@ export function PhotoUpload({ addPhoto }: Props) {
     const formData = new FormData();
 
     // If file size > 500kB, resize such that width <= 1000, quality = 0.9
+    console.log("Original file:", file);
     const MAX_FILE_SIZE = 500 * 1000; // 500kB
     const MAX_WIDTH = 1000; // 1000px
     const MAX_HEIGHT = 1000; // 1000px
@@ -132,7 +133,7 @@ export function PhotoUpload({ addPhoto }: Props) {
               )}>
               <p className="text-center mb-4 font-bold text-2xl">Upload this Dog?</p>
               <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-8" />
-
+              File Type: {file.type}
               <Label
                 htmlFor="photo"
                 className="w-72 h-72 mb-8 relative aspect-square overflow-hidden rounded-lg cursor-pointer">

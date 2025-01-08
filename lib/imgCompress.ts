@@ -69,49 +69,16 @@ function getExifOrientation(file: Blob, callback: (orientation: number) => void)
 }
 
 // Derived from https://stackoverflow.com/a/40867559, cc by-sa
-function imgToCanvasWithOrientation(
+function imgToCanvas(
   img: HTMLImageElement,
   rawWidth: number,
-  rawHeight: number,
-  orientation: number
+  rawHeight: number
 ): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
-  if (orientation > 4) {
-    canvas.width = rawHeight;
-    canvas.height = rawWidth;
-  } else {
-    canvas.width = rawWidth;
-    canvas.height = rawHeight;
-  }
-
-  if (orientation > 1) {
-    console.log("EXIF orientation = " + orientation + ", rotating picture");
-  }
+  canvas.width = rawWidth;
+  canvas.height = rawHeight;
 
   const ctx = canvas.getContext("2d")!;
-  switch (orientation) {
-    case 2:
-      ctx.transform(-1, 0, 0, 1, rawWidth, 0);
-      break;
-    case 3:
-      ctx.transform(-1, 0, 0, -1, rawWidth, rawHeight);
-      break;
-    case 4:
-      ctx.transform(1, 0, 0, -1, 0, rawHeight);
-      break;
-    case 5:
-      ctx.transform(0, 1, 1, 0, 0, 0);
-      break;
-    case 6:
-      ctx.transform(0, 1, -1, 0, rawHeight, 0);
-      break;
-    case 7:
-      ctx.transform(0, -1, -1, 0, rawHeight, rawWidth);
-      break;
-    case 8:
-      ctx.transform(0, -1, 1, 0, 0, rawWidth);
-      break;
-  }
   ctx.drawImage(img, 0, 0, rawWidth, rawHeight);
   return canvas;
 }
@@ -141,6 +108,8 @@ export function reduceFileSize(
       getExifOrientation(file, function (orientation) {
         let w = img.width,
           h = img.height;
+
+        // const scale = Math.min(maxWidth / w, maxHeight / h, 1);
         const scale =
           orientation > 4
             ? Math.min(maxHeight / w, maxWidth / h, 1)
@@ -148,7 +117,7 @@ export function reduceFileSize(
         h = Math.round(h * scale);
         w = Math.round(w * scale);
 
-        const canvas = imgToCanvasWithOrientation(img, w, h, orientation);
+        const canvas = imgToCanvas(img, w, h);
         canvas.toBlob(
           function (blob) {
             if (blob) {
