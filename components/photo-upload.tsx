@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,7 @@ import { useCookie } from "../context/CookieCtx";
 import { reduceFileSize } from "../lib/imgCompress";
 import { Photo } from "../lib/types";
 import { cn } from "../lib/utils";
+import Confetti from "./Confetti";
 import { GradientText } from "./funText";
 import { RotatingGradientBorder } from "./ui/RotatingGradientBorder";
 
@@ -18,12 +20,13 @@ interface Props {
   addPhoto: (photo: Photo) => void;
 }
 
-export function PhotoUpload({ addPhoto }: Props) {
+export default function PhotoUpload({ addPhoto }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { cookie } = useCookie();
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,7 +55,6 @@ export function PhotoUpload({ addPhoto }: Props) {
     const formData = new FormData();
 
     // If file size > 500kB, resize such that width <= 1000, quality = 0.9
-    console.log("Original file:", file);
     const MAX_FILE_SIZE = 500 * 1000; // 500kB
     const MAX_WIDTH = 1000; // 1000px
     const MAX_HEIGHT = 1000; // 1000px
@@ -81,6 +83,7 @@ export function PhotoUpload({ addPhoto }: Props) {
     setFile(null);
     setIsSubmitting(false);
     addPhoto(res.data);
+    setShowConfetti(true);
   };
 
   const handleCancel = () => {
@@ -93,6 +96,8 @@ export function PhotoUpload({ addPhoto }: Props) {
   return (
     <section className="flex flex-col items-center justify-center mb-8">
       <form onSubmit={handleSubmit}>
+        {/* Confetti (avoid server renders with suspense) */}
+        {showConfetti && <Confetti setShowConfetti={setShowConfetti} />}
         {/* Upload Dog Btn */}
         {!file && (
           <RotatingGradientBorder
@@ -133,7 +138,6 @@ export function PhotoUpload({ addPhoto }: Props) {
               )}>
               <p className="text-center mb-4 font-bold text-2xl">Upload this Dog?</p>
               <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-8" />
-              File Type: {file.type}
               <Label
                 htmlFor="photo"
                 className="w-72 h-72 mb-8 relative aspect-square overflow-hidden rounded-lg cursor-pointer">

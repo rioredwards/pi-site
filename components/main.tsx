@@ -1,14 +1,15 @@
 "use client";
 
 import shuffle from "lodash.shuffle";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import BounceLoader from "react-spinners/BounceLoader";
 import { deletePhoto as deletePhotoFile, getPhotos } from "../app/actions";
-import { PhotoUpload } from "../components/photo-upload";
 import { ImgCard } from "../components/ui/imgCard";
 import { useCookie } from "../context/CookieCtx";
 import { useToast } from "../hooks/use-toast";
 import { Photo } from "../lib/types";
+
+export const PhotoUpload = lazy(() => import("@/components/photo-upload"));
 
 export function Main() {
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -74,7 +75,7 @@ export function Main() {
 
   return (
     <div className="container px-4 py-8 mx-auto min-h-96">
-      <PhotoUpload addPhoto={addPhoto} />
+      <Suspense>{typeof window !== "undefined" && <PhotoUpload addPhoto={addPhoto} />}</Suspense>
       {!photos.length && (
         <div className="mt-24 flex justify-center items-center">
           <BounceLoader color={"rgb(15, 220, 220)"} loading={true} size={25} />
