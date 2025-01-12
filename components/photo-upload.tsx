@@ -103,38 +103,53 @@ export default function PhotoUpload({ addPhoto }: Props) {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles(Array.from(e.target.files));
+      const selectedFiles = Array.from(e.target.files);
+      if (selectedFiles.length > 3) {
+        toast({
+          title: "Error",
+          description: "You can only upload up to 3 photos.",
+          variant: "destructive",
+        });
+        return;
+      }
+      setFiles(selectedFiles);
     }
   };
 
   return (
-    <section className="flex flex-col items-center justify-center mb-8">
+    <section className="container mb-8">
       <form onSubmit={handleSubmit}>
         {showConfetti && <Confetti setShowConfetti={setShowConfetti} />}
         {!files.length && (
-          <RotatingGradientBorder
-            borderRadius="9999px"
-            containerClassName="group"
-            borderClassName="!opacity-[0.6] transition-all"
-            shadowClassName="!opacity-[0] group-hover:!opacity-[0.2] transition-all">
-            <Label
-              htmlFor="photo"
-              className={cn(
-                "py-4 px-8 rounded-full flex items-center justify-center cursor-pointer text-lg font-bold",
-                "text-primary",
-                "bg-white "
-              )}>
-              <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-primary group-hover:text-transparent transition-all">
-                <LucideDog className="h-6 w-6 mr-2 -mt-[2px] inline-block text-primary group-hover:text-red-500 transition-all" />
-                Upload Your Dogs
-              </GradientText>
-            </Label>
-          </RotatingGradientBorder>
+          <div className="flex justify-center">
+            <RotatingGradientBorder
+              borderRadius="9999px"
+              containerClassName="group"
+              borderClassName="!opacity-[0.6] transition-all"
+              shadowClassName="!opacity-[0] group-hover:!opacity-[0.2] transition-all">
+              <Label
+                htmlFor="photo"
+                className={cn(
+                  "py-4 px-8 rounded-full flex items-center justify-center cursor-pointer text-lg font-bold",
+                  "text-primary",
+                  "bg-white "
+                )}>
+                <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-primary group-hover:text-transparent transition-all">
+                  <LucideDog className="h-6 w-6 mr-2 -mt-[2px] inline-block text-primary group-hover:text-red-500 transition-all" />
+                  Upload Your Dogs
+                </GradientText>
+              </Label>
+            </RotatingGradientBorder>
+          </div>
         )}
         {files.length > 0 && (
           <RotatingGradientBorder
             borderRadius="1rem"
-            containerClassName="group"
+            containerClassName={cn(
+              "w-full max-w-[32rem] group mx-auto",
+              files.length > 1 && "max-w-[48rem]",
+              files.length > 2 && "max-w-[64rem]"
+            )}
             borderClassName="!opacity-[0.6] transition-all"
             shadowClassName="!opacity-[0] group-hover:!opacity-[0.4] transition-all">
             <div
@@ -147,20 +162,22 @@ export default function PhotoUpload({ addPhoto }: Props) {
                 {files.length === 1 ? "Upload this Dog?" : "Upload these Dogs?"}
               </p>
               <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-8" />
-              <div className={cn("w-full min-w-64 flex flex-wrap gap-4 mb-8 justify-center")}>
+              <div
+                className={cn(
+                  "w-full grid-cols-1 gap-4 mb-8 grid",
+                  files.length > 1 && "md:grid-cols-2",
+                  files.length > 2 && "lg:grid-cols-3"
+                )}>
                 {files.map((file, idx) => (
                   <div
                     key={idx}
                     className={cn(
-                      "relative aspect-square overflow-hidden rounded-lg",
-                      // Last image in odd number of images should take full width
-                      idx === files.length - 1 && idx % 2 === 0 ? "w-full" : "w-[calc(50%-0.5rem)]"
+                      "relative aspect-square overflow-hidden rounded-lg w-full h-full"
                     )}>
                     <Image
                       src={URL.createObjectURL(file)}
                       alt={`Dog photo ${idx + 1}`}
                       fill={true}
-                      sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover"
                     />
                   </div>
