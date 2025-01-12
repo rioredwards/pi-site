@@ -21,7 +21,7 @@ interface Props {
 }
 
 export default function PhotoUpload({ addPhoto }: Props) {
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -35,78 +35,88 @@ export default function PhotoUpload({ addPhoto }: Props) {
     if (!cookie) {
       toast({
         title: "Error",
-        description: "You must enable cookies to upload a photo.",
+        description: "You must enable cookies to upload photos.",
         variant: "destructive",
       });
       setIsSubmitting(false);
       return;
     }
 
-    if (!file) {
+    if (files.length === 0) {
       toast({
         title: "Error",
-        description: "Please select a photo to upload.",
+        description: "Please select at least one photo to upload.",
         variant: "destructive",
       });
       setIsSubmitting(false);
       return;
     }
 
-    const formData = new FormData();
-
-    // If file size > 500kB, resize such that width <= 1000, quality = 0.9
     const MAX_FILE_SIZE = 500 * 1000; // 500kB
     const MAX_WIDTH = 1000; // 1000px
     const MAX_HEIGHT = 1000; // 1000px
     const QUALITY = 0.9; // 90%
 
-    const resizedImg = await reduceFileSize(file, MAX_FILE_SIZE, MAX_WIDTH, MAX_HEIGHT, QUALITY);
+    const uploadedPhotos: Photo[] = [];
 
-    formData.append("file", resizedImg);
+    for (const file of files) {
+      const resizedImg = await reduceFileSize(file, MAX_FILE_SIZE, MAX_WIDTH, MAX_HEIGHT, QUALITY);
+      const formData = new FormData();
+      formData.append("file", resizedImg);
 
-    const res = await uploadPhoto(formData);
-    if (res.error || !res.data) {
-      console.error(res.error);
-      toast({
-        title: "Error",
-        description: "There was a problem uploading your photo.",
-        variant: "destructive",
-      });
-      setIsSubmitting(false);
-      return;
+      const res = await uploadPhoto(formData);
+      if (res.error || !res.data) {
+        console.error(res.error);
+        toast({
+          title: "Error",
+          description: "There was a problem uploading one of your photos.",
+          variant: "destructive",
+        });
+        continue;
+      }
+
+      uploadedPhotos.push(res.data);
     }
 
-    toast({
-      title: "Success",
-      description: "Your photo has been uploaded.",
-    });
-    setFile(null);
+    if (uploadedPhotos.length > 0) {
+      toast({
+        title: "Success",
+        description: `${uploadedPhotos.length} photo(s) have been uploaded successfully.`,
+      });
+      uploadedPhotos.forEach(addPhoto);
+      setShowConfetti(true);
+    }
+
+    setFiles([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
     setIsSubmitting(false);
-    addPhoto(res.data);
-    setShowConfetti(true);
   };
 
   const handleCancel = () => {
-    setFile(null);
+    setFiles([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFiles(Array.from(e.target.files));
     }
   };
 
   return (
     <section className="flex flex-col items-center justify-center mb-8">
       <form onSubmit={handleSubmit}>
-        {/* Confetti (avoid server renders with suspense) */}
         {showConfetti && <Confetti setShowConfetti={setShowConfetti} />}
-        {/* Upload Dog Btn */}
-        {!file && (
+        {!files.length && (
           <RotatingGradientBorder
             borderRadius="9999px"
             containerClassName="group"
             borderClassName="!opacity-[0.6] transition-all"
-            shadowClassName="!opacity-[0] group-hover:!opacity-[0.2] transition-all"
-            // backgroundColor="transparent"
-          >
+            shadowClassName="!opacity-[0] group-hover:!opacity-[0.2] transition-all">
             <Label
               htmlFor="photo"
               className={cn(
@@ -116,15 +126,12 @@ export default function PhotoUpload({ addPhoto }: Props) {
               )}>
               <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-primary group-hover:text-transparent transition-all">
                 <LucideDog className="h-6 w-6 mr-2 -mt-[2px] inline-block text-primary group-hover:text-red-500 transition-all" />
-                Upload Your Dog
+                Upload Your Dogs
               </GradientText>
-              {/* <LucideDog className="h-6 w-6 ml-2 mt-[2px]" /> */}
-              {/* <span className="text-2xl ml-2"> 🐶</span> */}
             </Label>
           </RotatingGradientBorder>
         )}
-        {/* Confirmation & Preview Card */}
-        {file && (
+        {files.length > 0 && (
           <RotatingGradientBorder
             borderRadius="1rem"
             containerClassName="group"
@@ -136,21 +143,29 @@ export default function PhotoUpload({ addPhoto }: Props) {
                 "text-primary rounded-2xl",
                 "bg-white"
               )}>
-              <p className="text-center mb-4 font-bold text-2xl">Upload this Dog?</p>
+              <p className="text-center mb-4 font-bold text-2xl">
+                {files.length === 1 ? "Upload this Dog?" : "Upload these Dogs?"}
+              </p>
               <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-8" />
-              <Label
-                htmlFor="photo"
-                className="w-72 h-72 mb-8 relative aspect-square overflow-hidden rounded-lg cursor-pointer">
-                <Image
-                  src={URL.createObjectURL(file)}
-                  alt="Dog photo"
-                  width={0}
-                  height={0}
-                  fill={true}
-                  className="object-cover"
-                />
-              </Label>
-              {/* Confirm or Cancel Buttons */}
+              <div className={cn("w-full min-w-64 flex flex-wrap gap-4 mb-8 justify-center")}>
+                {files.map((file, idx) => (
+                  <div
+                    key={idx}
+                    className={cn(
+                      "relative aspect-square overflow-hidden rounded-lg",
+                      // Last image in odd number of images should take full width
+                      idx === files.length - 1 && idx % 2 === 0 ? "w-full" : "w-[calc(50%-0.5rem)]"
+                    )}>
+                    <Image
+                      src={URL.createObjectURL(file)}
+                      alt={`Dog photo ${idx + 1}`}
+                      fill={true}
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
               <div className="flex space-x-2 w-full">
                 <Button
                   onClick={handleCancel}
@@ -174,12 +189,12 @@ export default function PhotoUpload({ addPhoto }: Props) {
             </div>
           </RotatingGradientBorder>
         )}
-        {/* Hidden File Input (controlled using labels above because styling these is annoying) */}
         <Input
           id="photo"
           type="file"
           accept="image/*"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          multiple
+          onChange={handleFileChange}
           className="hidden"
           ref={fileInputRef}
         />
