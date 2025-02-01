@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { LucideDog } from "lucide-react";
+import { Upload } from "lucide-react";
 import Image from "next/image";
 import { useRef, useState } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
@@ -16,11 +16,7 @@ import Confetti from "./Confetti";
 import { GradientText } from "./funText";
 import { RotatingGradientBorder } from "./ui/RotatingGradientBorder";
 
-interface Props {
-  addPhoto: (photo: Photo) => void;
-}
-
-export default function PhotoUpload({ addPhoto }: Props) {
+export default function PhotoUpload() {
   const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -83,7 +79,6 @@ export default function PhotoUpload({ addPhoto }: Props) {
         title: "Success",
         description: `${uploadedPhotos.length} photo(s) have been uploaded successfully.`,
       });
-      uploadedPhotos.forEach(addPhoto);
       setShowConfetti(true);
     }
 
@@ -135,8 +130,8 @@ export default function PhotoUpload({ addPhoto }: Props) {
                   "bg-white "
                 )}>
                 <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-primary group-hover:text-transparent transition-all">
-                  <LucideDog className="h-6 w-6 mr-2 -mt-[2px] inline-block text-primary group-hover:text-red-500 transition-all" />
-                  Upload Your Dogs
+                  <Upload className="h-6 w-6 mr-2 -mt-[2px] inline-block text-primary group-hover:text-red-500 transition-all" />
+                  Upload A Photo
                 </GradientText>
               </Label>
             </RotatingGradientBorder>

@@ -75,11 +75,11 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
   }
 }
 
-export async function getPhotos(): Promise<APIResponse<Photo[]>> {
+export async function getPhoto(): Promise<APIResponse<Photo>> {
   try {
     const isNewDir = createDirIfNotExists(META_UPLOAD_DIR);
     if (isNewDir) {
-      return { data: [], error: undefined };
+      return { data: undefined, error: "No Photos Found" };
     }
     const files = await readdir(META_UPLOAD_DIR);
     const photos = await Promise.all(
@@ -89,9 +89,9 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
         return metadata;
       })
     );
-    const response: APIResponse<Photo[]> = {
+    const response: APIResponse<Photo> = {
       error: undefined,
-      data: photos,
+      data: photos[photos.length - 1],
     };
     return response;
   } catch (error) {
