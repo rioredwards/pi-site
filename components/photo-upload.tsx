@@ -112,7 +112,7 @@ export default function PhotoUpload() {
   };
 
   return (
-    <section className="container mb-8">
+    <section className="container mb-8 ">
       <form onSubmit={handleSubmit}>
         {showConfetti && <Confetti setShowConfetti={setShowConfetti} />}
         {!files.length && (
@@ -126,11 +126,11 @@ export default function PhotoUpload() {
                 htmlFor="photo"
                 className={cn(
                   "py-4 px-8 rounded-full flex items-center justify-center cursor-pointer text-lg font-bold",
-                  "text-primary",
-                  "bg-white "
+                  "text-white",
+                  "bg-gray-800 "
                 )}>
-                <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-primary group-hover:text-transparent transition-all">
-                  <Upload className="h-6 w-6 mr-2 -mt-[2px] inline-block text-primary group-hover:text-red-500 transition-all" />
+                <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-white group-hover:text-transparent transition-all">
+                  <Upload className="h-6 w-6 mr-2 -mt-[2px] inline-block text-white group-hover:text-red-500 transition-all" />
                   Upload A Photo
                 </GradientText>
               </Label>
@@ -151,7 +151,7 @@ export default function PhotoUpload() {
               className={cn(
                 "flex flex-col items-center py-12 px-14",
                 "text-primary rounded-2xl",
-                "bg-white"
+                "bg-gray-800 text-white"
               )}>
               <p className="text-center mb-4 font-bold text-2xl">
                 {files.length === 1 ? "Upload this Dog?" : "Upload these Dogs?"}

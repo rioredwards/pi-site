@@ -7,8 +7,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "DogTownUSA",
-  description: "Welcome to DogTownUSA",
+  title: "BootyPics.com",
+  description: "Welcome to BootyPics.com",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

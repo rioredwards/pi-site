@@ -7,7 +7,7 @@ import YouTube from "./svg/YouTube";
 
 export default function Footer() {
   return (
-    <footer className="w-full border-t bg-background">
+    <footer className="w-full bg-background text-[#FA7043] bg-gray-800">
       <div className="container mx-auto max-w-7xl py-8">
         <div className="grid px-4 grid-cols-2 gap-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           <div className="col-span-2 sm:col-span-3 md:col-span-1 lg:col-span-2">
@@ -15,7 +15,7 @@ export default function Footer() {
               <Image src="/peach.png" width={32} height={32} alt="peach" />
               <span className="font-bold text-lg">BootyPics.com</span>
             </Link>
-            <p className="text-sm text-muted-foreground max-w-xs">
+            <p className="text-sm text-[#FA7043] max-w-xs">
               Booty booty booty booty booty booty booty booty booty booty booty booty booty booty
               booty
             </p>
@@ -27,28 +27,28 @@ export default function Footer() {
               <li>
                 <Link
                   href="/"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  className="text-sm text-[#FA7043] hover:text-primary transition-colors">
                   Booty
                 </Link>
               </li>
               <li>
                 <Link
                   href="/"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  className="text-sm text-[#FA7043] hover:text-primary transition-colors">
                   Booty
                 </Link>
               </li>
               <li>
                 <Link
                   href="/"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  className="text-sm text-[#FA7043] hover:text-primary transition-colors">
                   Booty
                 </Link>
               </li>
               <li>
                 <Link
                   href="/"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  className="text-sm text-[#FA7043] hover:text-primary transition-colors">
                   Booty
                 </Link>
               </li>
@@ -61,28 +61,28 @@ export default function Footer() {
               <li>
                 <Link
                   href="/"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  className="text-sm text-[#FA7043] hover:text-primary transition-colors">
                   Booty
                 </Link>
               </li>
               <li>
                 <Link
                   href="/"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  className="text-sm text-[#FA7043] hover:text-primary transition-colors">
                   Booty
                 </Link>
               </li>
               <li>
                 <Link
                   href="/"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  className="text-sm text-[#FA7043] hover:text-primary transition-colors">
                   Booty
                 </Link>
               </li>
               <li>
                 <Link
                   href="/"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  className="text-sm text-[#FA7043] hover:text-primary transition-colors">
                   Booty
                 </Link>
               </li>
@@ -95,21 +95,21 @@ export default function Footer() {
               <li>
                 <Link
                   href="/"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  className="text-sm text-[#FA7043] hover:text-primary transition-colors">
                   Booty
                 </Link>
               </li>
               <li>
                 <Link
                   href="/"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  className="text-sm text-[#FA7043] hover:text-primary transition-colors">
                   Booty
                 </Link>
               </li>
               <li>
                 <Link
                   href="/"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  className="text-sm text-[#FA7043] hover:text-primary transition-colors">
                   Booty
                 </Link>
               </li>
@@ -117,8 +117,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 border-t pt-8 px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
+        <div className=" mt-8 pt-8 px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-[#FA7043]">
             © {new Date().getFullYear()} BootyPics.com. All rights reserved.
           </p>
           <div className="flex gap-4">
