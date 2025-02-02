@@ -1,5 +1,5 @@
 "use server";
-import { existsSync, mkdirSync, readFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, unlinkSync } from "fs";
 import { readdir, writeFile } from "fs/promises";
 import { cookies } from "next/headers";
 import { join } from "path";
@@ -91,6 +91,55 @@ export async function getPhoto(): Promise<APIResponse<Photo>> {
     return { data: photos[0], error: undefined };
   } catch (error) {
     return { data: undefined, error: error instanceof Error ? error.message : "Request failed..." };
+  }
+}
+
+// export async function deleteOldestPhoto() {
+//   try {
+//     const files = await readdir(META_UPLOAD_DIR);
+//     if (files.length <= 1) {
+//       return;
+//     }
+
+//     const photos = await Promise.all(
+//       files.map((file) => {
+//         const metadataFilePath = join(META_UPLOAD_DIR, file);
+//         return JSON.parse(readFileSync(metadataFilePath, "utf-8"));
+//       })
+//     );
+
+//     // Sort by order (oldest first)
+//     photos.sort((a, b) => a.order - b.order);
+//     const oldestPhoto = photos[0];
+
+//     if (oldestPhoto) {
+//       await deletePhoto(oldestPhoto.id, oldestPhoto.imgFilename);
+//     }
+//   } catch (error) {
+//     console.error("Error deleting the oldest photo:", error);
+//   }
+// }
+
+export async function deletePhoto(
+  id: string,
+  imgFilename: string
+): Promise<APIResponse<undefined>> {
+  const metadataFilePath = join(META_UPLOAD_DIR, `${id}.json`);
+  const imgFilePath = join(IMG_UPLOAD_DIR, imgFilename);
+
+  if (!existsSync(metadataFilePath) || !existsSync(imgFilePath)) {
+    return { data: undefined, error: "Photo not found" };
+  } else {
+    try {
+      // Delete the metadata file
+      unlinkSync(metadataFilePath);
+      // Delete the image file
+      unlinkSync(imgFilePath);
+      return { data: undefined, error: undefined };
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : "Request failed...";
+      return { data: undefined, error: errorMsg };
+    }
   }
 }
 
