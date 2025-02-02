@@ -24,10 +24,11 @@ export function Main() {
       try {
         const parsedData = JSON.parse(event.data);
         console.log("parsedData: ", parsedData);
-        if (!parsedData) {
-          throw new Error("No photo data found in event");
+        if (parsedData.photo) {
+          setPhoto(parsedData.photo);
+        } else {
+          console.log(`Error parsing event: ${event.data}`);
         }
-        setPhoto(parsedData);
       } catch (error) {
         console.error(`Error parsing event: ${event.data}`);
         console.error(error);
@@ -55,24 +56,6 @@ export function Main() {
       console.log("Connection closed");
     }
   };
-
-  // useEffect(() => {
-  //   async function fetchPhoto() {
-  //     const response = await getPhoto();
-  //     if (response.data) {
-  //       const newPhoto = response.data;
-  //       setPhoto(newPhoto);
-  //     } else {
-  //       console.error(response.error);
-  //       toast({
-  //         title: "Error",
-  //         description: "There was a problem fetching photos. Try reloading the page.",
-  //         variant: "destructive",
-  //       });
-  //     }
-  //   }
-  //   fetchPhoto();
-  // }, [toast]);
 
   return (
     <div className="container px-4 py-8 mx-auto min-h-96">

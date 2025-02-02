@@ -1,29 +1,44 @@
-// import { getNextPhoto } from "@/app/actions/photoActions"
-
 import { deletePhoto, getPhoto } from "../../actions";
 
 export async function GET() {
   const encoder = new TextEncoder();
 
+  const abortController = new AbortController();
+  const signal = abortController.signal;
+
   const stream = new ReadableStream({
     async start(controller) {
-      while (true) {
-        const photo = await getPhoto();
-        if (!photo.data) {
-          controller.error("No photos found");
-          controller.close();
-          return;
+      let isConnected = true;
+
+      signal.addEventListener("abort", () => {
+        isConnected = false;
+      });
+
+      while (isConnected) {
+        console.log("Fetching photo...");
+        let photo: any;
+        try {
+          photo = await getPhoto();
+        } catch (error) {
+          console.error("Error fetching photo:", error);
         }
-        const data = encoder.encode(`data: ${JSON.stringify(photo.data)}\n\n`);
+        const data = encoder.encode(
+          `data: ${JSON.stringify({ photo: photo.data, error: photo.error })}\n\n`
+        );
         controller.enqueue(data);
         // Delete the photo
-        // await deletePhoto(photo.data.id, photo.data.imgFilename);
         await new Promise<void>((resolve) =>
           setTimeout(async () => {
-            await deletePhoto(photo.data.id, photo.data.imgFilename);
+            if (photo.data) {
+              try {
+                await deletePhoto(photo.data.id, photo.data.imgFilename);
+              } catch (error) {
+                console.log("Error deleting the oldest photo:", error);
+              }
+            }
             resolve();
-          }, 5000)
-        ); // Change slide every 5 seconds
+          }, 10000)
+        ); // Change slide every 10 seconds
       }
     },
   });
