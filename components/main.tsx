@@ -1,9 +1,8 @@
 "use client";
+import Image from "next/image";
 import { lazy, useState } from "react";
 import { Photo } from "../lib/types";
 import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { ImgCard } from "./ui/imgCard";
 
 export const PhotoUpload = lazy(() => import("@/components/photo-upload"));
 
@@ -58,27 +57,25 @@ export function Main() {
   };
 
   return (
-    <div className="container px-4 py-8 mx-auto min-h-96">
-      <Card>
-        <CardHeader>
-          <CardTitle>Server-Sent Events Demo</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 mb-4">
-            <Button onClick={connectToEventSource} disabled={isConnected}>
-              Connect
-            </Button>
-            <Button onClick={disconnectEventSource} disabled={!isConnected} variant="destructive">
-              Disconnect
-            </Button>
-          </div>
-
-          <div className="border rounded p-4 max-h-64 overflow-y-auto">
-            <h3 className="font-bold mb-2">Event Log:</h3>
-            {photo && <ImgCard src={photo.src} alt={photo.alt} key={photo.id} />}
-          </div>
-        </CardContent>
-      </Card>
+    <div className="relative w-full h-screen bg-gray-900 flex items-center justify-center">
+      {photo && (
+        <Image
+          src={photo.src}
+          alt={photo.alt}
+          key={photo.id}
+          layout="fill"
+          objectFit="contain"
+          className="object-cover min-w-full min-h-full"
+        />
+      )}
+      <div className="absolute bottom-4 left-4 flex gap-4">
+        <Button onClick={connectToEventSource} disabled={isConnected} className="bg-green-900">
+          Start
+        </Button>
+        <Button onClick={disconnectEventSource} disabled={!isConnected}>
+          Stop
+        </Button>
+      </div>
     </div>
   );
 }
