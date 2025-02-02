@@ -1,17 +1,11 @@
 "use server";
-
-import { existsSync, mkdirSync, readFileSync, unlinkSync } from "fs";
+import { existsSync, mkdirSync, readFileSync } from "fs";
 import { readdir, writeFile } from "fs/promises";
 import { cookies } from "next/headers";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
+import { APIResponse, IMG_READ_DIR, IMG_UPLOAD_DIR, META_UPLOAD_DIR } from "../lib/constants";
 import { Photo } from "../lib/types";
-
-export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
-
-const IMG_UPLOAD_DIR = join(process.cwd(), "public/images");
-const META_UPLOAD_DIR = join(process.cwd(), "public/meta");
-const IMG_READ_DIR = "/api/assets/images/";
 
 export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
   const cookieStore = await cookies();
@@ -77,49 +71,26 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
 
 export async function getPhoto(): Promise<APIResponse<Photo>> {
   try {
-    const isNewDir = createDirIfNotExists(META_UPLOAD_DIR);
-    if (isNewDir) {
+    createDirIfNotExists(META_UPLOAD_DIR);
+    const files = await readdir(META_UPLOAD_DIR);
+    if (files.length === 0) {
       return { data: undefined, error: "No Photos Found" };
     }
-    const files = await readdir(META_UPLOAD_DIR);
+
+    // Get metadata for all photos
     const photos = await Promise.all(
       files.map((file) => {
         const metadataFilePath = join(META_UPLOAD_DIR, file);
-        const metadata = JSON.parse(readFileSync(metadataFilePath, "utf-8"));
-        return metadata;
+        return JSON.parse(readFileSync(metadataFilePath, "utf-8"));
       })
     );
-    const response: APIResponse<Photo> = {
-      error: undefined,
-      data: photos[photos.length - 1],
-    };
-    return response;
+
+    // Sort by order (oldest first)
+    photos.sort((a, b) => a.order - b.order);
+
+    return { data: photos[0], error: undefined };
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : "Request failed...";
-    return { data: undefined, error: errorMsg };
-  }
-}
-
-export async function deletePhoto(
-  id: string,
-  imgFilename: string
-): Promise<APIResponse<undefined>> {
-  const metadataFilePath = join(META_UPLOAD_DIR, `${id}.json`);
-  const imgFilePath = join(IMG_UPLOAD_DIR, imgFilename);
-
-  if (!existsSync(metadataFilePath) || !existsSync(imgFilePath)) {
-    return { data: undefined, error: "Photo not found" };
-  } else {
-    try {
-      // Delete the metadata file
-      unlinkSync(metadataFilePath);
-      // Delete the image file
-      unlinkSync(imgFilePath);
-      return { data: undefined, error: undefined };
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : "Request failed...";
-      return { data: undefined, error: errorMsg };
-    }
+    return { data: undefined, error: error instanceof Error ? error.message : "Request failed..." };
   }
 }
 
