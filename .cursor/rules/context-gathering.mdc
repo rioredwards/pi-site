@@ -1,0 +1,13 @@
+---
+description: Guidelines for gathering relevant context before making changes
+alwaysApply: false
+---
+# Context Gathering
+
+## Gather Relevant Context from the project files before making changes
+
+- Look look at all the components, the README.md, and the packages.json file for this repo to get all the relevant context. Note the libraries being used (Next.js, TypeScript, shadcn/ui, Tailwind CSS, etc.).
+
+## Gather relevant context from other sources
+
+- Use the mcps and/or internet search to gather relevant context from other sources that is not already available in the project files.

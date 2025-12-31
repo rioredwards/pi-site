@@ -1,0 +1,15 @@
+---
+description: Code quality standards and requirements
+alwaysApply: true
+---
+
+# Code Quality Standards
+
+- USE THE LATEST VERSIONS OF THE LIBRARIES AND FRAMEWORKS BEING USED!
+
+Any code you write should be:
+- contextually relevant to the libraries and frameworks being used and inline with the project's general purpose.
+- consistent with the project's coding style and conventions.
+- make use of existing code and components when it makes sense to do so.
+- maintainable and easy to understand.
+- optimized for the web and mobile devices.

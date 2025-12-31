@@ -1,0 +1,1 @@
+Create a new React component in the components directory. Ask me for the component name and what it should do, then create it with proper TypeScript types, modern React patterns, and styling that matches the existing codebase.

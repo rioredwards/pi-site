@@ -1,0 +1,12 @@
+---
+description: Project-specific coding directives and principles
+alwaysApply: true
+---
+
+# Project Directives
+
+- Don't overcomplicate or overengineer things. This project IS NOT AN ENTERPRISE-LEVEL PROJECT! It's a personal portfolio website.
+
+- When in doubt, ask me for clarification.
+
+- Don't make sweeping changes to the codebase without asking me for confirmation first. Try to keep the changes small and focused.
