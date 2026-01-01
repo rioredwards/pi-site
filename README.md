@@ -1,78 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pi-Site
 
-## Getting Started
+A self-hosted Next.js website running on a Raspberry Pi, featuring a dog photo gallery. This is my first self-hosted project, built to learn about self-hosting, Raspberry Pi management, and Cloudflare Tunnels.
 
-First, run the development server:
+## Project Overview
+
+This project is a personal portfolio/gallery site that:
+
+- Allows users to upload and view dog photos
+- Uses file-based storage (no database)
+- Implements simple cookie-based session management
+- Runs on a Raspberry Pi and is accessible via Cloudflare Tunnels
+
+**Tech Stack:**
+
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS
+- ShadCN UI
+- Node.js
+
+## SSH Setup (run on dev machine)
+
+```bash
+ssh raspberrypi # Assuming ssh config and hostname are set up correctly on dev machine
+```
+
+## Development Workflow (run on dev machine)
+
+### Local Development
+
+Just the regular Next.js dev flow:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Just deploy to main branch on GitHub and then run the update-server.sh script on the pi.
 
-## Learn More
+## Deployment Workflow (run on pi)
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## Real-time Updates
-
-To enable real-time updates, you can use WebSockets. First, install the `ws` package:
+### Server Scripts
 
 ```bash
-npm install ws
-# or
-yarn add ws
-# or
-pnpm add ws
-# or
-bun add ws
+./update-server.sh # Updates the server with the latest code from GitHub
 ```
 
-Then, set up a WebSocket server in your Next.js application. Create a new file `server.js`:
-
-```javascript
-const WebSocket = require('ws');
-
-const wss = new WebSocket.Server({ port: 8080 });
-
-wss.on('connection', function connection(ws) {
-  ws.on('message', function incoming(message) {
-    console.log('received: %s', message);
-  });
-
-  ws.send('something');
-});
+```bash
+./start-server.sh # Starts the production server (note, this uses nohup to run in the background)
 ```
 
-In your client-side code, connect to the WebSocket server:
-
-```javascript
-const socket = new WebSocket('ws://localhost:8080');
-
-socket.addEventListener('message', function (event) {
-  console.log('Message from server ', event.data);
-});
+```bash
+./stop-server.sh # Stops the production server
 ```
 
-This will allow your application to receive real-time updates from the server.
+```bash
+./check-server.sh # Checks the server status
+```
+
+## Architecture Notes
+
+- **No Database**: Images stored as files, metadata in JSON files
+- **Simple Auth**: Cookie-based session management with UUID
+- **Self-Hosted**: Runs on Raspberry Pi via Cloudflare Tunnels
+- **File-Based**: No external database dependencies
+
+## Links
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Cloudflare Tunnels](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
+- [Raspberry Pi Documentation](https://www.raspberrypi.com/documentation/)
