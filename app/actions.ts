@@ -2,9 +2,10 @@
 
 import { existsSync, mkdirSync, readFileSync, unlinkSync } from "fs";
 import { readdir, writeFile } from "fs/promises";
-import { cookies } from "next/headers";
+import { getServerSession } from "next-auth";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
+import { authOptions } from "../app/api/auth/[...nextauth]/route";
 import { Photo } from "../lib/types";
 
 export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
@@ -14,27 +15,29 @@ const META_UPLOAD_DIR = join(process.cwd(), "public/meta");
 const IMG_READ_DIR = "/api/assets/images/";
 
 export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
-  const cookieStore = await cookies();
-  const sessionId = cookieStore.get("sessionId");
-  if (!sessionId) {
-    throw new Error("No session ID found");
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return { data: undefined, error: "You must be signed in to upload photos." };
   }
 
   const file = formData.get("file") as File;
   if (!file) {
-    throw new Error("No file uploaded");
+    return { data: undefined, error: "No file uploaded" };
   }
 
   // Validate file type
   const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
   if (!allowedTypes.includes(file.type)) {
-    throw new Error("Invalid file type. Only JPEG, PNG, and WebP images are allowed.");
+    return {
+      data: undefined,
+      error: "Invalid file type. Only JPEG, PNG, and WebP images are allowed.",
+    };
   }
 
   // Validate file size (max 5MB)
   const maxSize = 5 * 1024 * 1024; // 5MB
   if (file.size > maxSize) {
-    throw new Error("File size exceeds 5MB limit.");
+    return { data: undefined, error: "File size exceeds 5MB limit." };
   }
 
   try {
@@ -54,7 +57,7 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     const metadata: Photo = {
       id: imgId,
       imgFilename: uniqueImgFilename,
-      sessionId: sessionId.value,
+      userId: session.user.id,
       order: imgFilesLength + 1,
       src: IMG_READ_DIR + uniqueImgFilename,
       alt: `Dog photo ${imgFilesLength + 1}`,
@@ -104,22 +107,35 @@ export async function deletePhoto(
   id: string,
   imgFilename: string
 ): Promise<APIResponse<undefined>> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return { data: undefined, error: "You must be signed in to delete photos." };
+  }
+
   const metadataFilePath = join(META_UPLOAD_DIR, `${id}.json`);
   const imgFilePath = join(IMG_UPLOAD_DIR, imgFilename);
 
   if (!existsSync(metadataFilePath) || !existsSync(imgFilePath)) {
     return { data: undefined, error: "Photo not found" };
-  } else {
-    try {
-      // Delete the metadata file
-      unlinkSync(metadataFilePath);
-      // Delete the image file
-      unlinkSync(imgFilePath);
-      return { data: undefined, error: undefined };
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : "Request failed...";
-      return { data: undefined, error: errorMsg };
+  }
+
+  try {
+    // Read metadata to check ownership
+    const metadata = JSON.parse(readFileSync(metadataFilePath, "utf-8")) as Photo;
+
+    // Check if user owns the photo or is admin
+    if (metadata.userId !== session.user.id && session.user.id !== "admin") {
+      return { data: undefined, error: "You can only delete your own photos." };
     }
+
+    // Delete the metadata file
+    unlinkSync(metadataFilePath);
+    // Delete the image file
+    unlinkSync(imgFilePath);
+    return { data: undefined, error: undefined };
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    return { data: undefined, error: errorMsg };
   }
 }
 
@@ -131,20 +147,4 @@ function createDirIfNotExists(dir: string): boolean {
     return true;
   }
   return false;
-}
-
-export async function createCookie(): Promise<APIResponse<string>> {
-  const cookieStore = await cookies();
-  const newSessionId = uuidv4();
-  cookieStore.set("sessionId", newSessionId);
-  return { data: newSessionId, error: undefined };
-}
-
-export async function getCookie(): Promise<APIResponse<string>> {
-  const cookieStore = await cookies();
-  const sessionId = cookieStore.get("sessionId");
-  if (!sessionId) {
-    return { data: undefined, error: "No session ID found" };
-  }
-  return { data: sessionId.value, error: undefined };
 }

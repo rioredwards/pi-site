@@ -8,7 +8,7 @@ This project is a personal portfolio/gallery site that:
 
 - Allows users to upload and view dog photos
 - Uses file-based storage (no database)
-- Implements simple cookie-based session management
+- Implements GitHub OAuth authentication via NextAuth.js
 - Runs on a Raspberry Pi and is accessible via Cloudflare Tunnels
 
 **Tech Stack:**
@@ -65,7 +65,7 @@ Just deploy to main branch on GitHub and then run the update-server.sh script on
 ## Architecture Notes
 
 - **No Database**: Images stored as files, metadata in JSON files
-- **Simple Auth**: Cookie-based session management with UUID
+- **Authentication**: GitHub OAuth via NextAuth.js
 - **Self-Hosted**: Runs on Raspberry Pi via Cloudflare Tunnels
 - **File-Based**: No external database dependencies
 
