@@ -1,4 +1,5 @@
 "use client";
+import { AuthButton } from "@/components/auth-button";
 import { cn } from "@/lib/utils";
 import { PawPrint } from "lucide-react";
 import Link from "next/link";
@@ -22,7 +23,7 @@ export default function Header() {
           </Link>
         </div>
 
-        <nav className="flex gap-6">
+        <nav className="flex gap-6 items-center">
           {navigation.map((item) => (
             <Link
               key={item.name}
@@ -34,6 +35,7 @@ export default function Header() {
               {item.name}
             </Link>
           ))}
+          <AuthButton />
         </nav>
       </div>
     </header>

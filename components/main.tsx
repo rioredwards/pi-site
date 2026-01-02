@@ -1,11 +1,11 @@
 "use client";
 
 import shuffle from "lodash.shuffle";
+import { useSession } from "next-auth/react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import BounceLoader from "react-spinners/BounceLoader";
 import { deletePhoto as deletePhotoFile, getPhotos } from "../app/actions";
 import { ImgCard } from "../components/ui/imgCard";
-import { useCookie } from "../context/CookieCtx";
 import { useToast } from "../hooks/use-toast";
 import { Photo } from "../lib/types";
 
@@ -15,7 +15,7 @@ export function Main() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const { cookie } = useCookie();
+  const { data: session } = useSession();
 
   useEffect(() => {
     async function fetchPhotos() {
@@ -43,16 +43,16 @@ export function Main() {
   }
 
   async function deletePhoto(id: string) {
-    if (!cookie) {
+    if (!session?.user?.id) {
       toast({
         title: "Error",
-        description: "You must enable cookies to delete a photo.",
+        description: "You must be signed in to delete photos.",
         variant: "destructive",
       });
       return;
     }
     const targetPhoto = photos.find((photo) => photo.id === id) as Photo;
-    if (cookie !== targetPhoto.sessionId && cookie !== "admin") {
+    if (targetPhoto.userId !== session.user.id && session.user.id !== "admin") {
       toast({
         title: "Error",
         description: "You can only delete your own photos.",
@@ -65,7 +65,7 @@ export function Main() {
       console.error(res.error);
       toast({
         title: "Error",
-        description: "There was a problem deleting your photo.",
+        description: res.error || "There was a problem deleting your photo.",
         variant: "destructive",
       });
       return;
@@ -96,7 +96,7 @@ export function Main() {
               src={photo.src}
               alt={photo.alt}
               key={photo.id}
-              sessionId={photo.sessionId}
+              userId={photo.userId}
               deletePhoto={deletePhoto}
             />
           ))}

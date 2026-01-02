@@ -200,9 +200,8 @@ export default function AboutPage() {
                 </li>
                 <li>
                   <strong>Persistence:</strong> No database here! Images are stored as files in a
-                  directory, and their metadata lives in JSON files. There&apos;s no real Auth, I
-                  just use a cookie with a uuid to link images with their owners. Therefore, users
-                  can delete their own photos, but no one else&apos;s.
+                  directory, and their metadata lives in JSON files. Authentication is handled via
+                  NextAuth.js with GitHub OAuth, so users can only delete their own photos.
                 </li>
               </ul>
             </div>

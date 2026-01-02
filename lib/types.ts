@@ -1,7 +1,7 @@
 export type Photo = {
   id: string;
   order: number;
-  sessionId: string;
+  userId: string;
   imgFilename: string;
   src: string;
   alt: string;

@@ -1,20 +1,20 @@
-import Image from 'next/image';
-import { useState } from 'react';
-import BounceLoader from 'react-spinners/BounceLoader';
-import { useCookie } from '../../context/CookieCtx';
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { useState } from "react";
+import BounceLoader from "react-spinners/BounceLoader";
 
 interface Props {
   id: string;
   src: string;
   alt: string;
-  sessionId: string;
+  userId: string;
   deletePhoto: (id: string) => void;
 }
 
-export function ImgCard({ id, src, alt, sessionId, deletePhoto }: Props) {
+export function ImgCard({ id, src, alt, userId, deletePhoto }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { cookie } = useCookie()
+  const { data: session } = useSession();
 
   const handleDelete = () => {
     setShowConfirm(true);
@@ -29,32 +29,30 @@ export function ImgCard({ id, src, alt, sessionId, deletePhoto }: Props) {
     setShowConfirm(false);
   };
 
-  const isOwner = cookie === sessionId || cookie === "admin";
+  const isOwner = session?.user?.id === userId || session?.user?.id === "admin";
 
   return (
-    <div
-      className="relative aspect-square overflow-hidden rounded-lg transition-transform hover:scale-[1.02] hover:shadow-lg group"
-    >
-      {isOwner && <button
-        onClick={handleDelete}
-        className="absolute z-10 top-2 right-2 p-1 text-white bg-gray-400 rounded-full opacity-50 hidden group-hover:block group-focus-within:block"
-        tabIndex={-1}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>}
+    <div className="relative aspect-square overflow-hidden rounded-lg transition-transform hover:scale-[1.02] hover:shadow-lg group">
+      {isOwner && (
+        <button
+          onClick={handleDelete}
+          className="absolute z-10 top-2 right-2 p-1 text-white bg-gray-400 rounded-full opacity-50 hidden group-hover:block group-focus-within:block"
+          tabIndex={-1}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      )}
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center">
           <BounceLoader color={"rgb(15, 220, 220)"} loading={true} size={25} />
@@ -76,14 +74,10 @@ export function ImgCard({ id, src, alt, sessionId, deletePhoto }: Props) {
             <div className="flex justify-end gap-2 mt-4">
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg"
-              >
+                className="px-4 py-2 bg-red-500 text-white rounded-lg">
                 Yes
               </button>
-              <button
-                onClick={cancelDelete}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
-              >
+              <button onClick={cancelDelete} className="px-4 py-2 bg-gray-300 rounded-lg">
                 No
               </button>
             </div>
