@@ -7,7 +7,8 @@ A self-hosted Next.js website running on a Raspberry Pi, featuring a dog photo g
 This project is a personal portfolio/gallery site that:
 
 - Allows users to upload and view dog photos
-- Uses file-based storage (no database)
+- Uses SQLite database for metadata storage (Prisma ORM)
+- Stores images on the filesystem
 - Implements GitHub OAuth authentication via NextAuth.js
 - Runs on a Raspberry Pi and is accessible via Cloudflare Tunnels
 
@@ -18,6 +19,8 @@ This project is a personal portfolio/gallery site that:
 - TypeScript
 - Tailwind CSS
 - ShadCN UI
+- Prisma ORM
+- SQLite
 - Node.js
 
 ## TODO
@@ -68,10 +71,40 @@ Just deploy to main branch on GitHub and then run the update-server.sh script on
 
 ## Architecture Notes
 
-- **No Database**: Images stored as files, metadata in JSON files
+- **Database**: SQLite database (file-based, no server needed) using Prisma ORM for metadata storage
+- **Image Storage**: Images stored on filesystem in `public/images/`
 - **Authentication**: GitHub OAuth via NextAuth.js
 - **Self-Hosted**: Runs on Raspberry Pi via Cloudflare Tunnels
-- **File-Based**: No external database dependencies
+- **Zero Setup**: SQLite requires no database server installation
+
+## Database Setup
+
+### Initial Setup
+
+The database is automatically created when you run migrations:
+
+```bash
+npx prisma generate
+npx prisma migrate dev
+```
+
+### Migrating Existing Data
+
+If you have existing JSON metadata files in `public/meta/`, run the migration script once:
+
+```bash
+npx tsx scripts/migrate-to-db.ts
+```
+
+This will migrate all existing photo metadata from JSON files to the database. The script is idempotent and can be run multiple times safely.
+
+### Database Management
+
+- **View data**: `npx prisma studio` - Opens Prisma Studio to view/edit database
+- **Create migration**: `npx prisma migrate dev --name migration_name`
+- **Reset database**: `npx prisma migrate reset` (⚠️ deletes all data)
+
+The database file is located at `prisma/dev.db` and is automatically excluded from git.
 
 ## Links
 

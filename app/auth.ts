@@ -14,6 +14,8 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   secret: process.env.AUTH_SECRET,
+  // Use NEXTAUTH_URL from environment, or default to localhost in development
+  url: process.env.NEXTAUTH_URL,
   session: {
     strategy: "jwt",
   },
@@ -25,7 +27,15 @@ export const authOptions: NextAuthOptions = {
         // Use account.providerAccountId (sub for Google, id for GitHub) combined with provider name
         const providerAccountId =
           account.providerAccountId || (profile as any)?.sub || user.id || user.email;
-        token.id = `${account.provider}-${providerAccountId}`;
+        
+        // Check if this user is an admin (configured via environment variable)
+        // ADMIN_USER_IDS should be a comma-separated list of: provider-accountId
+        // Example: "github-123456,google-789012"
+        const adminUserIds = process.env.ADMIN_USER_IDS?.split(",").map((id) => id.trim()) || [];
+        const userId = `${account.provider}-${providerAccountId}`;
+        
+        // Set userId to "admin" if user is in the admin list
+        token.id = adminUserIds.includes(userId) ? "admin" : userId;
         token.accessToken = account?.access_token;
       }
       // token.id should persist across requests

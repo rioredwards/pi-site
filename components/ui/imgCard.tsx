@@ -9,9 +9,10 @@ interface Props {
   alt: string;
   userId: string;
   deletePhoto: (id: string) => void;
+  priority?: boolean;
 }
 
-export function ImgCard({ id, src, alt, userId, deletePhoto }: Props) {
+export function ImgCard({ id, src, alt, userId, deletePhoto, priority = false }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
@@ -62,10 +63,11 @@ export function ImgCard({ id, src, alt, userId, deletePhoto }: Props) {
         src={src}
         alt={alt}
         fill
+        priority={priority}
         className={`object-cover`}
         sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
         onLoadStart={() => setLoading(true)}
-        onLoadingComplete={() => setLoading(false)}
+        onLoad={() => setLoading(false)}
       />
       {showConfirm && (
         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">

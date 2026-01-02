@@ -21,7 +21,7 @@ export function Main() {
     async function fetchPhotos() {
       setIsLoading(true);
       const response = await getPhotos();
-      console.log("response", response);
+      // console.log("response", response);
       if (response.data) {
         const shuffledPhotos = shuffle(response.data);
         setPhotos(shuffledPhotos);
@@ -60,7 +60,7 @@ export function Main() {
       });
       return;
     }
-    const res = await deletePhotoFile(id, targetPhoto.imgFilename);
+    const res = await deletePhotoFile(id);
     if (res.error) {
       console.error(res.error);
       toast({
@@ -90,7 +90,7 @@ export function Main() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {photos.map((photo) => (
+          {photos.map((photo, index) => (
             <ImgCard
               id={photo.id}
               src={photo.src}
@@ -98,6 +98,7 @@ export function Main() {
               key={photo.id}
               userId={photo.userId}
               deletePhoto={deletePhoto}
+              priority={index < 4}
             />
           ))}
         </div>

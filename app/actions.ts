@@ -1,17 +1,17 @@
 "use server";
 
-import { existsSync, mkdirSync, readFileSync, unlinkSync } from "fs";
-import { readdir, writeFile } from "fs/promises";
+import { existsSync, mkdirSync, unlinkSync } from "fs";
+import { writeFile } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
 import { authOptions } from "@/app/auth";
 import { Photo } from "../lib/types";
+import { prisma } from "../lib/prisma";
 
 export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
 
 const IMG_UPLOAD_DIR = join(process.cwd(), "public/images");
-const META_UPLOAD_DIR = join(process.cwd(), "public/meta");
 const IMG_READ_DIR = "/api/assets/images/";
 
 export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
@@ -47,25 +47,37 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     const imgFilename = file.name.replaceAll(" ", "_");
     const imgId = uuidv4();
     const uniqueImgFilename = `${imgId}-${imgFilename}`;
-    const isNewDir = createDirIfNotExists(IMG_UPLOAD_DIR);
-    const imgFilesLength = isNewDir ? 0 : (await readdir(IMG_UPLOAD_DIR)).length;
+    
+    // Create the upload directory if it doesn't exist
+    createDirIfNotExists(IMG_UPLOAD_DIR);
     const imgFilePath = join(IMG_UPLOAD_DIR, uniqueImgFilename);
 
     // Write the image file to the images directory
     await writeFile(imgFilePath, buffer);
-    // Write metadata to an associated JSON file
+
+    // Get current photo count to determine order
+    const photoCount = await prisma.photo.count();
+    
+    // Save metadata to database
+    const photo = await prisma.photo.create({
+      data: {
+        id: imgId,
+        imgFilename: uniqueImgFilename,
+        userId: session.user.id,
+        order: photoCount + 1,
+        src: IMG_READ_DIR + uniqueImgFilename,
+        alt: `Dog photo ${photoCount + 1}`,
+      },
+    });
+
     const metadata: Photo = {
-      id: imgId,
-      imgFilename: uniqueImgFilename,
-      userId: session.user.id,
-      order: imgFilesLength + 1,
-      src: IMG_READ_DIR + uniqueImgFilename,
-      alt: `Dog photo ${imgFilesLength + 1}`,
+      id: photo.id,
+      imgFilename: photo.imgFilename,
+      userId: photo.userId,
+      order: photo.order,
+      src: photo.src,
+      alt: photo.alt,
     };
-    // Create the upload directory if it doesn't exist
-    createDirIfNotExists(META_UPLOAD_DIR);
-    const metadataFilePath = join(META_UPLOAD_DIR, `${imgId}.json`);
-    await writeFile(metadataFilePath, JSON.stringify(metadata, null, 2));
 
     const response: APIResponse<Photo> = {
       error: undefined,
@@ -80,21 +92,22 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
 
 export async function getPhotos(): Promise<APIResponse<Photo[]>> {
   try {
-    const isNewDir = createDirIfNotExists(META_UPLOAD_DIR);
-    if (isNewDir) {
-      return { data: [], error: undefined };
-    }
-    const files = await readdir(META_UPLOAD_DIR);
-    const photos = await Promise.all(
-      files.map((file) => {
-        const metadataFilePath = join(META_UPLOAD_DIR, file);
-        const metadata = JSON.parse(readFileSync(metadataFilePath, "utf-8"));
-        return metadata;
-      })
-    );
+    const photos = await prisma.photo.findMany({
+      orderBy: { order: "asc" },
+    });
+
+    const photoData: Photo[] = photos.map((photo) => ({
+      id: photo.id,
+      imgFilename: photo.imgFilename,
+      userId: photo.userId,
+      order: photo.order,
+      src: photo.src,
+      alt: photo.alt,
+    }));
+
     const response: APIResponse<Photo[]> = {
       error: undefined,
-      data: photos,
+      data: photoData,
     };
     return response;
   } catch (error) {
@@ -103,35 +116,41 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
   }
 }
 
-export async function deletePhoto(
-  id: string,
-  imgFilename: string
-): Promise<APIResponse<undefined>> {
+export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return { data: undefined, error: "You must be signed in to delete photos." };
   }
 
-  const metadataFilePath = join(META_UPLOAD_DIR, `${id}.json`);
-  const imgFilePath = join(IMG_UPLOAD_DIR, imgFilename);
-
-  if (!existsSync(metadataFilePath) || !existsSync(imgFilePath)) {
-    return { data: undefined, error: "Photo not found" };
-  }
-
   try {
-    // Read metadata to check ownership
-    const metadata = JSON.parse(readFileSync(metadataFilePath, "utf-8")) as Photo;
+    // Fetch photo from database to verify ownership and get filename
+    const photo = await prisma.photo.findUnique({
+      where: { id },
+    });
+
+    if (!photo) {
+      return { data: undefined, error: "Photo not found" };
+    }
 
     // Check if user owns the photo or is admin
-    if (metadata.userId !== session.user.id && session.user.id !== "admin") {
+    // Note: Old photos migrated from sessionId-based auth have userIds that won't match
+    // new OAuth userIds (format: provider-accountId), so they're effectively protected
+    // from deletion by regular users. Only admin can delete them.
+    if (photo.userId !== session.user.id && session.user.id !== "admin") {
       return { data: undefined, error: "You can only delete your own photos." };
     }
 
-    // Delete the metadata file
-    unlinkSync(metadataFilePath);
-    // Delete the image file
-    unlinkSync(imgFilePath);
+    // Delete from database
+    await prisma.photo.delete({
+      where: { id },
+    });
+
+    // Delete the image file from filesystem
+    const imgFilePath = join(IMG_UPLOAD_DIR, photo.imgFilename);
+    if (existsSync(imgFilePath)) {
+      unlinkSync(imgFilePath);
+    }
+
     return { data: undefined, error: undefined };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : "Request failed...";
@@ -140,11 +159,8 @@ export async function deletePhoto(
 }
 
 // Helper function to create a directory if it doesn't exist
-// Returns true if the directory was created, false if it already exists
-function createDirIfNotExists(dir: string): boolean {
+function createDirIfNotExists(dir: string): void {
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
-    return true;
   }
-  return false;
 }
