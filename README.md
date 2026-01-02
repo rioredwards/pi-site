@@ -20,6 +20,10 @@ This project is a personal portfolio/gallery site that:
 - ShadCN UI
 - Node.js
 
+## TODO
+
+- [ ] Migrate deployment to Coolify for automated Git-based deployments
+
 ## SSH Setup (run on dev machine)
 
 ```bash
