@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 PRISMA_SKIP_POSTINSTALL_GENERATE=true npx prisma generate || echo 'Prisma generate had warnings but continuing...' && next build",
+    "build": "PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate 2>&1 | (grep -v '404 Not Found' || true); next build",
     "start": "next start",
     "lint": "next lint",
     "deploy": "./scripts/deploy.sh",
