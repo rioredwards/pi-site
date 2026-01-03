@@ -48,7 +48,8 @@ if ! ssh ${PI_HOST} "cd ${PI_PATH} && \
     (PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate 2>&1 | grep -v '404 Not Found' || echo 'Prisma generate completed with warnings') && \
     (PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma migrate deploy 2>&1 | grep -v '404 Not Found' || echo 'Migrations skipped') && \
     npm run build && \
-    pm2 restart pi-site || pm2 start npm --name pi-site -- start"; then
+    pm2 delete pi-site 2>/dev/null || true && \
+    pm2 start ecosystem.config.js"; then
     echo ""
     echo "❌ Deployment failed on Pi!"
     exit 1

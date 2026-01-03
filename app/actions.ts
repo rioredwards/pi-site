@@ -23,7 +23,7 @@ const getUploadDir = () => {
   // This works even if we're running from .next/standalone
   let currentPath = process.cwd();
   const maxDepth = 5; // Limit search depth
-  
+
   for (let i = 0; i < maxDepth; i++) {
     const packageJsonPath = join(currentPath, "package.json");
     if (existsSync(packageJsonPath)) {

@@ -2,15 +2,16 @@ module.exports = {
   apps: [
     {
       name: 'pi-site',
-      script: './.next/standalone/server.js',
-      cwd: process.env.HOME + '/pi-site',
+      script: 'npm',
+      args: 'start',
+      cwd: (process.env.HOME || '/home/rioredwards') + '/pi-site',
       instances: 1,
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
         PORT: 3000,
         HOSTNAME: '0.0.0.0',
-        UPLOAD_DIR: process.env.HOME + '/pi-site/public/images',
+        UPLOAD_DIR: (process.env.HOME || '/home/rioredwards') + '/pi-site/public/images',
       },
       error_file: './logs/pm2-error.log',
       out_file: './logs/pm2-out.log',
