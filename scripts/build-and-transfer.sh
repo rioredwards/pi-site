@@ -1,9 +1,10 @@
 #!/bin/bash
 # Build Docker image for ARM64 on your dev machine and transfer to Raspberry Pi
-# Usage: ./scripts/build-and-transfer.sh [--restart] [--thumbdrive [PATH]]
+# Usage: ./scripts/build-and-transfer.sh [OPTIONS]
 #
 # Options:
 #   --restart              Automatically restart the container on Pi after transfer
+#   --use-cache            Use Docker build cache (faster for iterative changes)
 #   --thumbdrive [PATH]    Use thumbdrive for transfer instead of SSH
 #                          If PATH is not provided, will try to detect or use /Volumes/pi-site
 #
@@ -32,44 +33,59 @@ TAR_GZ="${TAR_FILE}.gz"
 RESTART_CONTAINER=false
 USE_THUMBDRIVE=false
 THUMBDRIVE_PATH=""
+USE_CACHE=false
 
 # Parse arguments
-if [[ "$1" == "--restart" ]]; then
-    RESTART_CONTAINER=true
-    shift
-fi
-
-if [[ "$1" == "--thumbdrive" ]]; then
-    USE_THUMBDRIVE=true
-    if [ -n "$2" ] && [ "$2" != "--restart" ]; then
-        THUMBDRIVE_PATH="$2"
-    else
-        # Try to detect thumbdrive - check common names
-        # Note: Your thumbdrive can have ANY name - "pi-site" is just one option
-        if [ -d "/Volumes/pi-site" ]; then
-            THUMBDRIVE_PATH="/Volumes/pi-site"
-        elif [ -d "/Volumes/NO NAME" ]; then
-            THUMBDRIVE_PATH="/Volumes/NO NAME"
-        else
-            # List available volumes and let user choose
-            echo "📁 Available volumes (your thumbdrive can have any name):"
-            ls -1 /Volumes/ 2>/dev/null | grep -v "^\.$" | grep -v "^\.\.$" || echo "   (none found)"
-            echo ""
-            echo "Please specify your thumbdrive path:"
-            echo "  ./scripts/build-and-transfer.sh --thumbdrive /Volumes/YOUR_DRIVE_NAME"
-            echo ""
-            echo "💡 Tip: Your thumbdrive name doesn't matter - just use the path shown above"
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --restart)
+            RESTART_CONTAINER=true
+            shift
+            ;;
+        --use-cache)
+            USE_CACHE=true
+            shift
+            ;;
+        --thumbdrive)
+            USE_THUMBDRIVE=true
+            if [ -n "$2" ] && [[ ! "$2" =~ ^-- ]]; then
+                THUMBDRIVE_PATH="$2"
+                shift 2
+            else
+                # Try to detect thumbdrive - check common names
+                # Note: Your thumbdrive can have ANY name - "pi-site" is just one option
+                if [ -d "/Volumes/pi-site" ]; then
+                    THUMBDRIVE_PATH="/Volumes/pi-site"
+                elif [ -d "/Volumes/NO NAME" ]; then
+                    THUMBDRIVE_PATH="/Volumes/NO NAME"
+                else
+                    # List available volumes and let user choose
+                    echo "📁 Available volumes (your thumbdrive can have any name):"
+                    ls -1 /Volumes/ 2>/dev/null | grep -v "^\.$" | grep -v "^\.\.$" || echo "   (none found)"
+                    echo ""
+                    echo "Please specify your thumbdrive path:"
+                    echo "  ./scripts/build-and-transfer.sh --thumbdrive /Volumes/YOUR_DRIVE_NAME"
+                    echo ""
+                    echo "💡 Tip: Your thumbdrive name doesn't matter - just use the path shown above"
+                    exit 1
+                fi
+                shift
+            fi
+            # Check if thumbdrive path exists
+            if [ ! -d "$THUMBDRIVE_PATH" ]; then
+                echo "❌ Thumbdrive not found at: ${THUMBDRIVE_PATH}"
+                echo "   Please mount the thumbdrive and try again"
+                exit 1
+            fi
+            echo "💾 Using thumbdrive: ${THUMBDRIVE_PATH}"
+            ;;
+        *)
+            echo "❌ Unknown option: $1"
+            echo "Usage: $0 [--restart] [--use-cache] [--thumbdrive [PATH]]"
             exit 1
-        fi
-    fi
-    # Check if thumbdrive path exists
-    if [ ! -d "$THUMBDRIVE_PATH" ]; then
-        echo "❌ Thumbdrive not found at: ${THUMBDRIVE_PATH}"
-        echo "   Please mount the thumbdrive and try again"
-        exit 1
-    fi
-    echo "💾 Using thumbdrive: ${THUMBDRIVE_PATH}"
-fi
+            ;;
+    esac
+done
 
 # Error handling function
 cleanup_on_error() {
@@ -104,9 +120,17 @@ fi
 docker buildx use pi-site-builder 2>/dev/null || docker buildx create --name pi-site-builder --use
 
 echo "🐳 Building Docker image for Raspberry Pi (tag: ${IMAGE_TAG})..."
-echo "   (This may take a few minutes - building from scratch to ensure standalone output is correct)"
-echo "   Building for linux/arm64 (aarch64 - required for Prisma support)..."
-if ! docker buildx build --platform linux/arm64 --no-cache -t ${IMAGE_NAME}:${IMAGE_TAG} -t ${IMAGE_NAME}:latest --output type=docker,dest=${TAR_FILE} .; then
+if [ "$USE_CACHE" = true ]; then
+    echo "   ⚡ Using Docker build cache (faster for iterative changes)"
+    echo "   Building for linux/arm64 (aarch64 - required for Prisma support)..."
+    BUILD_ARGS="--platform linux/arm64"
+else
+    echo "   (This may take a few minutes - building from scratch to ensure standalone output is correct)"
+    echo "   Building for linux/arm64 (aarch64 - required for Prisma support)..."
+    BUILD_ARGS="--platform linux/arm64 --no-cache"
+fi
+
+if ! docker buildx build ${BUILD_ARGS} -t ${IMAGE_NAME}:${IMAGE_TAG} -t ${IMAGE_NAME}:latest --output type=docker,dest=${TAR_FILE} .; then
     echo "❌ Build failed!"
     exit 1
 fi
@@ -162,6 +186,15 @@ else
 
     echo "🧹 Cleaning up local files..."
     rm -f ${TAR_FILE} ${TAR_GZ}
+    
+    # Clean up old local images (keep current and one backup)
+    echo "🧹 Cleaning up old local images..."
+    docker image prune -f --filter "dangling=true" 2>/dev/null || true
+    # Remove old tagged images (keep latest and one backup)
+    OLD_IMAGES=$(docker images ${IMAGE_NAME} --format "{{.Tag}}" | grep -v "latest" | tail -n +3)
+    if [ -n "$OLD_IMAGES" ]; then
+        echo "$OLD_IMAGES" | xargs -r -I {} docker rmi ${IMAGE_NAME}:{} 2>/dev/null || true
+    fi
 fi
 
 echo "✅ Image transferred successfully!"

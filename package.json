@@ -7,7 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "deploy": "./scripts/deploy.sh",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset",
     "db:studio": "prisma studio",
+    "db:test": "tsx scripts/test-db.ts",
+    "db:migrate-data": "tsx scripts/migrate-to-db.ts",
     "get-user-id": "tsx scripts/get-user-id.ts"
   },
   "dependencies": {

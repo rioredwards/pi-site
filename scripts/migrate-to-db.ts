@@ -1,3 +1,19 @@
+/**
+ * Migration script to move photo metadata from JSON files to SQLite database.
+ * 
+ * This script is idempotent and can be run multiple times safely.
+ * 
+ * Usage:
+ * 
+ * Local development:
+ *   npx tsx scripts/migrate-to-db.ts
+ * 
+ * Docker (on Raspberry Pi):
+ *   docker compose exec app npx tsx scripts/migrate-to-db.ts
+ * 
+ * The script reads JSON files from public/meta/ and migrates them to the database.
+ */
+
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
 import { prisma } from "../lib/prisma";

@@ -1,10 +1,20 @@
 /**
  * Helper script to find your user ID after signing in.
- * 
+ *
  * After signing in with OAuth, your user ID will be in the format:
  * - GitHub: github-{your_github_account_id}
  * - Google: google-{your_google_sub}
- * 
+ *
+ * Usage:
+ *
+ * Local development:
+ *   npm run get-user-id
+ *   or: npx tsx scripts/get-user-id.ts
+ *
+ * Docker (on Raspberry Pi):
+ *   docker compose exec app npm run get-user-id
+ *   or: docker compose exec app npx tsx scripts/get-user-id.ts
+ *
  * To use this:
  * 1. Sign in to your app
  * 2. Check the browser console or network tab for the session
@@ -16,7 +26,7 @@ import { prisma } from "../lib/prisma";
 async function getRecentUserIds() {
   try {
     console.log("Recent user IDs from photos:\n");
-    
+
     const photos = await prisma.photo.findMany({
       take: 10,
       orderBy: { createdAt: "desc" },
@@ -34,7 +44,7 @@ async function getRecentUserIds() {
     }
 
     const uniqueUserIds = [...new Set(photos.map((p) => p.userId))];
-    
+
     console.log("User IDs found:");
     uniqueUserIds.forEach((userId) => {
       console.log(`  - ${userId}`);
@@ -53,4 +63,3 @@ async function getRecentUserIds() {
 }
 
 getRecentUserIds();
-

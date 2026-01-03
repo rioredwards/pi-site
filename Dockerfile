@@ -68,6 +68,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+ENV HOME=/app
 
 # Copy built application from builder (standalone output includes only needed dependencies)
 # Next.js standalone puts everything in .next/standalone, including server.js at the root
@@ -81,6 +82,10 @@ RUN rm -rf /app/public/images
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+# Try to copy @prisma/config from builder if it exists (needed for prisma.config.ts)
+# Note: prisma.config.ts has a fallback if this module isn't available, so this is optional
+RUN mkdir -p ./node_modules/@prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma/config* ./node_modules/@prisma/ || true
 
 # Verify that server.js was copied correctly (critical for container startup)
 RUN ls -la /app/ && \

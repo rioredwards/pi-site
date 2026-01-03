@@ -1,3 +1,21 @@
+/**
+ * Test script to verify database connection and functionality.
+ * 
+ * Usage:
+ * 
+ * Local development:
+ *   npx tsx scripts/test-db.ts
+ * 
+ * Docker (on Raspberry Pi):
+ *   docker compose exec app npx tsx scripts/test-db.ts
+ * 
+ * This script tests:
+ * - Database connection
+ * - Photo counting
+ * - Photo fetching
+ * - Photo lookup by ID
+ */
+
 import { prisma } from "../lib/prisma";
 
 async function testDatabase() {
