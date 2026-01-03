@@ -7,12 +7,14 @@ Simple, straightforward deployment without Docker.
 ### On Your Raspberry Pi
 
 1. **Install Node.js** (if not already installed):
+
    ```bash
    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
    sudo apt-get install -y nodejs
    ```
 
 2. **Run the setup script**:
+
    ```bash
    cd ~/pi-site
    bash scripts/setup-pi.sh
@@ -27,11 +29,13 @@ Simple, straightforward deployment without Docker.
 ### From Your Desktop
 
 Just run:
+
 ```bash
 npm run deploy
 ```
 
 That's it! The script will:
+
 1. Build your app locally
 2. Sync files to Pi
 3. Install dependencies on Pi
@@ -69,17 +73,19 @@ ssh raspberrypi 'pm2 logs'
 ## Troubleshooting
 
 **App won't start?**
+
 ```bash
 ssh raspberrypi 'pm2 logs pi-site --err'
 ```
 
 **Need to rebuild Prisma client?**
+
 ```bash
 ssh raspberrypi 'cd ~/pi-site && npx prisma generate'
 ```
 
 **Need to run migrations manually?**
+
 ```bash
 ssh raspberrypi 'cd ~/pi-site && npx prisma migrate deploy'
 ```
-

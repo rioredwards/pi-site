@@ -1,14 +1,13 @@
 "use server";
 
+import { authOptions } from "@/app/auth";
 import { existsSync, mkdirSync, unlinkSync } from "fs";
 import { writeFile } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
-import { authOptions } from "@/app/auth";
-import { Photo } from "../lib/types";
 import { prisma } from "../lib/prisma";
-import type { Photo as PrismaPhoto } from "@prisma/client";
+import { Photo } from "../lib/types";
 
 export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
 
@@ -48,7 +47,7 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     const imgFilename = file.name.replaceAll(" ", "_");
     const imgId = uuidv4();
     const uniqueImgFilename = `${imgId}-${imgFilename}`;
-    
+
     // Create the upload directory if it doesn't exist
     createDirIfNotExists(IMG_UPLOAD_DIR);
     const imgFilePath = join(IMG_UPLOAD_DIR, uniqueImgFilename);
@@ -58,15 +57,15 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
 
     // Get current photo count to determine order
     const photoCount = await prisma.photo.count();
-    
+
     // Save metadata to database
     const photo = await prisma.photo.create({
       data: {
-      id: imgId,
-      imgFilename: uniqueImgFilename,
-      userId: session.user.id,
+        id: imgId,
+        imgFilename: uniqueImgFilename,
+        userId: session.user.id,
         order: photoCount + 1,
-      src: IMG_READ_DIR + uniqueImgFilename,
+        src: IMG_READ_DIR + uniqueImgFilename,
         alt: `Dog photo ${photoCount + 1}`,
       },
     });
@@ -97,7 +96,7 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
       orderBy: { order: "asc" },
     });
 
-    const photoData: Photo[] = photos.map((photo: PrismaPhoto) => ({
+    const photoData: Photo[] = photos.map((photo) => ({
       id: photo.id,
       imgFilename: photo.imgFilename,
       userId: photo.userId,
@@ -130,8 +129,8 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
     });
 
     if (!photo) {
-    return { data: undefined, error: "Photo not found" };
-  }
+      return { data: undefined, error: "Photo not found" };
+    }
 
     // Check if user owns the photo or is admin
     // Note: Old photos migrated from sessionId-based auth have userIds that won't match
@@ -149,7 +148,7 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
     // Delete the image file from filesystem
     const imgFilePath = join(IMG_UPLOAD_DIR, photo.imgFilename);
     if (existsSync(imgFilePath)) {
-    unlinkSync(imgFilePath);
+      unlinkSync(imgFilePath);
     }
 
     return { data: undefined, error: undefined };
