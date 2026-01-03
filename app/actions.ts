@@ -11,8 +11,8 @@ import { Photo } from "../lib/types";
 
 export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
 
-// Use environment variable if set, otherwise use absolute path
-const IMG_UPLOAD_DIR = process.env.UPLOAD_DIR || "/home/rioredwards/pi-site/public/images";
+// Always use absolute path - process.cwd() is unreliable in production
+const IMG_UPLOAD_DIR = "/home/rioredwards/pi-site/public/images";
 const IMG_READ_DIR = "/api/assets/images/";
 
 export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
