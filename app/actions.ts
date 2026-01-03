@@ -1,7 +1,7 @@
 "use server";
 
 import { authOptions } from "@/app/auth";
-import { existsSync, mkdirSync, unlinkSync } from "fs";
+import { existsSync, mkdirSync, unlinkSync, chmodSync } from "fs";
 import { writeFile } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { join } from "path";
@@ -11,7 +11,32 @@ import { Photo } from "../lib/types";
 
 export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
 
-const IMG_UPLOAD_DIR = join(process.cwd(), "public/images");
+// Get upload directory - use environment variable or resolve from process.cwd()
+// In production, ensure the directory exists and has proper permissions
+const getUploadDir = () => {
+  if (process.env.UPLOAD_DIR) {
+    return process.env.UPLOAD_DIR;
+  }
+  // Try common paths
+  const cwd = process.cwd();
+  // If cwd is /app (Docker) or unexpected, try to find the actual project root
+  if (cwd === "/app" || !existsSync(join(cwd, "package.json"))) {
+    // Try to find the project root by looking for package.json
+    const possibleRoots = [
+      "/home/rioredwards/pi-site",
+      process.env.HOME ? join(process.env.HOME, "pi-site") : null,
+    ].filter(Boolean);
+    
+    for (const root of possibleRoots) {
+      if (root && existsSync(join(root, "package.json"))) {
+        return join(root, "public/images");
+      }
+    }
+  }
+  return join(cwd, "public/images");
+};
+
+const IMG_UPLOAD_DIR = getUploadDir();
 const IMG_READ_DIR = "/api/assets/images/";
 
 export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
@@ -167,9 +192,22 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
   }
 }
 
-// Helper function to create a directory if it doesn't exist
+// Helper function to create a directory if it doesn't exist with proper permissions
 function createDirIfNotExists(dir: string): void {
   if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
+    mkdirSync(dir, { recursive: true, mode: 0o755 });
+    // Ensure the directory is writable
+    try {
+      chmodSync(dir, 0o755);
+    } catch {
+      // Ignore chmod errors, directory was created
+    }
+  } else {
+    // Ensure existing directory is writable
+    try {
+      chmodSync(dir, 0o755);
+    } catch {
+      // Ignore chmod errors
+    }
   }
 }
