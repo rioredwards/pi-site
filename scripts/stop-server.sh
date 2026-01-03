@@ -1,28 +1,44 @@
 #!/bin/bash
-# Stop the Docker container on Raspberry Pi
-# Usage: ./scripts/stop-server.sh
+# Stop the app using PM2
+# Usage: ./scripts/stop-server.sh [remote]
 #
-# This script stops the Docker container using docker compose.
-# It can be run from any directory and will navigate to the project directory.
+# If "remote" is provided, stops on Raspberry Pi via SSH
+# Otherwise, stops locally
+#
+# This script stops the app using PM2
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-echo "🛑 Stopping Docker container..."
-echo ""
-
-cd "${PROJECT_DIR}"
-
-if docker compose ps | grep -q "Up"; then
-    if docker compose down; then
-        echo "✅ Container stopped successfully!"
-    else
-        echo "❌ Failed to stop container"
+if [ "$1" = "remote" ]; then
+    # Stop on Raspberry Pi
+    PI_HOST="raspberrypi"
+    
+    echo "🛑 Stopping app on Raspberry Pi..."
+    echo ""
+    
+    ssh ${PI_HOST} "pm2 stop pi-site || echo 'App is not running'"
+    
+    echo "✅ App stopped on Raspberry Pi!"
+else
+    # Stop locally
+    echo "🛑 Stopping app locally..."
+    echo ""
+    
+    cd "${PROJECT_DIR}"
+    
+    # Check if PM2 is installed
+    if ! command -v pm2 &> /dev/null; then
+        echo "❌ PM2 is not installed."
         exit 1
     fi
-else
-    echo "ℹ️  Container is not running"
-    docker compose ps
+    
+    if pm2 list | grep -q "pi-site"; then
+        pm2 stop pi-site
+        echo "✅ App stopped!"
+    else
+        echo "ℹ️  App is not running"
+    fi
 fi
