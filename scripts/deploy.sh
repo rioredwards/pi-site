@@ -44,7 +44,7 @@ echo "🔄 Step 2: Pulling and restarting on Pi..."
 if ! ssh ${PI_HOST} "cd ${PI_PATH} && \
     git pull && \
     npm install --ignore-scripts && \
-    mkdir -p public/images && chmod 755 public/images && \
+    mkdir -p public/images && chmod 755 public/images && chown -R \$(whoami):\$(whoami) public/images && \
     (PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate 2>&1 | grep -v '404 Not Found' || echo 'Prisma generate completed with warnings') && \
     (PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma migrate deploy 2>&1 | grep -v '404 Not Found' || echo 'Migrations skipped') && \
     npm run build && \

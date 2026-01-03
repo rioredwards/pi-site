@@ -1,7 +1,7 @@
 "use server";
 
 import { authOptions } from "@/app/auth";
-import { existsSync, mkdirSync, unlinkSync, chmodSync } from "fs";
+import { chmodSync, existsSync, mkdirSync, unlinkSync } from "fs";
 import { writeFile } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { join } from "path";
@@ -11,29 +11,48 @@ import { Photo } from "../lib/types";
 
 export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
 
-// Get upload directory - use environment variable or resolve from process.cwd()
-// In production, ensure the directory exists and has proper permissions
+// Get upload directory - use environment variable or resolve from project root
+// In production with standalone mode, process.cwd() might be wrong, so we need to find the actual project root
 const getUploadDir = () => {
+  // First, try environment variable (most reliable)
   if (process.env.UPLOAD_DIR) {
     return process.env.UPLOAD_DIR;
   }
-  // Try common paths
-  const cwd = process.cwd();
-  // If cwd is /app (Docker) or unexpected, try to find the actual project root
-  if (cwd === "/app" || !existsSync(join(cwd, "package.json"))) {
-    // Try to find the project root by looking for package.json
-    const possibleRoots = [
-      "/home/rioredwards/pi-site",
-      process.env.HOME ? join(process.env.HOME, "pi-site") : null,
-    ].filter(Boolean);
-    
-    for (const root of possibleRoots) {
-      if (root && existsSync(join(root, "package.json"))) {
-        return join(root, "public/images");
-      }
+
+  // Try to find project root by looking for package.json in parent directories
+  // This works even if we're running from .next/standalone
+  let currentPath = process.cwd();
+  const maxDepth = 5; // Limit search depth
+  
+  for (let i = 0; i < maxDepth; i++) {
+    const packageJsonPath = join(currentPath, "package.json");
+    if (existsSync(packageJsonPath)) {
+      const uploadDir = join(currentPath, "public/images");
+      return uploadDir;
+    }
+    // Move up one directory
+    const parentPath = join(currentPath, "..");
+    if (parentPath === currentPath) {
+      // Reached filesystem root
+      break;
+    }
+    currentPath = parentPath;
+  }
+
+  // Fallback: try common paths
+  const possibleRoots = [
+    "/home/rioredwards/pi-site",
+    process.env.HOME ? join(process.env.HOME, "pi-site") : null,
+  ].filter(Boolean);
+
+  for (const root of possibleRoots) {
+    if (root && existsSync(join(root, "package.json"))) {
+      return join(root, "public/images");
     }
   }
-  return join(cwd, "public/images");
+
+  // Last resort: use process.cwd() even if it might be wrong
+  return join(process.cwd(), "public/images");
 };
 
 const IMG_UPLOAD_DIR = getUploadDir();

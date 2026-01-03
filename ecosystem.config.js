@@ -10,6 +10,7 @@ module.exports = {
         NODE_ENV: 'production',
         PORT: 3000,
         HOSTNAME: '0.0.0.0',
+        UPLOAD_DIR: process.env.HOME + '/pi-site/public/images',
       },
       error_file: './logs/pm2-error.log',
       out_file: './logs/pm2-out.log',
