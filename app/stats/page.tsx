@@ -1,5 +1,8 @@
-import { SystemInfo } from '../../components/systemInfo';
-import { getSystemInfo } from '../api/stats/actions';
+import { SystemInfo } from "../../components/systemInfo";
+import { getSystemInfo } from "../api/stats/actions";
+
+// Force dynamic rendering since stats are runtime data
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const systemInfo = await getSystemInfo();

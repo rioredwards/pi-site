@@ -47,11 +47,23 @@ Open [http://localhost:3000](http://localhost:3000) to see the result.
 
 ### Deploy
 
-Just deploy to main branch on GitHub and then run the update-server.sh script on the pi.
+Deploy with a single command from your development machine:
 
-## Deployment Workflow (run on pi)
+```bash
+./scripts/deploy.sh
+```
 
-### Server Scripts
+This builds the Docker image on your desktop, transfers it to your Raspberry Pi, and restarts the container automatically.
+
+**First time setup:**
+```bash
+chmod +x scripts/deploy.sh
+chmod +x scripts/build-and-transfer.sh
+```
+
+See [DOCKER.md](./DOCKER.md) for detailed Docker instructions.
+
+### Traditional Server Scripts
 
 ```bash
 ./update-server.sh # Updates the server with the latest code from GitHub
@@ -106,8 +118,28 @@ This will migrate all existing photo metadata from JSON files to the database. T
 
 The database file is located at `prisma/dev.db` and is automatically excluded from git.
 
+## Docker
+
+This project uses Docker for easy deployment. The recommended workflow is to build on your development machine and deploy to the Raspberry Pi.
+
+**Quick Deploy:**
+```bash
+./scripts/deploy.sh  # One command to build, transfer, and restart
+```
+
+See [DOCKER.md](./DOCKER.md) for complete documentation.
+
+**Benefits:**
+
+- ✅ **One-command deployment** - build and deploy from your desktop
+- ✅ **Consistent Node.js version** (22 LTS) - no version conflicts
+- ✅ **Isolated environment** - no system-wide dependencies
+- ✅ **Fast builds** - build on powerful desktop, run on Pi
+- ✅ **Automatic migrations** - database migrations run automatically
+
 ## Links
 
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Cloudflare Tunnels](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
 - [Raspberry Pi Documentation](https://www.raspberrypi.com/documentation/)
+- [Docker Documentation](https://docs.docker.com/)

@@ -1,0 +1,152 @@
+---
+description: Maintain high-level perspective and follow standard practices - avoid overcomplicating solutions
+alwaysApply: true
+---
+
+# Maintain Perspective and Follow Standard Practices
+
+## Core Principle
+
+**Always keep the broader context and end goal in mind.** When solutions become complicated or we're solving problems that feel "hacky," step back and verify we're following standard/proven approaches rather than creating unnecessary work.
+
+## When to Step Back
+
+If ANY of these conditions are true, STOP and reassess:
+
+1. **The solution is getting increasingly complex** - We're adding workarounds, special configurations, or "fixes" that feel like hacks
+2. **We're solving infrastructure/configuration issues** that seem unusual or non-standard
+3. **We've been working on the same problem for multiple iterations** without clear progress
+4. **The approach feels like we're "fighting the framework/tool"** rather than using it as intended
+5. **We're doing something on production that's typically done in development** (or vice versa)
+
+## Standard Practices to Remember
+
+### Docker/Container Workflows
+- **Standard**: Build images on dev/build machines, deploy to production
+- **Anti-pattern**: Building Docker images directly on production servers
+- **Why**: Production servers are for running, not building. Build processes are resource-intensive and can have network/dependency issues.
+
+### Database Migrations
+- **Standard**: Run migrations as part of deployment, not manually on production
+- **Anti-pattern**: Manually running migrations on production servers during troubleshooting
+
+### Environment Configuration
+- **Standard**: Use environment variables, config files, or secrets management
+- **Anti-pattern**: Hardcoding values, editing production configs directly, or complex workarounds for config issues
+
+### Development vs Production
+- **Standard**: Build/compile on dev, deploy artifacts to prod
+- **Anti-pattern**: Installing build tools, compilers, or development dependencies on production
+
+## Real-World Examples
+
+### Example 1: Docker Build on Production (Today's Issue)
+**What happened:**
+- User wanted to run a Docker container on Raspberry Pi
+- We tried to build the image directly on the Pi
+- Hit segfaults, IPv6 issues, network problems
+- Spent time fixing Pi network config, Docker daemon settings, etc.
+
+**What we should have done:**
+- Immediately recognized: Docker images are built on dev machines
+- Standard workflow: `docker build` on desktop → `docker save` → transfer → `docker load` on Pi
+- Or use: `docker buildx build --platform linux/arm64` on desktop, transfer image
+
+**Lesson:** Production servers run containers, they don't build them.
+
+### Example 2: Database Migrations on Production
+**Anti-pattern:**
+- User reports database errors in production
+- We start running `prisma migrate dev` directly on production server
+- Creating migration files, editing production database schema manually
+- Risking data loss, downtime, inconsistent states
+
+**Standard approach:**
+- Migrations are code changes, tested in dev
+- Deploy migration files as part of application deployment
+- Use `prisma migrate deploy` in CI/CD pipeline
+- Production only runs migrations, never creates them
+
+### Example 3: Installing Build Tools on Production
+**Anti-pattern:**
+- Application needs native modules compiled
+- Installing `gcc`, `make`, `python`, build dependencies on production
+- Compiling during deployment, slowing down deployments
+- Increasing attack surface, production server complexity
+
+**Standard approach:**
+- Build native modules during Docker image build (on dev/CI)
+- Pre-compile binaries, include in Docker image
+- Production runs pre-built artifacts only
+
+### Example 4: Complex Workarounds for Framework Limitations
+**Anti-pattern:**
+- Framework has a standard way to do something
+- We create custom workarounds, hacks, or complex solutions
+- Fighting against the framework's design
+- Solution becomes brittle and hard to maintain
+
+**Standard approach:**
+- Use framework features as intended
+- If framework doesn't support it, consider if it's the right tool
+- Look for standard patterns, plugins, or extensions
+- Question if the requirement is actually necessary
+
+### Example 5: Manual Configuration on Production
+**Anti-pattern:**
+- Production issues require config changes
+- Manually editing config files on production server
+- No version control, no rollback, inconsistent across instances
+
+**Standard approach:**
+- Config changes are code changes
+- Use environment variables, config management tools
+- Deploy config changes through normal deployment process
+- Infrastructure as code
+
+## Decision Framework
+
+Before implementing a solution, ask:
+
+1. **Is this the standard way to do this?** 
+   - If no, why not? What's the standard approach?
+
+2. **Would this be done this way in a professional/enterprise environment?**
+   - If no, what would they do instead?
+
+3. **Are we solving a problem that only exists because we're doing something non-standard?**
+   - If yes, step back and use the standard approach
+
+4. **Is this solution getting more complicated over time?**
+   - If yes, we're probably on the wrong path
+
+5. **What would the documentation/tutorial for this tool recommend?**
+   - Follow the official docs, not workarounds
+
+## Action Items
+
+When you notice we're going down a complicated path:
+
+1. **Stop and state the goal clearly**
+   - "The goal is: [clear statement]"
+   - "The standard way to achieve this is: [standard approach]"
+
+2. **Identify if we've strayed**
+   - "We're currently trying to: [current approach]"
+   - "This differs from standard because: [difference]"
+
+3. **Propose the standard approach**
+   - "Instead, we should: [standard solution]"
+   - "This avoids: [problems we're hitting]"
+
+4. **Get confirmation before proceeding**
+   - Don't assume the user wants the complicated path
+   - Ask if the standard approach works for them
+
+## Remember
+
+- **Standard practices exist for good reasons** - they've been tested, documented, and proven
+- **Complexity is a code smell** - if it's getting complicated, we might be wrong
+- **Production is for running, not building** - keep build processes separate
+- **When in doubt, follow the documentation** - official docs show the intended way
+- **The user's goal is usually simpler than we think** - don't overcomplicate

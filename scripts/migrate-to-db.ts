@@ -23,13 +23,14 @@ async function migrateMetadata() {
     try {
       files = await readdir(META_UPLOAD_DIR);
     } catch (error) {
+      console.error(`Error reading meta directory: ${error}`);
       console.log("No meta directory found or it's empty. Nothing to migrate.");
       return;
     }
 
     // Filter to only JSON files
     const jsonFiles = files.filter((file) => file.endsWith(".json"));
-    
+
     if (jsonFiles.length === 0) {
       console.log("No JSON files found to migrate.");
       return;
@@ -94,4 +95,3 @@ async function migrateMetadata() {
 }
 
 migrateMetadata();
-

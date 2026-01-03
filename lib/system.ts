@@ -15,9 +15,14 @@ export function getCpuUsage() {
 
 export async function getCpuTemp() {
   if (platform() !== "linux") return 0;
-  const { stdout } = await execAsync("vcgencmd measure_temp");
-  // in celsius! OBVIOUSLY!
-  return parseFloat(stdout.replace("temp=", "").replace("'C", ""));
+  try {
+    const { stdout } = await execAsync("vcgencmd measure_temp");
+    // in celsius! OBVIOUSLY!
+    return parseFloat(stdout.replace("temp=", "").replace("'C", ""));
+  } catch {
+    // vcgencmd not available (e.g., in Docker container or non-Raspberry Pi)
+    return 0;
+  }
 }
 
 export function bytesToGB(bytes: number) {

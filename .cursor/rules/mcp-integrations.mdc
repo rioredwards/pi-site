@@ -1,10 +1,10 @@
 ---
 alwaysApply: true
 ---
+
 # MCP Integrations
 
 - Always use context7 when I need code generation, setup or configuration steps, or library/API documentation. This means you should automatically use the Context7 MCP tools to resolve library id and get library docs without me having to explicitly ask.
-- Use the GitKraken MCP for git-related tasks.
 - Use the Shadcn MCP when you are using the shadcn/ui library or components.
-- Use the Chrome DevTools MCP for browser/ui/web-frontend-related tasks.
+- Using the tools provided from the Docker MCP Server (playwright, etc.) to run tests that require interacting with the browser and verify the application is working as expected.
 - Use the Next.js DevTools MCP for Next.js-related tasks (this whole project is built with Next.js, so this will be used frequently).

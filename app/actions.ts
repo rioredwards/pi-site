@@ -61,11 +61,11 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     // Save metadata to database
     const photo = await prisma.photo.create({
       data: {
-        id: imgId,
-        imgFilename: uniqueImgFilename,
-        userId: session.user.id,
+      id: imgId,
+      imgFilename: uniqueImgFilename,
+      userId: session.user.id,
         order: photoCount + 1,
-        src: IMG_READ_DIR + uniqueImgFilename,
+      src: IMG_READ_DIR + uniqueImgFilename,
         alt: `Dog photo ${photoCount + 1}`,
       },
     });
@@ -129,8 +129,8 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
     });
 
     if (!photo) {
-      return { data: undefined, error: "Photo not found" };
-    }
+    return { data: undefined, error: "Photo not found" };
+  }
 
     // Check if user owns the photo or is admin
     // Note: Old photos migrated from sessionId-based auth have userIds that won't match
@@ -148,7 +148,7 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
     // Delete the image file from filesystem
     const imgFilePath = join(IMG_UPLOAD_DIR, photo.imgFilename);
     if (existsSync(imgFilePath)) {
-      unlinkSync(imgFilePath);
+    unlinkSync(imgFilePath);
     }
 
     return { data: undefined, error: undefined };
