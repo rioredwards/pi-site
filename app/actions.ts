@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import { authOptions } from "@/app/auth";
 import { Photo } from "../lib/types";
 import { prisma } from "../lib/prisma";
+import type { Photo as PrismaPhoto } from "@prisma/client";
 
 export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
 
@@ -96,7 +97,7 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
       orderBy: { order: "asc" },
     });
 
-    const photoData: Photo[] = photos.map((photo) => ({
+    const photoData: Photo[] = photos.map((photo: PrismaPhoto) => ({
       id: photo.id,
       imgFilename: photo.imgFilename,
       userId: photo.userId,

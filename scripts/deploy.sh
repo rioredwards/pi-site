@@ -1,5 +1,5 @@
 #!/bin/bash
-# Simple deployment script for Raspberry Pi using PM2
+# Simple deployment: Push to GitHub, then pull and restart on Pi
 # Usage: ./scripts/deploy.sh
 
 set -e
@@ -7,95 +7,54 @@ set -e
 PI_HOST="raspberrypi"
 PI_PATH="~/pi-site"
 
-echo "🚀 Starting deployment..."
+echo "🚀 Deploying to Raspberry Pi..."
 echo ""
 
-# Pre-flight checks
-echo "🔍 Pre-flight checks..."
-if ! ssh -o ConnectTimeout=5 ${PI_HOST} "echo 'SSH connection test'" &>/dev/null; then
-    echo "❌ Error: Cannot connect to ${PI_HOST} via SSH"
-    echo "   Please verify SSH access: ssh ${PI_HOST}"
-    exit 1
-fi
-echo "✅ SSH connection verified"
-echo ""
-
-# Get expanded path
-PI_PATH_EXPANDED=$(ssh ${PI_HOST} "echo ${PI_PATH}")
-
-# Step 1: Build locally
-echo "📦 Step 1: Building application..."
+# Step 0: Test build locally first (fail fast)
+echo "🧪 Step 0: Testing build locally..."
 if ! npm run build; then
-    echo "❌ Build failed!"
+    echo "❌ Build failed locally! Fix errors before deploying."
     exit 1
 fi
-echo "✅ Build complete"
+echo "✅ Local build successful"
 echo ""
 
-# Step 2: Sync files to Pi
-echo "📤 Step 2: Syncing files to Pi..."
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-
-# Ensure directory exists
-ssh ${PI_HOST} "mkdir -p ${PI_PATH_EXPANDED}/logs" || true
-
-# Sync built files
-echo "   Syncing .next directory..."
-rsync -av --delete \
-    --exclude '.next/cache' \
-    "${PROJECT_ROOT}/.next/" ${PI_HOST}:${PI_PATH_EXPANDED}/.next/ || {
-    echo "⚠️  rsync failed, trying alternative method..."
-    tar czf - -C "${PROJECT_ROOT}" .next | ssh ${PI_HOST} "cd ${PI_PATH_EXPANDED} && tar xzf -"
-}
-
-# Sync other necessary files
-echo "   Syncing package files..."
-scp "${PROJECT_ROOT}/package.json" "${PROJECT_ROOT}/package-lock.json" ${PI_HOST}:${PI_PATH_EXPANDED}/ || true
-
-# Sync prisma files
-echo "   Syncing Prisma files..."
-rsync -av "${PROJECT_ROOT}/prisma/" ${PI_HOST}:${PI_PATH_EXPANDED}/prisma/ || true
-
-# Sync public files (excluding images which should already be on Pi)
-echo "   Syncing public files..."
-rsync -av --exclude 'images' "${PROJECT_ROOT}/public/" ${PI_HOST}:${PI_PATH_EXPANDED}/public/ || true
-
-# Sync ecosystem config
-echo "   Syncing PM2 config..."
-scp "${PROJECT_ROOT}/ecosystem.config.js" ${PI_HOST}:${PI_PATH_EXPANDED}/ || true
-
-echo "✅ Files synced"
-echo ""
-
-# Step 3: Install dependencies and restart on Pi
-echo "🔄 Step 3: Installing dependencies and restarting on Pi..."
-ssh ${PI_HOST} "cd ${PI_PATH_EXPANDED} && \
-    npm ci --production && \
-    npx prisma generate && \
-    (pm2 restart pi-site || pm2 start ecosystem.config.js)"
-
-echo "✅ Application restarted"
-echo ""
-
-# Step 4: Run migrations
-echo "📊 Step 4: Running database migrations..."
-if ssh ${PI_HOST} "cd ${PI_PATH_EXPANDED} && npx prisma migrate deploy"; then
-    echo "✅ Migrations complete"
+# Step 1: Commit and push to GitHub
+echo "📤 Step 1: Committing and pushing to GitHub..."
+CURRENT_BRANCH=$(git branch --show-current)
+if [ -n "$CURRENT_BRANCH" ]; then
+    # Check if there are changes to commit
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+        echo "   Committing changes..."
+        git add -A
+        git commit -m "Deploy: $(date +%Y-%m-%d\ %H:%M:%S)" || echo "   No changes to commit"
+    fi
+    echo "   Pushing to GitHub..."
+    git push origin ${CURRENT_BRANCH} || {
+        echo "❌ Failed to push to GitHub"
+        exit 1
+    }
 else
-    echo "⚠️  Migration failed - you may need to run manually:"
-    echo "   ssh ${PI_HOST} 'cd ${PI_PATH_EXPANDED} && npx prisma migrate deploy'"
+    echo "   Not on a branch, skipping push"
 fi
 echo ""
 
-# Step 5: Check status
-echo "🔍 Step 5: Checking application status..."
-ssh ${PI_HOST} "pm2 status"
-echo ""
+# Step 2: Pull and restart on Pi
+echo "🔄 Step 2: Pulling and restarting on Pi..."
+if ! ssh ${PI_HOST} "set -e && cd ${PI_PATH} && \
+    git pull && \
+    npm install && \
+    npm run build && \
+    npx prisma generate && \
+    npx prisma migrate deploy && \
+    pm2 restart pi-site || pm2 start npm --name pi-site -- start"; then
+    echo ""
+    echo "❌ Deployment failed on Pi!"
+    exit 1
+fi
 
-echo "🎉 Deployment complete!"
 echo ""
-echo "View logs: ssh ${PI_HOST} 'pm2 logs pi-site'"
-echo "Restart:  ssh ${PI_HOST} 'pm2 restart pi-site'"
-echo "Stop:     ssh ${PI_HOST} 'pm2 stop pi-site'"
-echo "Status:   ssh ${PI_HOST} 'pm2 status'"
+echo "✅ Deployment complete!"
+echo ""
+echo "The app should be running on http://localhost:3000"
+echo "Check logs: ssh ${PI_HOST} 'cd ${PI_PATH} && tail -f .next/trace'"
