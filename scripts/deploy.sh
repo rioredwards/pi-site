@@ -41,11 +41,10 @@ echo ""
 
 # Step 2: Pull and restart on Pi
 echo "🔄 Step 2: Pulling and restarting on Pi..."
-if ! ssh ${PI_HOST} "cd ${PI_PATH} && \
+if ! ssh ${PI_HOST} "set -e && cd ${PI_PATH} && \
     git pull && \
-    npm install --ignore-scripts && \
-    (PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate || echo 'Prisma generate had issues but continuing...') && \
-    (PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma migrate deploy || echo 'Prisma migrate had issues but continuing...') && \
+    npm install && \
+    npx prisma migrate deploy && \
     npm run build && \
     pm2 restart pi-site || pm2 start npm --name pi-site -- start"; then
     echo ""

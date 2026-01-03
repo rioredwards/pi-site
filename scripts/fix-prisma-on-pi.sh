@@ -10,7 +10,7 @@ echo ""
 cd ~/pi-site || exit 1
 
 echo "📦 Step 1: Generating Prisma client..."
-PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 PRISMA_CLI_BINARY_TARGET=linux-arm64-openssl-3.0.x npx prisma generate || {
+npx prisma generate || {
     echo "❌ Failed to generate Prisma client"
     exit 1
 }
