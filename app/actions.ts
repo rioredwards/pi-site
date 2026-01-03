@@ -1,13 +1,13 @@
 "use server";
 
+import { authOptions } from "@/app/auth";
 import { existsSync, mkdirSync, unlinkSync } from "fs";
 import { writeFile } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
-import { authOptions } from "@/app/auth";
-import { Photo } from "../lib/types";
 import { prisma } from "../lib/prisma";
+import { Photo } from "../lib/types";
 
 export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
 
