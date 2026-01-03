@@ -46,9 +46,8 @@ if ! ssh ${PI_HOST} "cd ${PI_PATH} && \
     npm install --ignore-scripts && \
     mkdir -p public/images && chmod 755 public/images && chown -R \$(whoami):\$(whoami) public/images && \
     rm -rf .next && \
-    (PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate 2>&1 | (grep -v '404 Not Found' || true) || echo 'Prisma generate failed but continuing with existing client...') && \
-    (PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma migrate deploy 2>&1 | grep -v '404 Not Found' || echo 'Migrations skipped') && \
-    npm run build && \
+    (PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate 2>&1 | (grep -v '404 Not Found' || true) || echo 'Prisma generate failed, using existing client') && \
+    npm run build || (echo 'Build failed, checking Prisma client...' && ls -la node_modules/@prisma/client && npm run build) && \
     pm2 delete all 2>/dev/null || true && \
     pm2 start ecosystem.config.js && \
     pm2 save"; then
