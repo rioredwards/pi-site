@@ -96,14 +96,23 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
       orderBy: { order: "asc" },
     });
 
-    const photoData: Photo[] = photos.map((photo) => ({
-      id: photo.id,
-      imgFilename: photo.imgFilename,
-      userId: photo.userId,
-      order: photo.order,
-      src: photo.src,
-      alt: photo.alt,
-    }));
+    const photoData: Photo[] = photos.map(
+      (photo: {
+        id: string;
+        imgFilename: string;
+        userId: string;
+        order: number;
+        src: string;
+        alt: string;
+      }) => ({
+        id: photo.id,
+        imgFilename: photo.imgFilename,
+        userId: photo.userId,
+        order: photo.order,
+        src: photo.src,
+        alt: photo.alt,
+      })
+    );
 
     const response: APIResponse<Photo[]> = {
       error: undefined,
