@@ -10,7 +10,7 @@ echo ""
 cd ~/pi-site || exit 1
 
 echo "📦 Step 1: Generating Prisma client..."
-npx prisma generate || {
+PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate || {
     echo "❌ Failed to generate Prisma client"
     exit 1
 }
