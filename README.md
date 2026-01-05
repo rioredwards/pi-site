@@ -21,7 +21,7 @@ This project is a personal portfolio/gallery site that:
 - ShadCN UI
 - Prisma ORM
 - SQLite
-- Node.js
+- Node.js 20+
 
 ## TODO
 
@@ -45,6 +45,10 @@ graph LR
 ```
 
 ### Local Development
+
+**Requirements:**
+
+- Node.js 20 or higher (use `nvm use` if you have nvm installed, or check with `node --version`)
 
 Just the regular Next.js dev flow:
 
