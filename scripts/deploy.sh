@@ -11,7 +11,7 @@
 
 set -e
 
-PI_HOST="raspberrypi"
+PI_HOST="pi"
 PI_PATH="~/pi-site"
 
 echo "🚀 Deploying to Raspberry Pi..."

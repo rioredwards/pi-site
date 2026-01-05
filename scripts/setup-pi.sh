@@ -22,7 +22,8 @@ echo "✅ Node.js found: ${NODE_VERSION}"
 # Check if PM2 is installed
 if ! command -v pm2 &> /dev/null; then
     echo "📦 Installing PM2..."
-    sudo npm install -g pm2
+    # Preserve PATH when using sudo so npm/nvm is accessible
+    sudo env PATH="$PATH" npm install -g pm2
     echo "✅ PM2 installed"
 else
     echo "✅ PM2 already installed"
