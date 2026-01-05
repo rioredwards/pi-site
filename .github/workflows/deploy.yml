@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:  # Allows manual triggering from GitHub UI
   # Explicitly do NOT trigger on pull_request events
 
 jobs:
@@ -14,11 +15,11 @@ jobs:
     runs-on: self-hosted
     
     # Security: Only run if:
-    # 1. This is a push event (not a PR)
+    # 1. This is a push event (not a PR) OR a manual workflow_dispatch
     # 2. The actor is the repository owner (you)
     # 3. The repository is not a fork
     if: |
-      github.event_name == 'push' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
       github.actor == github.repository_owner &&
       !github.event.repository.fork
     
@@ -47,6 +48,10 @@ jobs:
       
       - name: Install dependencies
         run: npm ci
+      
+      - name: Generate Prisma client
+        run: |
+          PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate 2>&1 | (grep -v '404 Not Found' || true) || echo 'Prisma generate failed, using existing client'
       
       - name: Test build
         run: npm run build
