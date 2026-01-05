@@ -158,18 +158,103 @@ The database file is located at `prisma/dev.db` and is automatically excluded fr
 
 ## Deployment
 
-This project uses PM2 for process management on the Raspberry Pi. The recommended workflow is to build on your development machine and deploy to the Raspberry Pi.
+This project uses PM2 for process management on the Raspberry Pi. There are two deployment methods:
 
-**Quick Deploy:**
+### Automatic Deployment (Main Branch)
+
+When you push to the `main` branch, GitHub Actions automatically deploys to the Raspberry Pi using a **self-hosted runner**. This is the recommended workflow for production deployments.
+
+**Why self-hosted runner?**
+
+- No router configuration needed - the Pi connects to GitHub (outbound connection)
+- No need to expose SSH or open ports
+- More secure - no inbound connections required
+- Runs directly on your Pi, so it has access to all local resources
+
+**Setup (One-time):**
+
+1. Install the GitHub Actions runner on your Raspberry Pi:
+
+   ```bash
+   # SSH into your Pi
+   ssh raspberrypi
+
+   # Create a directory for the runner
+   mkdir -p ~/actions-runner && cd ~/actions-runner
+
+   # Download the latest runner package (ARM64 for Raspberry Pi)
+   curl -o actions-runner-linux-arm64-2.311.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.311.0/actions-runner-linux-arm64-2.311.0.tar.gz
+
+   # Extract the installer
+   tar xzf ./actions-runner-linux-arm64-2.311.0.tar.gz
+   ```
+
+2. Configure the runner:
+
+   ```bash
+   # Get your repository URL and token from GitHub:
+   # Go to: Settings → Actions → Runners → New self-hosted runner
+   # Copy the registration token and run:
+   ./config.sh --url https://github.com/YOUR_USERNAME/YOUR_REPO --token YOUR_TOKEN
+
+   # When prompted:
+   # - Runner name: pi-site-runner (or any name)
+   # - Labels: leave default or add "raspberry-pi"
+   # - Work folder: ~/actions-runner/_work (default is fine)
+   ```
+
+3. Install and start the runner as a service:
+
+   ```bash
+   # Install the service
+   sudo ./svc.sh install
+
+   # Start the service
+   sudo ./svc.sh start
+
+   # Check status
+   sudo ./svc.sh status
+   ```
+
+4. Verify the runner appears in GitHub:
+   - Go to your repository → Settings → Actions → Runners
+   - You should see your self-hosted runner listed as "Idle"
+
+**How it works:**
+
+- Push to `main` branch → GitHub Actions triggers
+- GitHub sends the job to your self-hosted runner (Pi connects to GitHub, not the other way around)
+- Runner checks out code, builds, and deploys directly on the Pi
+- App automatically restarts with new code
+
+**Troubleshooting:**
+
+- View runner logs: `~/actions-runner/_diag/Runner_*.log`
+- Restart runner service: `sudo ./svc.sh restart` (from `~/actions-runner`)
+- Stop runner: `sudo ./svc.sh stop`
+- Remove runner: `./config.sh remove --token YOUR_TOKEN` (get new token from GitHub)
+
+### Manual Deployment (Feature Branches)
+
+For feature branches or when you need manual control, use the deploy script:
 
 ```bash
 ./scripts/deploy.sh  # One command to build, sync, and restart
 ```
 
+This script:
+
+- Builds the app locally first (fail fast)
+- Commits and pushes your current branch to GitHub
+- SSHs to Pi and pulls the latest code
+- Installs dependencies, builds, and restarts PM2
+
 See [PM2_SETUP.md](./PM2_SETUP.md) for complete deployment documentation.
 
 **Benefits:**
 
+- ✅ **Automatic deployments** - main branch deploys automatically via GitHub Actions
+- ✅ **Manual control** - feature branches can be deployed manually
 - ✅ **One-command deployment** - build and deploy from your desktop
 - ✅ **Simple setup** - no Docker complexity, direct Node.js execution
 - ✅ **Fast deployments** - sync files and restart, no image building

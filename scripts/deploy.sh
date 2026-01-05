@@ -1,6 +1,13 @@
 #!/bin/bash
-# Simple deployment: Push to GitHub, then pull and restart on Pi
+# Manual deployment: Push to GitHub, then pull and restart on Pi
 # Usage: ./scripts/deploy.sh
+#
+# This script is for deploying from feature branches or when you need manual control.
+# For automatic deployments from the main branch, see GitHub Actions workflow (.github/workflows/deploy.yml)
+#
+# Workflow:
+#   - Feature branches: Use this script to deploy manually
+#   - Main branch: Automatically deploys via GitHub Actions when pushed
 
 set -e
 
