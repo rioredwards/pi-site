@@ -62,36 +62,35 @@ Deploy with a single command from your development machine:
 ./scripts/deploy.sh
 ```
 
-This builds the Docker image on your desktop, transfers it to your Raspberry Pi, and restarts the container automatically.
+This builds the app locally, syncs files to your Raspberry Pi, installs dependencies, and restarts the PM2 process automatically.
 
 **First time setup:**
 
 ```bash
 chmod +x scripts/deploy.sh
-chmod +x scripts/build-and-transfer.sh
 ```
 
-See [DOCKER.md](./DOCKER.md) for detailed Docker instructions.
+See [PM2_SETUP.md](./PM2_SETUP.md) for detailed deployment instructions.
 
 ### Server Management Scripts (on Raspberry Pi)
 
-These scripts help manage the Docker container on your Raspberry Pi:
+These scripts help manage the PM2 process on your Raspberry Pi:
 
 ```bash
-# Check container status
+# Check PM2 status
 ./scripts/check-server.sh
 
-# Start container (if stopped)
+# Start app (if stopped)
 ./scripts/start-server.sh
 
-# Stop container
+# Stop app
 ./scripts/stop-server.sh
 
 # Update code and optionally rebuild (usually use deploy.sh from desktop instead)
 ./scripts/update-server.sh
 ```
 
-**Note:** The recommended workflow is to deploy from your desktop using `./scripts/deploy.sh`. These scripts are useful when you're already SSH'd into the Pi and need to manage the container directly.
+**Note:** The recommended workflow is to deploy from your desktop using `./scripts/deploy.sh`. These scripts are useful when you're already SSH'd into the Pi and need to manage the process directly.
 
 ## Architecture Notes
 
@@ -112,13 +111,14 @@ npx prisma generate
 npx prisma migrate dev
 ```
 
-### Docker (Production on Raspberry Pi)
+### Production (Raspberry Pi)
 
 Database migrations run automatically during deployment. To run manually:
 
 ```bash
 # On Raspberry Pi
-docker compose exec app npx prisma migrate deploy
+cd ~/pi-site
+npx prisma migrate deploy
 ```
 
 ### Migrating Existing Data
@@ -131,10 +131,11 @@ If you have existing JSON metadata files in `public/meta/`, run the migration sc
 npx tsx scripts/migrate-to-db.ts
 ```
 
-**Docker:**
+**Production (Raspberry Pi):**
 
 ```bash
-docker compose exec app npx tsx scripts/migrate-to-db.ts
+cd ~/pi-site
+npx tsx scripts/migrate-to-db.ts
 ```
 
 This will migrate all existing photo metadata from JSON files to the database. The script is idempotent and can be run multiple times safely.
@@ -147,32 +148,32 @@ This will migrate all existing photo metadata from JSON files to the database. T
 - **Create migration**: `npx prisma migrate dev --name migration_name`
 - **Reset database**: `npx prisma migrate reset` (⚠️ deletes all data)
 
-**Docker (Production):**
+**Production (Raspberry Pi):**
 
-- **View data**: `docker compose exec app npx prisma studio` (then port forward if needed)
-- **Run migrations**: `docker compose exec app npx prisma migrate deploy`
-- **Test connection**: `docker compose exec app npx tsx scripts/test-db.ts`
+- **View data**: `npx prisma studio` (then port forward via SSH if needed)
+- **Run migrations**: `npx prisma migrate deploy`
+- **Test connection**: `npx tsx scripts/test-db.ts`
 
-The database file is located at `prisma/dev.db` and is automatically excluded from git. In Docker, it's persisted via volume mount.
+The database file is located at `prisma/dev.db` and is automatically excluded from git.
 
-## Docker
+## Deployment
 
-This project uses Docker for easy deployment. The recommended workflow is to build on your development machine and deploy to the Raspberry Pi.
+This project uses PM2 for process management on the Raspberry Pi. The recommended workflow is to build on your development machine and deploy to the Raspberry Pi.
 
 **Quick Deploy:**
 
 ```bash
-./scripts/deploy.sh  # One command to build, transfer, and restart
+./scripts/deploy.sh  # One command to build, sync, and restart
 ```
 
-See [DOCKER.md](./DOCKER.md) for complete documentation.
+See [PM2_SETUP.md](./PM2_SETUP.md) for complete deployment documentation.
 
 **Benefits:**
 
 - ✅ **One-command deployment** - build and deploy from your desktop
-- ✅ **Consistent Node.js version** (22 LTS) - no version conflicts
-- ✅ **Isolated environment** - no system-wide dependencies
-- ✅ **Fast builds** - build on powerful desktop, run on Pi
+- ✅ **Simple setup** - no Docker complexity, direct Node.js execution
+- ✅ **Fast deployments** - sync files and restart, no image building
+- ✅ **Easy debugging** - direct access to logs and process management
 - ✅ **Automatic migrations** - database migrations run automatically
 
 ## Links
@@ -180,4 +181,4 @@ See [DOCKER.md](./DOCKER.md) for complete documentation.
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Cloudflare Tunnels](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
 - [Raspberry Pi Documentation](https://www.raspberrypi.com/documentation/)
-- [Docker Documentation](https://docs.docker.com/)
+- [PM2 Documentation](https://pm2.keymetrics.io/docs/usage/quick-start/)

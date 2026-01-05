@@ -20,7 +20,7 @@ export async function getCpuTemp() {
     // in celsius! OBVIOUSLY!
     return parseFloat(stdout.replace("temp=", "").replace("'C", ""));
   } catch {
-    // vcgencmd not available (e.g., in Docker container or non-Raspberry Pi)
+    // vcgencmd not available (e.g., on non-Raspberry Pi systems)
     return 0;
   }
 }

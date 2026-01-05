@@ -1,39 +1,68 @@
 #!/bin/bash
-# Check Docker container status on Raspberry Pi
-# Usage: ./scripts/check-server.sh
+# Check PM2 process status on Raspberry Pi
+# Usage: ./scripts/check-server.sh [remote]
 #
-# This script shows the status of the Docker container.
-# It can be run from any directory and will navigate to the project directory.
+# If "remote" is provided, checks status on Raspberry Pi via SSH
+# Otherwise, checks locally
+#
+# This script shows the status of the PM2 process.
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-cd "${PROJECT_DIR}"
-
-echo "📊 Container Status:"
-echo ""
-docker compose ps
-
-echo ""
-echo "📋 Container Details:"
-if docker compose ps | grep -q "Up"; then
-    echo "✅ Container is running"
+if [ "$1" = "remote" ]; then
+    # Check on Raspberry Pi
+    PI_HOST="raspberrypi"
+    PI_PATH="~/pi-site"
     
-    # Check health status if available
-    HEALTH=$(docker compose ps --format json 2>/dev/null | grep -o '"Health":"[^"]*"' | cut -d'"' -f4 || echo "")
-    if [ -n "$HEALTH" ]; then
-        echo "   Health: ${HEALTH}"
+    echo "📊 Checking PM2 status on Raspberry Pi..."
+    echo ""
+    
+    ssh ${PI_HOST} "cd ${PI_PATH} && pm2 status" || {
+        echo "❌ Failed to check PM2 status on Pi"
+        echo "   Make sure PM2 is installed and the app is set up"
+        exit 1
+    }
+    
+    echo ""
+    echo "View logs: ssh ${PI_HOST} 'pm2 logs pi-site'"
+    echo "Restart: ssh ${PI_HOST} 'pm2 restart pi-site'"
+else
+    # Check locally
+    echo "📊 PM2 Status:"
+    echo ""
+    
+    cd "${PROJECT_DIR}"
+    
+    # Check if PM2 is installed
+    if ! command -v pm2 &> /dev/null; then
+        echo "❌ PM2 is not installed. Install it with: npm install -g pm2"
+        exit 1
     fi
     
-    # Show port mapping
+    # Show PM2 status
+    pm2 status
+    
     echo ""
-    echo "🌐 Ports:"
-    docker compose ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || docker compose ps
-else
-    echo "❌ Container is not running"
-    echo ""
-    echo "To start: ./scripts/start-server.sh"
-    echo "Or: docker compose up -d"
+    echo "📋 Process Details:"
+    if pm2 list | grep -q "pi-site.*online"; then
+        echo "✅ App is running"
+        
+        # Show more details
+        echo ""
+        echo "Process info:"
+        pm2 describe pi-site 2>/dev/null | head -20 || pm2 list
+        
+        echo ""
+        echo "View logs: pm2 logs pi-site"
+        echo "Restart: pm2 restart pi-site"
+        echo "Stop: pm2 stop pi-site"
+    else
+        echo "❌ App is not running"
+        echo ""
+        echo "To start: ./scripts/start-server.sh"
+        echo "Or: pm2 start ecosystem.config.js"
+    fi
 fi

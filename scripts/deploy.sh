@@ -48,7 +48,7 @@ if ! ssh ${PI_HOST} "cd ${PI_PATH} && \
     rm -rf .next && \
     (PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate 2>&1 | (grep -v '404 Not Found' || true) || echo 'Prisma generate failed, using existing client') && \
     npm run build || (echo 'Build failed, checking Prisma client...' && ls -la node_modules/@prisma/client && npm run build) && \
-    pm2 delete all 2>/dev/null || true && \
+    pm2 delete pi-site 2>/dev/null || true && \
     pm2 start ecosystem.config.js && \
     pm2 save"; then
     echo ""
@@ -60,4 +60,5 @@ echo ""
 echo "✅ Deployment complete!"
 echo ""
 echo "The app should be running on http://localhost:3000"
-echo "Check logs: ssh ${PI_HOST} 'cd ${PI_PATH} && tail -f .next/trace'"
+echo "Check status: ssh ${PI_HOST} 'pm2 status'"
+echo "View logs: ssh ${PI_HOST} 'pm2 logs pi-site'"
