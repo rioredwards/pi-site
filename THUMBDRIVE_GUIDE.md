@@ -5,12 +5,15 @@ This guide explains how to use a thumbdrive to transfer Docker images to your Ra
 ## Quick Answer
 
 **You only need ONE file on the thumbdrive:**
+
 - The Docker image file: `pi-site-XXXXX.tar` (where XXXXX is a git commit hash or timestamp)
 
 **Where it goes:**
+
 - Just copy it to the **root** of your thumbdrive (not in any subfolder)
 
 **Thumbdrive name:**
+
 - **Any name works!** You don't need to name it "pi-site"
 - The script will auto-detect it or you can specify the path
 
@@ -36,6 +39,7 @@ This guide explains how to use a thumbdrive to transfer Docker images to your Ra
    - Show you the file location
 
 **Example output:**
+
 ```
 ✅ Image built successfully! Size: 115M
 💾 Copying image to thumbdrive...
@@ -72,6 +76,7 @@ bash scripts/load-from-thumbdrive.sh /media/pi/USB_DRIVE
 ## Finding Your Thumbdrive Path
 
 ### On Mac (before copying):
+
 ```bash
 # List all mounted volumes
 ls /Volumes/
@@ -83,6 +88,7 @@ ls /Volumes/
 ```
 
 ### On Raspberry Pi (after inserting):
+
 ```bash
 # List mounted USB devices
 lsblk
@@ -99,27 +105,30 @@ df -h | grep -i usb
 ## Troubleshooting
 
 ### "Could not find thumbdrive"
+
 - Make sure the thumbdrive is mounted
 - On Mac: Check Finder to see if it's mounted
 - On Pi: Run `lsblk` to see if it's detected
 - Specify the path explicitly: `--thumbdrive /Volumes/EXACT_NAME`
 
 ### "No pi-site image file found"
+
 - Make sure you copied the `.tar` file (not the `.tar.gz`)
 - Check the file is in the root of the thumbdrive (not in a subfolder)
 - The file should be named like `pi-site-d5a56d9.tar`
 
 ### "Permission denied" on Pi
+
 - Make sure the thumbdrive is mounted with proper permissions
 - Try: `sudo bash scripts/load-from-thumbdrive.sh`
 
 ## File Structure on Thumbdrive
 
 Your thumbdrive should look like this:
+
 ```
 /Volumes/YOUR_DRIVE/
   └── pi-site-d5a56d9.tar    ← Only this file is needed!
 ```
 
 That's it - just the one `.tar` file in the root directory.
-

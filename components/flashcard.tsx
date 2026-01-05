@@ -14,17 +14,30 @@ export function Flashcard({ question, children }: FlashcardProps) {
   return (
     <CardWithGradientBorder
       className="rounded-lg"
-      borderColors={["#FFFF00", "#FFA500", "#FF4500", "#FFFF00", "#FFA500", "#FF4500"]}>
+      borderColors={[
+        "#FFFF00",
+        "#FFA500",
+        "#FF4500",
+        "#FFFF00",
+        "#FFA500",
+        "#FF4500",
+      ]}
+    >
       <CardContent className="p-6">
         <div className="text-center">
-          <h3 className="text-lg font-semibold mb-4">{question}</h3>
+          <h3 className="mb-4 text-lg font-semibold">{question}</h3>
           <div
             className={`transition-all duration-300 ${
-              isRevealed ? "opacity-100 max-h-96" : "opacity-0 max-h-0"
-            } overflow-hidden`}>
+              isRevealed ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+            } overflow-hidden`}
+          >
             {children}
           </div>
-          {!isRevealed && <Button onClick={() => setIsRevealed(!isRevealed)}>Reveal Answer</Button>}
+          {!isRevealed && (
+            <Button onClick={() => setIsRevealed(!isRevealed)}>
+              Reveal Answer
+            </Button>
+          )}
         </div>
       </CardContent>
     </CardWithGradientBorder>

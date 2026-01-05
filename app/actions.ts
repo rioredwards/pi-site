@@ -9,16 +9,24 @@ import { v4 as uuidv4 } from "uuid";
 import { prisma } from "../lib/prisma";
 import { Photo } from "../lib/types";
 
-export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
+export type APIResponse<T> =
+  | { data: T; error: undefined }
+  | { data: undefined; error: string };
 
 // Use environment variable if set, otherwise use relative path from CWD
-const IMG_UPLOAD_DIR = process.env.UPLOAD_DIR || join(process.cwd(), "public", "images");
+const IMG_UPLOAD_DIR =
+  process.env.UPLOAD_DIR || join(process.cwd(), "public", "images");
 const IMG_READ_DIR = "/api/assets/images/";
 
-export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
+export async function uploadPhoto(
+  formData: FormData,
+): Promise<APIResponse<Photo>> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return { data: undefined, error: "You must be signed in to upload photos." };
+    return {
+      data: undefined,
+      error: "You must be signed in to upload photos.",
+    };
   }
 
   const file = formData.get("file") as File;
@@ -86,7 +94,8 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     };
     return response;
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    const errorMsg =
+      error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
   }
 }
@@ -112,7 +121,7 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
         order: photo.order,
         src: photo.src,
         alt: photo.alt,
-      })
+      }),
     );
 
     const response: APIResponse<Photo[]> = {
@@ -121,7 +130,8 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
     };
     return response;
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    const errorMsg =
+      error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
   }
 }
@@ -129,7 +139,10 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
 export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return { data: undefined, error: "You must be signed in to delete photos." };
+    return {
+      data: undefined,
+      error: "You must be signed in to delete photos.",
+    };
   }
 
   try {
@@ -163,7 +176,8 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
 
     return { data: undefined, error: undefined };
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    const errorMsg =
+      error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
   }
 }

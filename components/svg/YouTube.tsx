@@ -1,8 +1,8 @@
-import { cn } from "../../lib/utils"
+import { cn } from "../../lib/utils";
 
 interface Props {
-  className?: string
-  width?: number
+  className?: string;
+  width?: number;
 }
 
 function YouTube({ width = 20, className }: Props) {
@@ -11,8 +11,16 @@ function YouTube({ width = 20, className }: Props) {
       role="img"
       height="100%"
       width={width}
-      className={cn(className, "text-[#FF0000] filter-none hover:brightness-105 hover:scale-105")}
-      style={{ fillRule: "evenodd", clipRule: "evenodd", strokeLinejoin: "round", strokeMiterlimit: 2 }}
+      className={cn(
+        className,
+        "text-[#FF0000] filter-none hover:scale-105 hover:brightness-105",
+      )}
+      style={{
+        fillRule: "evenodd",
+        clipRule: "evenodd",
+        strokeLinejoin: "round",
+        strokeMiterlimit: 2,
+      }}
       viewBox="0 0 121.485 85.039"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -22,9 +30,13 @@ function YouTube({ width = 20, className }: Props) {
         strokeWidth="0"
         style={{ fill: "currentcolor" }}
       />
-      <polygon points="48.594 60.742 80.155 42.52 48.594 24.297 48.594 60.742" fill="#fff" strokeWidth="0" />
+      <polygon
+        points="48.594 60.742 80.155 42.52 48.594 24.297 48.594 60.742"
+        fill="#fff"
+        strokeWidth="0"
+      />
     </svg>
-  )
+  );
 }
 
-export default YouTube
+export default YouTube;

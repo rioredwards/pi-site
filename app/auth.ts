@@ -24,12 +24,16 @@ export const authOptions: NextAuthOptions = {
         // Create a unique user ID from provider account ID
         // Use account.providerAccountId (sub for Google, id for GitHub) combined with provider name
         const providerAccountId =
-          account.providerAccountId || (profile as any)?.sub || user.id || user.email;
+          account.providerAccountId ||
+          (profile as any)?.sub ||
+          user.id ||
+          user.email;
 
         // Check if this user is an admin (configured via environment variable)
         // ADMIN_USER_IDS should be a comma-separated list of: provider-accountId
         // Example: "github-123456,google-789012"
-        const adminUserIds = process.env.ADMIN_USER_IDS?.split(",").map((id) => id.trim()) || [];
+        const adminUserIds =
+          process.env.ADMIN_USER_IDS?.split(",").map((id) => id.trim()) || [];
         const userId = `${account.provider}-${providerAccountId}`;
 
         // Set userId to "admin" if user is in the admin list

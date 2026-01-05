@@ -5,7 +5,6 @@ Create a new branch and commit changes with an auto-generated message. The branc
 1. Follow the same logic as the `git-commit.md` command to generate a commit message (check git status/diff, review README TODO, determine commit grouping, generate conventional commit message).
 
 2. Extract the `<type>`, `<scope>`, and `<description>` from the commit message to create the branch name:
-
    - Branch name format: `re/<type>/<scope>/<description-kebab-case>`
    - Convert `<description>` to kebab-case (lowercase, replace spaces/special chars with hyphens)
    - **If the description would result in more than 4-5 words in the branch name, use an abbreviated/high-level/more-broad version instead:**

@@ -78,15 +78,19 @@ export function Main() {
   }
 
   return (
-    <div className="container px-4 py-8 mx-auto min-h-96">
-      <Suspense>{typeof window !== "undefined" && <PhotoUpload addPhoto={addPhoto} />}</Suspense>
+    <div className="container mx-auto min-h-96 px-4 py-8">
+      <Suspense>
+        {typeof window !== "undefined" && <PhotoUpload addPhoto={addPhoto} />}
+      </Suspense>
       {isLoading ? (
-        <div className="mt-24 flex justify-center items-center">
+        <div className="mt-24 flex items-center justify-center">
           <BounceLoader color={"rgb(15, 220, 220)"} loading={true} size={25} />
         </div>
       ) : !photos.length ? (
-        <div className="mt-24 flex justify-center items-center">
-          <p className="text-gray-500 text-lg">No photos yet. Upload one to get started!</p>
+        <div className="mt-24 flex items-center justify-center">
+          <p className="text-lg text-gray-500">
+            No photos yet. Upload one to get started!
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

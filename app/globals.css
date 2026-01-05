@@ -93,6 +93,10 @@ body {
     transform: scale(-1, 1);
   }
   .gradient-border:hover {
-    background-image: linear-gradient(var(--border), var(--border) 1px, transparent 1px);
+    background-image: linear-gradient(
+      var(--border),
+      var(--border) 1px,
+      transparent 1px
+    );
   }
 }

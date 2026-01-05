@@ -2,7 +2,14 @@ import { SystemInfo as SystemInfoType } from "../lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Progress } from "./ui/progress";
 
-export function SystemInfo({ hostname, platform, architecture, cpuTemp, cpuUsage, memoryUsage }: SystemInfoType) {
+export function SystemInfo({
+  hostname,
+  platform,
+  architecture,
+  cpuTemp,
+  cpuUsage,
+  memoryUsage,
+}: SystemInfoType) {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
@@ -18,7 +25,7 @@ export function SystemInfo({ hostname, platform, architecture, cpuTemp, cpuUsage
           ].map(([label, value]) => (
             <div key={label} className="flex justify-between text-sm">
               <span className="text-muted-foreground">{label}:</span>
-              <span className="text-foreground font-medium">{value}</span>
+              <span className="font-medium text-foreground">{value}</span>
             </div>
           ))}
         </div>
@@ -37,10 +44,14 @@ export function SystemInfo({ hostname, platform, architecture, cpuTemp, cpuUsage
         </div>
 
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold text-foreground">Memory Usage</h3>
+          <h3 className="text-lg font-semibold text-foreground">
+            Memory Usage
+          </h3>
           <div className="flex justify-between text-sm text-muted-foreground">
             <span>Used</span>
-            <span>{memoryUsage.used.toFixed(2)} / {memoryUsage.total.toFixed(2)} GB</span>
+            <span>
+              {memoryUsage.used.toFixed(2)} / {memoryUsage.total.toFixed(2)} GB
+            </span>
           </div>
           <Progress
             value={(memoryUsage.used / memoryUsage.total) * 100}
@@ -49,5 +60,5 @@ export function SystemInfo({ hostname, platform, architecture, cpuTemp, cpuUsage
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

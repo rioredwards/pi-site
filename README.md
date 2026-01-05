@@ -65,6 +65,7 @@ Deploy with a single command from your development machine:
 This builds the Docker image on your desktop, transfers it to your Raspberry Pi, and restarts the container automatically.
 
 **First time setup:**
+
 ```bash
 chmod +x scripts/deploy.sh
 chmod +x scripts/build-and-transfer.sh
@@ -125,11 +126,13 @@ docker compose exec app npx prisma migrate deploy
 If you have existing JSON metadata files in `public/meta/`, run the migration script once:
 
 **Local:**
+
 ```bash
 npx tsx scripts/migrate-to-db.ts
 ```
 
 **Docker:**
+
 ```bash
 docker compose exec app npx tsx scripts/migrate-to-db.ts
 ```
@@ -139,11 +142,13 @@ This will migrate all existing photo metadata from JSON files to the database. T
 ### Database Management
 
 **Local Development:**
+
 - **View data**: `npx prisma studio` - Opens Prisma Studio to view/edit database
 - **Create migration**: `npx prisma migrate dev --name migration_name`
 - **Reset database**: `npx prisma migrate reset` (⚠️ deletes all data)
 
 **Docker (Production):**
+
 - **View data**: `docker compose exec app npx prisma studio` (then port forward if needed)
 - **Run migrations**: `docker compose exec app npx prisma migrate deploy`
 - **Test connection**: `docker compose exec app npx tsx scripts/test-db.ts`
@@ -155,6 +160,7 @@ The database file is located at `prisma/dev.db` and is automatically excluded fr
 This project uses Docker for easy deployment. The recommended workflow is to build on your development machine and deploy to the Raspberry Pi.
 
 **Quick Deploy:**
+
 ```bash
 ./scripts/deploy.sh  # One command to build, transfer, and restart
 ```

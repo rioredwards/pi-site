@@ -262,7 +262,6 @@ When the container starts on the Pi:
 ### Best Practices
 
 1. **Always Build on Desktop:**
-
    - Building on Pi is slow (10-20 minutes) and not recommended
    - Use `./scripts/deploy.sh` from your desktop for all deployments
    - The script handles building, transferring, and restarting automatically
@@ -276,13 +275,11 @@ When the container starts on the Pi:
    ```
 
 3. **Use Git Branches:**
-
    - `dev` branch for development
    - `main` branch for production
    - Deploy script works with any branch
 
 4. **Environment-Specific Files:**
-
    - Never commit `.env` or `.env.local`
    - Keep OAuth credentials separate per environment
    - Document required env vars in `OAUTH_SETUP.md`

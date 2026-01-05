@@ -1,45 +1,57 @@
-import { PawPrint } from 'lucide-react';
-import Link from 'next/link';
-import BlueSky from './svg/Bluesky';
-import GitHub from './svg/GitHub';
-import LinkedIn from './svg/LinkedIn';
-import YouTube from './svg/YouTube';
+import { PawPrint } from "lucide-react";
+import Link from "next/link";
+import BlueSky from "./svg/Bluesky";
+import GitHub from "./svg/GitHub";
+import LinkedIn from "./svg/LinkedIn";
+import YouTube from "./svg/YouTube";
 
 export default function Footer() {
   return (
     <footer className="w-full border-t bg-background">
       <div className="container mx-auto max-w-7xl py-8">
-        <div className="grid px-4 grid-cols-2 gap-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-8 px-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           <div className="col-span-2 sm:col-span-3 md:col-span-1 lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
+            <Link href="/" className="mb-4 flex items-center gap-2">
               <PawPrint className="h-6 w-6" />
-              <span className="font-bold text-lg">DogTownUSA</span>
+              <span className="text-lg font-bold">DogTownUSA</span>
             </Link>
-            <p className="text-sm text-muted-foreground max-w-xs">
+            <p className="max-w-xs text-sm text-muted-foreground">
               Dog dog dog dog dog dog dog dog dog dog dog dog dog dog dog
             </p>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold mb-4">Services</h3>
+            <h3 className="mb-4 text-sm font-semibold">Services</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link
+                  href="/"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                >
                   Dog
                 </Link>
               </li>
               <li>
-                <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link
+                  href="/"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                >
                   Dog
                 </Link>
               </li>
               <li>
-                <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link
+                  href="/"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                >
                   Dog
                 </Link>
               </li>
               <li>
-                <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link
+                  href="/"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                >
                   Dog
                 </Link>
               </li>
@@ -47,25 +59,37 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold mb-4">Company</h3>
+            <h3 className="mb-4 text-sm font-semibold">Company</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link
+                  href="/"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                >
                   Dog
                 </Link>
               </li>
               <li>
-                <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link
+                  href="/"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                >
                   Dog
                 </Link>
               </li>
               <li>
-                <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link
+                  href="/"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                >
                   Dog
                 </Link>
               </li>
               <li>
-                <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link
+                  href="/"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                >
                   Dog
                 </Link>
               </li>
@@ -73,20 +97,29 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold mb-4">Legal</h3>
+            <h3 className="mb-4 text-sm font-semibold">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link
+                  href="/"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                >
                   Dog
                 </Link>
               </li>
               <li>
-                <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link
+                  href="/"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                >
                   Dog
                 </Link>
               </li>
               <li>
-                <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link
+                  href="/"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                >
                   Dog
                 </Link>
               </li>
@@ -94,7 +127,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 border-t pt-8 px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t px-4 pt-8 sm:flex-row">
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} DogTownUSA. All rights reserved.
           </p>
@@ -110,7 +143,6 @@ export default function Footer() {
               href="https://bsky.app/profile/rioredwards.bsky.social"
               target="_blank"
               rel="noreferrer"
-
             >
               <BlueSky className="w-8" />
             </Link>
@@ -132,6 +164,5 @@ export default function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
-

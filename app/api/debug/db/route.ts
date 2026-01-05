@@ -11,11 +11,13 @@ export async function GET() {
       status: "ok",
       databaseConnected: true,
       photoCount,
-      samplePhotos: photos.map((p: { id: string; imgFilename: string; src: string }) => ({
-        id: p.id,
-        filename: p.imgFilename,
-        src: p.src,
-      })),
+      samplePhotos: photos.map(
+        (p: { id: string; imgFilename: string; src: string }) => ({
+          id: p.id,
+          filename: p.imgFilename,
+          src: p.src,
+        }),
+      ),
       databasePath: process.env.DATABASE_URL || "file:./prisma/dev.db",
     });
   } catch (error) {
@@ -26,7 +28,7 @@ export async function GET() {
         error: error instanceof Error ? error.message : "Unknown error",
         databasePath: process.env.DATABASE_URL || "file:./prisma/dev.db",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -9,9 +9,10 @@ export function GradientText({ children, className }: GradientTextProps) {
   return (
     <h2
       className={cn(
-        "text-3xl my-4 font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500",
-        className
-      )}>
+        "my-4 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-3xl font-extrabold text-transparent",
+        className,
+      )}
+    >
       {children}
     </h2>
   );
@@ -28,8 +29,9 @@ export function FunIcons({ className, icons }: FunIconsProps) {
       {icons.map((icon, index) => (
         <span
           key={index}
-          className="text-3xl md:text-5xl animate-bounce"
-          style={{ animationDelay: `${index * 0.1}s` }}>
+          className="animate-bounce text-3xl md:text-5xl"
+          style={{ animationDelay: `${index * 0.1}s` }}
+        >
           {icon}
         </span>
       ))}

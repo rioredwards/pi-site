@@ -8,8 +8,8 @@ export default async function Home() {
   const systemInfo = await getSystemInfo();
 
   return (
-    <main className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-      <h1 className="text-3xl font-bold mb-6 text-foreground">Raspberry Pi</h1>
+    <main className="flex min-h-screen flex-col items-center justify-center bg-background p-6">
+      <h1 className="mb-6 text-3xl font-bold text-foreground">Raspberry Pi</h1>
       <SystemInfo
         hostname={systemInfo.hostname}
         platform={systemInfo.platform}

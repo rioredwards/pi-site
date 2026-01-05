@@ -39,7 +39,9 @@ async function getRecentUserIds() {
     });
 
     if (photos.length === 0) {
-      console.log("No photos found. Upload a photo first, then run this script.");
+      console.log(
+        "No photos found. Upload a photo first, then run this script.",
+      );
       return;
     }
 

@@ -6,18 +6,19 @@ This guide explains how to deploy and run the pi-site application using Docker.
 
 ### Daily Workflow
 
-| Task | Command | Where |
-|------|---------|-------|
-| **Local Development** | `npm run dev` | Desktop |
-| **Deploy to Pi** | `./scripts/deploy.sh` | Desktop |
-| **View Logs** | `docker compose logs -f` | Pi |
-| **Check Status** | `docker compose ps` | Pi |
-| **Stop Container** | `docker compose down` | Pi |
-| **Start Container** | `docker compose up -d` | Pi |
+| Task                  | Command                  | Where   |
+| --------------------- | ------------------------ | ------- |
+| **Local Development** | `npm run dev`            | Desktop |
+| **Deploy to Pi**      | `./scripts/deploy.sh`    | Desktop |
+| **View Logs**         | `docker compose logs -f` | Pi      |
+| **Check Status**      | `docker compose ps`      | Pi      |
+| **Stop Container**    | `docker compose down`    | Pi      |
+| **Start Container**   | `docker compose up -d`   | Pi      |
 
 ### Common Commands
 
 **On Desktop (Development):**
+
 ```bash
 npm run dev                    # Local development
 ./scripts/deploy.sh            # Deploy to Pi (builds, transfers, restarts)
@@ -25,6 +26,7 @@ npm run dev                    # Local development
 ```
 
 **On Raspberry Pi (Production):**
+
 ```bash
 docker compose ps              # Check container status
 docker compose logs -f         # View logs
@@ -107,11 +109,13 @@ Once running, access the app at:
 ### Typical Development Cycle
 
 1. **Develop Locally:**
+
    ```bash
    npm run dev  # Test changes on localhost:3000
    ```
 
 2. **Deploy to Pi:**
+
    ```bash
    ./scripts/deploy.sh  # Builds, transfers, and restarts automatically
    ```
@@ -124,6 +128,7 @@ Once running, access the app at:
    ```
 
 That's it! The entire workflow is:
+
 - **Develop** → `npm run dev` (local)
 - **Deploy** → `./scripts/deploy.sh` (desktop)
 - **Running** → Container on Pi (automatic)
@@ -131,6 +136,7 @@ That's it! The entire workflow is:
 ### When to Use Manual Commands
 
 You typically only need manual commands when:
+
 - Troubleshooting issues
 - Managing the container directly on the Pi
 - Running database scripts or migrations manually
@@ -210,11 +216,13 @@ ssh raspberrypi 'cd ~/pi-site && docker compose up -d'
 ### Container won't start
 
 **Check logs:**
+
 ```bash
 docker compose logs app
 ```
 
 **Common causes:**
+
 - Missing `.env` file on Pi
 - Database permissions issue
 - Port already in use
@@ -222,16 +230,19 @@ docker compose logs app
 ### Container is unhealthy
 
 **Check health status:**
+
 ```bash
 docker compose ps
 ```
 
 **View detailed logs:**
+
 ```bash
 docker compose logs -f app
 ```
 
 **Run diagnostics:**
+
 ```bash
 # On Pi
 ./scripts/diagnose.sh  # Comprehensive diagnostic script
@@ -240,18 +251,21 @@ docker compose logs -f app
 ### Database issues
 
 **Check database status:**
+
 ```bash
 # On Pi
 ./scripts/check-database.sh
 ```
 
 **Fix database issues:**
+
 ```bash
 # On Pi
 ./scripts/fix-database.sh
 ```
 
 **Ensure correct permissions:**
+
 ```bash
 chmod -R 755 prisma
 ```
@@ -259,6 +273,7 @@ chmod -R 755 prisma
 ### Image upload issues
 
 **Ensure directory exists and has correct permissions:**
+
 ```bash
 mkdir -p public/images
 chmod -R 755 public/images
@@ -267,6 +282,7 @@ chmod -R 755 public/images
 ### Port already in use
 
 **Check what's using port 3000:**
+
 ```bash
 sudo lsof -i :3000
 # or
@@ -274,6 +290,7 @@ sudo netstat -tlnp | grep 3000
 ```
 
 **Change the port in `docker-compose.yml`:**
+
 ```yaml
 ports:
   - "3001:3000" # Use port 3001 on host
@@ -282,27 +299,32 @@ ports:
 ### SSH connection issues
 
 **Verify SSH access:**
+
 ```bash
 ssh raspberrypi
 ```
 
 **If using a different hostname:**
+
 - Update `PI_HOST` in `scripts/build-and-transfer.sh`
 - Update `PI_HOST` in `scripts/deploy.sh`
 
 ### Build fails on desktop
 
 **Check Docker buildx is available:**
+
 ```bash
 docker buildx version
 ```
 
 **Verify standalone output is configured:**
+
 ```bash
 ./scripts/check-config.sh
 ```
 
 **Test build locally:**
+
 ```bash
 docker compose build  # Tests build process (x86_64, but catches most issues)
 ```
@@ -310,16 +332,19 @@ docker compose build  # Tests build process (x86_64, but catches most issues)
 ### Deployment script fails
 
 **Check SSH connection:**
+
 ```bash
 ssh raspberrypi 'echo "SSH works"'
 ```
 
 **Verify Pi has Docker:**
+
 ```bash
 ssh raspberrypi 'docker --version'
 ```
 
 **Check image was transferred:**
+
 ```bash
 ssh raspberrypi 'docker images | grep pi-site'
 ```

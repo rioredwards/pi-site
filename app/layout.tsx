@@ -13,14 +13,21 @@ export const metadata: Metadata = {
   description: "Welcome to DogTownUSA",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" className="scroll-smooth">
-      <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
-      <body className={`${inter.className} min-h-screen flex flex-col`}>
+      <meta
+        name="format-detection"
+        content="telephone=no, date=no, email=no, address=no"
+      />
+      <body className={`${inter.className} flex min-h-screen flex-col`}>
         <Providers>
           <Header />
-          <main className="flex-1 container mx-auto max-w-7xl">{children}</main>
+          <main className="container mx-auto max-w-7xl flex-1">{children}</main>
           <Toaster />
           <Footer />
         </Providers>

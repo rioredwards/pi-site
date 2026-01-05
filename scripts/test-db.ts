@@ -1,14 +1,14 @@
 /**
  * Test script to verify database connection and functionality.
- * 
+ *
  * Usage:
- * 
+ *
  * Local development:
  *   npx tsx scripts/test-db.ts
- * 
+ *
  * Docker (on Raspberry Pi):
  *   docker compose exec app npx tsx scripts/test-db.ts
- * 
+ *
  * This script tests:
  * - Database connection
  * - Photo counting
@@ -33,7 +33,9 @@ async function testDatabase() {
     });
     console.log(`✓ Successfully fetched ${photos.length} photos`);
     photos.forEach((photo) => {
-      console.log(`  - ${photo.id}: ${photo.imgFilename} (user: ${photo.userId})`);
+      console.log(
+        `  - ${photo.id}: ${photo.imgFilename} (user: ${photo.userId})`,
+      );
     });
 
     // Test 3: Test findUnique
@@ -41,7 +43,9 @@ async function testDatabase() {
       const firstPhoto = await prisma.photo.findUnique({
         where: { id: photos[0].id },
       });
-      console.log(`✓ Successfully found photo by ID: ${firstPhoto?.imgFilename}`);
+      console.log(
+        `✓ Successfully found photo by ID: ${firstPhoto?.imgFilename}`,
+      );
     }
 
     console.log("\n✅ All database tests passed!");
@@ -54,4 +58,3 @@ async function testDatabase() {
 }
 
 testDatabase();
-

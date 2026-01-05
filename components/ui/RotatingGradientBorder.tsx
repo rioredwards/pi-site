@@ -28,7 +28,10 @@ interface Props {
   shadowClassName?: string;
 }
 
-const RotatingGradientBorder = React.forwardRef<HTMLDivElement, React.PropsWithChildren<Props>>(
+const RotatingGradientBorder = React.forwardRef<
+  HTMLDivElement,
+  React.PropsWithChildren<Props>
+>(
   (
     {
       border = true,
@@ -56,15 +59,27 @@ const RotatingGradientBorder = React.forwardRef<HTMLDivElement, React.PropsWithC
       shadowClassName,
       children,
     },
-    ref
+    ref,
   ) => {
     const oklchBorderColors = borderColors.map(convertToOklch);
 
-    const borderBgStyle = createBgStyle(oklchBorderColors, borderCover, borderSkew, borderSoftEdge);
-    const shadowBgStyle = createBgStyle(oklchBorderColors, borderCover, shadowSkew, shadowSoftEdge);
+    const borderBgStyle = createBgStyle(
+      oklchBorderColors,
+      borderCover,
+      borderSkew,
+      borderSoftEdge,
+    );
+    const shadowBgStyle = createBgStyle(
+      oklchBorderColors,
+      borderCover,
+      shadowSkew,
+      shadowSoftEdge,
+    );
 
     const sharedStyle: React.CSSProperties = {
-      animation: spinAnimation ? `spin ${spinAnimationSpeed}s infinite linear` : "none",
+      animation: spinAnimation
+        ? `spin ${spinAnimationSpeed}s infinite linear`
+        : "none",
       position: "absolute",
       zIndex: -1,
       borderRadius,
@@ -97,7 +112,11 @@ const RotatingGradientBorder = React.forwardRef<HTMLDivElement, React.PropsWithC
     return (
       <>
         {/* Parent */}
-        <div style={containerStylesMerged} className={containerClassName} ref={ref}>
+        <div
+          style={containerStylesMerged}
+          className={containerClassName}
+          ref={ref}
+        >
           {/* Inner Content (passed in through children/props) */}
           <div style={{ backgroundColor, borderRadius }}>{children}</div>
           {/* Gradient Border */}
@@ -107,7 +126,7 @@ const RotatingGradientBorder = React.forwardRef<HTMLDivElement, React.PropsWithC
         </div>
       </>
     );
-  }
+  },
 );
 
 RotatingGradientBorder.displayName = "RotatingGradientBorder";
@@ -125,7 +144,7 @@ function clamp(value: number, min: number, max: number): number {
 function createTransparencyStrings(
   coverage: number,
   skew: number = 0,
-  softEdge: number = 0.01
+  softEdge: number = 0.01,
 ): string[] {
   if (coverage <= 0) return [];
   // Clamp values
@@ -141,8 +160,10 @@ function createTransparencyStrings(
   const rotatedEnd = end + (skew * coverage) / 2;
   // Expand
   // If skew pushes a val past 1 (end) or 0 (start), then clamp it and add the remainder to the other value
-  const expandedStart = rotatedEnd > 1 ? rotatedStart - (rotatedEnd % 1) : rotatedStart;
-  const expandedEnd = rotatedStart < 0 ? rotatedEnd + Math.abs(rotatedStart % 1) : rotatedEnd;
+  const expandedStart =
+    rotatedEnd > 1 ? rotatedStart - (rotatedEnd % 1) : rotatedStart;
+  const expandedEnd =
+    rotatedStart < 0 ? rotatedEnd + Math.abs(rotatedStart % 1) : rotatedEnd;
   // Clamp
   const clampedStart = Math.max(expandedStart, 0);
   const clampedEnd = Math.min(expandedEnd, 1);
@@ -161,14 +182,22 @@ function formatBorderColorsArray(
   borderColors: string[],
   borderCover: number,
   skew: number = 0,
-  softEdge: number = 0.01
+  softEdge: number = 0.01,
 ): string[] {
   const transparencyCoverage = 1 - borderCover;
-  const transparencyStrings = createTransparencyStrings(transparencyCoverage, skew, softEdge);
+  const transparencyStrings = createTransparencyStrings(
+    transparencyCoverage,
+    skew,
+    softEdge,
+  );
   const borderBgColors =
     skew >= 0
       ? [...borderColors, ...transparencyStrings, borderColors[0]]
-      : [borderColors[borderColors.length - 1], ...transparencyStrings, ...borderColors];
+      : [
+          borderColors[borderColors.length - 1],
+          ...transparencyStrings,
+          ...borderColors,
+        ];
   return borderBgColors;
 }
 
@@ -176,9 +205,14 @@ function createBgStyle(
   borderColors: string[],
   borderCover: number,
   skew: number = 0,
-  softEdge: number = 0.01
+  softEdge: number = 0.01,
 ): string {
-  const borderBgColors = formatBorderColorsArray(borderColors, borderCover, skew, softEdge);
+  const borderBgColors = formatBorderColorsArray(
+    borderColors,
+    borderCover,
+    skew,
+    softEdge,
+  );
   const borderBgColorString = borderBgColors.join(", ");
   const bgStyle = (colorString: string) =>
     `conic-gradient(from calc(var(--bg-angle) - ${skew}deg) in oklch, ${colorString}) border-box`;
