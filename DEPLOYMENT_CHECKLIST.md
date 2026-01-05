@@ -18,7 +18,7 @@
 - [x] User added to docker group (run: `sudo usermod -aG docker $USER` then log out/in)
 - [x] Production `.env` file created on Pi
 - [x] Production GitHub OAuth app created (separate from dev app)
-- [x] Code repository cloned/pulled on Pi
+- [x] Code repository cloned on Pi (first time only - for docker-compose.yml and scripts)
 
 ## 📋 Next Steps
 
@@ -58,22 +58,59 @@ ADMIN_USER_IDS=github-your_github_id
 DATABASE_URL=file:./prisma/dev.db
 ```
 
-### 3. Get Code to Pi
+### 3. Get Code to Pi (First Time Only)
+
+**Note:** With Docker, you only need the repository on the Pi for:
+
+- `docker-compose.yml` file (synced automatically by deploy script)
+- Helper scripts (optional, for manual operations)
+- The actual application code is baked into the Docker image
 
 ```bash
-# Option A: If you haven't cloned yet
+# First time only - clone the repository
 git clone https://github.com/rioredwards/pi-site.git
 cd pi-site
-
-# Option B: If already cloned, pull latest
-cd ~/pi-site
-git pull origin main  # or dev, depending on your branch
 ```
 
-### 4. Build and Start Docker Container on Pi
+**For subsequent deployments:** You don't need to pull code on the Pi! The deploy script from your desktop handles everything:
+
+- Builds the image with latest code
+- Transfers the image to Pi
+- Syncs docker-compose.yml automatically
+
+### 4. Deploy from Desktop (Recommended)
+
+**The standard workflow is to build on your desktop and transfer to the Pi:**
 
 ```bash
-# Build the Docker image
+# On your desktop (development machine)
+cd ~/pi-site
+./scripts/deploy.sh
+```
+
+This script:
+
+1. Builds the Docker image for ARM64 on your desktop
+2. Transfers it to your Raspberry Pi via SSH
+3. Syncs `docker-compose.yml` and `scripts/` directory automatically
+4. Restarts the container automatically
+5. Runs database migrations if needed
+
+**First time setup on desktop:**
+
+```bash
+chmod +x scripts/deploy.sh
+chmod +x scripts/build-and-transfer.sh
+```
+
+### 4b. Build on Pi (Not Recommended - Only for Troubleshooting)
+
+**⚠️ Building on the Pi is slow and not recommended for regular use.**
+
+Only use this if you're troubleshooting or don't have access to your desktop:
+
+```bash
+# On Pi - build the Docker image (this will take 10-20 minutes)
 docker compose build
 
 # Start the container
@@ -133,50 +170,69 @@ curl http://localhost:3000
 ### Code Flow: Desktop → Pi
 
 ```
-Desktop                    GitHub                    Raspberry Pi
-  │                          │                          │
-  │  git push                │                          │
-  ├─────────────────────────>│                          │
-  │                          │                          │
-  │                          │  git pull                │
-  │                          ├─────────────────────────>│
-  │                          │                          │
-  │                          │                          │ docker compose build
-  │                          │                          │ docker compose up
+Desktop (Development Machine)          Raspberry Pi
+  │                                        │
+  │  npm run dev (local testing)           │
+  │  git commit & push                    │
+  │                                        │
+  │  ./scripts/deploy.sh                   │
+  │    ├─ Build Docker image (ARM64)      │
+  │    ├─ Transfer image via SSH ─────────>│
+  │    └─ Restart container ──────────────>│
+  │                                        │
+  │                                        │ docker compose up -d
+  │                                        │ (container running)
 ```
 
-**Important:** Docker Compose does NOT push code to your Pi. The workflow is:
+**Recommended Workflow:**
 
 1. **Desktop:** Develop and test locally with `npm run dev`
 2. **Desktop:** Commit and push to GitHub
-3. **Pi:** Pull latest code from GitHub
-4. **Pi:** Build and run Docker container
+3. **Desktop:** Run `./scripts/deploy.sh` (builds, transfers, and restarts)
+4. **Pi:** Container automatically restarts with new image
+
+**Important:** You don't need to pull code on the Pi! The code is baked into the Docker image. The Pi only needs:
+
+- `docker-compose.yml` (synced automatically by deploy script)
+- `.env` file (production credentials)
+- Volume mounts for database and images
+
+**Alternative (if you're already on Pi and want to build there - not recommended):**
+
+1. **Pi:** Pull latest code: `git pull origin main` (only needed if building on Pi)
+2. **Pi:** Update container: `./scripts/update-server.sh --local` (slow, not recommended)
+3. **Better:** Use `./scripts/deploy.sh` from desktop instead
 
 ### Docker Container Explanation
 
-When you run `docker compose up`:
+**Build Phase (on Desktop):**
 
-1. **Build Phase** (first time or after changes):
+When you run `./scripts/deploy.sh`, it builds the image on your desktop:
 
-   - Docker reads `Dockerfile`
-   - Downloads Node.js 22 base image
-   - Installs dependencies (`npm ci`)
-   - Generates Prisma Client
-   - Builds Next.js app (`npm run build`)
-   - Creates a production-ready image
+1. Docker reads `Dockerfile`
+2. Downloads Node.js 22 base image
+3. Installs dependencies (`npm ci`)
+4. Generates Prisma Client
+5. Builds Next.js app (`npm run build`)
+6. Creates a production-ready ARM64 image
+7. Transfers image to Pi via SSH
 
-2. **Run Phase**:
+**Run Phase (on Pi):**
 
-   - Docker creates a container from the image
-   - Mounts volumes (database, images) from your Pi's filesystem
-   - Loads environment variables from `.env`
-   - Starts the app with `npm start`
-   - Exposes port 3000
+When the container starts on the Pi:
 
-3. **Persistence**:
-   - Database (`prisma/dev.db`) is stored on Pi's filesystem (volume mount)
-   - Images (`public/images/`) are stored on Pi's filesystem (volume mount)
-   - Container can be stopped/restarted without losing data
+1. Docker loads the pre-built image
+2. Creates a container from the image
+3. Mounts volumes (database, images) from your Pi's filesystem
+4. Loads environment variables from `.env`
+5. Starts the app with `node server.js` (standalone mode)
+6. Exposes port 3000
+
+**Persistence:**
+
+- Database (`prisma/dev.db`) is stored on Pi's filesystem (volume mount)
+- Images (`public/images/`) are stored on Pi's filesystem (volume mount)
+- Container can be stopped/restarted without losing data
 
 ## 🔧 Dev/Prod Interoperability
 
@@ -205,28 +261,35 @@ When you run `docker compose up`:
 
 ### Best Practices
 
-1. **Test Docker Build Locally First:**
+1. **Always Build on Desktop:**
+
+   - Building on Pi is slow (10-20 minutes) and not recommended
+   - Use `./scripts/deploy.sh` from your desktop for all deployments
+   - The script handles building, transferring, and restarting automatically
+
+2. **Test Docker Build Locally First (Optional):**
 
    ```bash
-   # On desktop, test the Docker build
+   # On desktop, test the Docker build locally (for x86_64)
    docker compose up --build
-   # If it works, you know it'll work on Pi
+   # This helps catch Docker-specific issues, but final build is for ARM64
    ```
 
-2. **Use Git Branches:**
+3. **Use Git Branches:**
 
    - `dev` branch for development
    - `main` branch for production
-   - Pi pulls from `main`
+   - Deploy script works with any branch
 
-3. **Environment-Specific Files:**
+4. **Environment-Specific Files:**
 
    - Never commit `.env` or `.env.local`
    - Keep OAuth credentials separate per environment
    - Document required env vars in `OAUTH_SETUP.md`
 
-4. **Database Migrations:**
-   - Run migrations on Pi after pulling new code
+5. **Database Migrations:**
+   - Migrations run automatically during `./scripts/deploy.sh`
+   - Or run manually: `docker compose exec app npx prisma migrate deploy`
    - Use `prisma migrate deploy` in production (not `migrate dev`)
 
 ## 🚀 Quick Update Workflow
@@ -234,17 +297,37 @@ When you run `docker compose up`:
 When you make changes and want to deploy:
 
 ```bash
-# On Desktop
+# On Desktop (recommended - one command does everything)
 git add .
 git commit -m "your changes"
 git push origin main
-
-# On Pi (SSH in)
-cd /path/to/pi-site
-git pull origin main
-docker compose up -d --build  # Rebuilds and restarts
-docker compose logs -f        # Watch logs
+./scripts/deploy.sh  # Builds, transfers, and restarts automatically
 ```
+
+**That's it!** The deploy script handles everything:
+
+- Builds the Docker image for ARM64
+- Transfers it to your Pi
+- Syncs `docker-compose.yml` and `scripts/` directory automatically
+- Restarts the container
+- Runs database migrations if needed
+
+**You never need to pull code on the Pi!** Everything is synced automatically:
+
+- Application code → Inside Docker image
+- `docker-compose.yml` → Synced by deploy script
+- Helper scripts → Synced by deploy script
+
+**Alternative (only if building on Pi - not recommended):**
+
+```bash
+# On Pi (only needed if building locally on Pi)
+cd ~/pi-site
+git pull origin main  # Only needed if you're building on Pi
+./scripts/update-server.sh --local  # Slow - builds on Pi (not recommended)
+```
+
+**Note:** For regular deployments, just use `./scripts/deploy.sh` from your desktop. The Pi doesn't need the latest code - it gets the code via the Docker image.
 
 ## 🐛 Troubleshooting
 

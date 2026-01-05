@@ -33,7 +33,16 @@ This project is a personal portfolio/gallery site that:
 ssh raspberrypi # Assuming ssh config and hostname are set up correctly on dev machine
 ```
 
-## Development Workflow (run on dev machine)
+## Development Workflow
+
+### Quick Start
+
+```mermaid
+graph LR
+    A[Local Dev] -->|npm run dev| B[Test Locally]
+    B -->|./scripts/deploy.sh| C[Build & Deploy]
+    C --> D[Running on Pi]
+```
 
 ### Local Development
 
@@ -45,7 +54,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to see the result.
 
-### Deploy
+### Deploy to Raspberry Pi
 
 Deploy with a single command from your development machine:
 
@@ -63,23 +72,25 @@ chmod +x scripts/build-and-transfer.sh
 
 See [DOCKER.md](./DOCKER.md) for detailed Docker instructions.
 
-### Traditional Server Scripts
+### Server Management Scripts (on Raspberry Pi)
+
+These scripts help manage the Docker container on your Raspberry Pi:
 
 ```bash
-./update-server.sh # Updates the server with the latest code from GitHub
+# Check container status
+./scripts/check-server.sh
+
+# Start container (if stopped)
+./scripts/start-server.sh
+
+# Stop container
+./scripts/stop-server.sh
+
+# Update code and optionally rebuild (usually use deploy.sh from desktop instead)
+./scripts/update-server.sh
 ```
 
-```bash
-./start-server.sh # Starts the production server (note, this uses nohup to run in the background)
-```
-
-```bash
-./stop-server.sh # Stops the production server
-```
-
-```bash
-./check-server.sh # Checks the server status
-```
+**Note:** The recommended workflow is to deploy from your desktop using `./scripts/deploy.sh`. These scripts are useful when you're already SSH'd into the Pi and need to manage the container directly.
 
 ## Architecture Notes
 
@@ -91,7 +102,7 @@ See [DOCKER.md](./DOCKER.md) for detailed Docker instructions.
 
 ## Database Setup
 
-### Initial Setup
+### Local Development
 
 The database is automatically created when you run migrations:
 
@@ -100,23 +111,44 @@ npx prisma generate
 npx prisma migrate dev
 ```
 
+### Docker (Production on Raspberry Pi)
+
+Database migrations run automatically during deployment. To run manually:
+
+```bash
+# On Raspberry Pi
+docker compose exec app npx prisma migrate deploy
+```
+
 ### Migrating Existing Data
 
 If you have existing JSON metadata files in `public/meta/`, run the migration script once:
 
+**Local:**
 ```bash
 npx tsx scripts/migrate-to-db.ts
+```
+
+**Docker:**
+```bash
+docker compose exec app npx tsx scripts/migrate-to-db.ts
 ```
 
 This will migrate all existing photo metadata from JSON files to the database. The script is idempotent and can be run multiple times safely.
 
 ### Database Management
 
+**Local Development:**
 - **View data**: `npx prisma studio` - Opens Prisma Studio to view/edit database
 - **Create migration**: `npx prisma migrate dev --name migration_name`
 - **Reset database**: `npx prisma migrate reset` (⚠️ deletes all data)
 
-The database file is located at `prisma/dev.db` and is automatically excluded from git.
+**Docker (Production):**
+- **View data**: `docker compose exec app npx prisma studio` (then port forward if needed)
+- **Run migrations**: `docker compose exec app npx prisma migrate deploy`
+- **Test connection**: `docker compose exec app npx tsx scripts/test-db.ts`
+
+The database file is located at `prisma/dev.db` and is automatically excluded from git. In Docker, it's persisted via volume mount.
 
 ## Docker
 
