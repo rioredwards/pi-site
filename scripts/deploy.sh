@@ -51,7 +51,8 @@ echo "🔄 Step 2: Pulling and restarting on Pi..."
 if ! ssh ${PI_HOST} "cd ${PI_PATH} && \
     git pull && \
     (zsh scripts/check-system-deps.sh --install 2>/dev/null || echo '⚠️  System dependency check skipped (may need to run setup-pi.sh)') && \
-    npm install --ignore-scripts && \
+    npm install && \
+    npm rebuild better-sqlite3 && \
     mkdir -p public/images && chmod 755 public/images && chown -R \$(whoami):\$(whoami) public/images && \
     rm -rf .next && \
     (PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate 2>&1 | (grep -v '404 Not Found' || true) || echo 'Prisma generate failed, using existing client') && \

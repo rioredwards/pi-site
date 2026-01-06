@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env zsh
 # Stop the app using PM2
 # Usage: ./scripts/stop-server.sh [remote]
 #
@@ -9,12 +9,12 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
 PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 if [ "$1" = "remote" ]; then
     # Stop on Raspberry Pi
-    PI_HOST="raspberrypi"
+    PI_HOST="pi"
     
     echo "🛑 Stopping app on Raspberry Pi..."
     echo ""

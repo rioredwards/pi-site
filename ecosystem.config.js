@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: "pi-site",
-      script: "npm",
-      args: "start",
+      script: "node",
+      args: ".next/standalone/server.js",
       cwd: (process.env.HOME || "/home/rioredwards") + "/pi-site",
       instances: 1,
       exec_mode: "fork",

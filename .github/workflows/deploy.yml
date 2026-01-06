@@ -67,7 +67,10 @@ jobs:
           git checkout origin/main -- package-lock.json 2>/dev/null || true
           git pull origin main
           zsh scripts/check-system-deps.sh --install || echo '⚠️  System dependency check skipped'
-          npm install --ignore-scripts
+          # Rebuild native modules (better-sqlite3, canvas, etc.) for ARM architecture
+          npm install
+          # Rebuild better-sqlite3 specifically to ensure it's compiled for ARM
+          npm rebuild better-sqlite3
           mkdir -p public/images
           chmod 755 public/images
           chown -R $(whoami):$(whoami) public/images
