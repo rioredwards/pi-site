@@ -62,6 +62,7 @@ jobs:
           git fetch origin
           git checkout main
           git pull origin main
+          zsh scripts/check-system-deps.sh --install || echo '⚠️  System dependency check skipped'
           npm install --ignore-scripts
           mkdir -p public/images
           chmod 755 public/images

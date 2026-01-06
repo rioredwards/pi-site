@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env zsh
 # Manual deployment: Push to GitHub, then pull and restart on Pi
 # Usage: ./scripts/deploy.sh
 #
@@ -50,6 +50,7 @@ echo ""
 echo "🔄 Step 2: Pulling and restarting on Pi..."
 if ! ssh ${PI_HOST} "cd ${PI_PATH} && \
     git pull && \
+    (zsh scripts/check-system-deps.sh --install 2>/dev/null || echo '⚠️  System dependency check skipped (may need to run setup-pi.sh)') && \
     npm install --ignore-scripts && \
     mkdir -p public/images && chmod 755 public/images && chown -R \$(whoami):\$(whoami) public/images && \
     rm -rf .next && \

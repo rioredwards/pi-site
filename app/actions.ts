@@ -6,6 +6,7 @@ import { writeFile } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
+import { moderateImage } from "../lib/moderation";
 import { prisma } from "../lib/prisma";
 import { Photo } from "../lib/types";
 
@@ -52,6 +53,20 @@ export async function uploadPhoto(
   try {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+
+    // Content moderation check - after validation, before saving
+    const moderationResult = await moderateImage(buffer, {
+      threshold: 0.5, // Balanced approach - block if porn/hentai confidence > 50%
+      failClosed: true, // Block upload if moderation check fails
+    });
+
+    if (!moderationResult.approved) {
+      return {
+        data: undefined,
+        error:
+          "This image cannot be uploaded as it may contain inappropriate content.",
+      };
+    }
 
     const imgFilename = file.name.replaceAll(" ", "_");
     const imgId = uuidv4();

@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env zsh
 # Initial setup script for Raspberry Pi
-# Run this ONCE on your Pi: bash scripts/setup-pi.sh
+# Run this ONCE on your Pi: zsh scripts/setup-pi.sh
 
 set -e
 
@@ -27,6 +27,24 @@ if ! command -v pm2 &> /dev/null; then
     echo "✅ PM2 installed"
 else
     echo "✅ PM2 already installed"
+fi
+
+# Check and install system dependencies for canvas (required for content moderation)
+echo "📦 Checking system dependencies for canvas..."
+MISSING_DEPS=()
+for dep in libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev build-essential; do
+    if ! dpkg -l | grep -q "^ii.*${dep}"; then
+        MISSING_DEPS+=("${dep}")
+    fi
+done
+
+if [ ${#MISSING_DEPS[@]} -gt 0 ]; then
+    echo "   Installing missing dependencies: ${MISSING_DEPS[*]}"
+    sudo apt-get update
+    sudo apt-get install -y "${MISSING_DEPS[@]}"
+    echo "✅ System dependencies installed"
+else
+    echo "✅ All system dependencies already installed"
 fi
 
 # Create logs directory
