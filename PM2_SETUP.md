@@ -5,6 +5,7 @@ Simple, straightforward deployment using PM2 for process management.
 ## Overview
 
 This project uses PM2 to manage the Next.js application on the Raspberry Pi. PM2 provides:
+
 - Automatic restarts on failure
 - Process monitoring and logging
 - Easy management via command line
@@ -22,6 +23,7 @@ This project uses PM2 to manage the Next.js application on the Raspberry Pi. PM2
    ```
 
    Verify installation:
+
    ```bash
    node --version  # Should show v20.x or higher
    npm --version
@@ -211,17 +213,21 @@ npx tsx scripts/test-db.ts
 ### App Won't Start
 
 1. **Check PM2 logs for errors:**
+
    ```bash
    ssh raspberrypi 'pm2 logs pi-site --err'
    ```
 
 2. **Check if Node.js version is correct:**
+
    ```bash
    ssh raspberrypi 'node --version'
    ```
+
    Should be v20.x or higher.
 
 3. **Verify environment variables:**
+
    ```bash
    ssh raspberrypi 'cd ~/pi-site && cat .env'
    ```
@@ -234,11 +240,13 @@ npx tsx scripts/test-db.ts
 ### Build Fails on Pi
 
 1. **Check Prisma client generation:**
+
    ```bash
    ssh raspberrypi 'cd ~/pi-site && PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate'
    ```
 
 2. **Clear build cache:**
+
    ```bash
    ssh raspberrypi 'cd ~/pi-site && rm -rf .next node_modules && npm install'
    ```
@@ -251,11 +259,13 @@ npx tsx scripts/test-db.ts
 ### PM2 Process Keeps Crashing
 
 1. **Check PM2 logs:**
+
    ```bash
    ssh raspberrypi 'pm2 logs pi-site --lines 50'
    ```
 
 2. **Check PM2 process info:**
+
    ```bash
    ssh raspberrypi 'pm2 describe pi-site'
    ```
@@ -268,6 +278,7 @@ npx tsx scripts/test-db.ts
 ### Image Upload Issues
 
 1. **Check directory permissions:**
+
    ```bash
    ssh raspberrypi 'cd ~/pi-site && ls -la public/images'
    ```
@@ -280,11 +291,13 @@ npx tsx scripts/test-db.ts
 ### Database Issues
 
 1. **Check database file exists:**
+
    ```bash
    ssh raspberrypi 'cd ~/pi-site && ls -la prisma/dev.db'
    ```
 
 2. **Check database permissions:**
+
    ```bash
    ssh raspberrypi 'cd ~/pi-site && chmod 644 prisma/dev.db'
    ```
@@ -306,16 +319,19 @@ npx tsx scripts/test-db.ts
 ## Workflow Summary
 
 **Development:**
+
 ```bash
 npm run dev  # Local development on desktop
 ```
 
 **Deployment:**
+
 ```bash
 ./scripts/deploy.sh  # One command from desktop
 ```
 
 **Management:**
+
 ```bash
 ssh raspberrypi 'pm2 logs pi-site'  # View logs
 ssh raspberrypi 'pm2 restart pi-site'  # Restart

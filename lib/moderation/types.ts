@@ -15,4 +15,3 @@ export type ModerationOptions = {
   threshold?: number; // Default 0.5 for balanced approach
   failClosed?: boolean; // Default true - block if moderation fails
 };
-
