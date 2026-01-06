@@ -7,20 +7,16 @@ echo "🔨 Building for production..."
 # Clean previous build
 rm -rf .next
 
-# Build
-npm run build
+# Build directly (don't use npm run build to avoid circular dependency)
+npx next build
 
-# Ensure static files are in standalone directory (Next.js should do this, but verify)
-if [ ! -d ".next/standalone/.next/static" ]; then
-    echo "📦 Copying static files to standalone directory..."
-    mkdir -p .next/standalone/.next
-    cp -r .next/static .next/standalone/.next/static
-fi
+# Always copy static files to standalone directory (Next.js doesn't do this automatically)
+echo "📦 Copying static files to standalone directory..."
+mkdir -p .next/standalone/.next
+cp -r .next/static .next/standalone/.next/static
 
-# Copy public folder to standalone (needed for public assets)
-if [ ! -d ".next/standalone/public" ]; then
-    echo "📦 Copying public folder to standalone directory..."
-    cp -r public .next/standalone/public
-fi
+# Always copy public folder to standalone (needed for public assets)
+echo "📦 Copying public folder to standalone directory..."
+cp -r public .next/standalone/public
 
 echo "✅ Build complete!"

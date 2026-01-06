@@ -9,7 +9,7 @@ module.exports = {
     {
       name: "pi-site",
       script: "node",
-      args: ".next/standalone/server.js",
+      args: "--inspect .next/standalone/server.js",
       cwd: projectRoot,
       instances: 1,
       exec_mode: "fork",
