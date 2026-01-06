@@ -1,4 +1,5 @@
 import fs from "fs";
+import { join } from "path";
 import { NextResponse } from "next/server";
 
 // This route enables serving files from the public directory without restarting the server.
@@ -16,8 +17,12 @@ export async function GET(_, { params }) {
   }
 
   try {
+    // Use absolute path to ensure it works with standalone mode and PM2
+    // process.cwd() returns the project root (set by PM2's cwd config)
+    const filePath = join(process.cwd(), "public", dir);
+    
     // Read and serve the file
-    const data = fs.readFileSync("public/" + dir, { flag: "r" });
+    const data = fs.readFileSync(filePath, { flag: "r" });
 
     return new NextResponse(data, { status: 200 });
   } catch (error) {
