@@ -61,6 +61,10 @@ jobs:
           cd ~/pi-site
           git fetch origin
           git checkout main
+          # Stash any local changes (like package-lock.json) before pulling
+          git stash || true
+          # If stash didn't work, reset package-lock.json to match remote (it should come from repo)
+          git checkout origin/main -- package-lock.json 2>/dev/null || true
           git pull origin main
           zsh scripts/check-system-deps.sh --install || echo '⚠️  System dependency check skipped'
           npm install --ignore-scripts
