@@ -1,8 +1,10 @@
-import * as nsfwjs from "nsfwjs";
-import * as tf from "@tensorflow/tfjs-node";
-import { ModerationResult, ModerationOptions } from "./types";
+import { ModerationOptions, ModerationResult } from "./types";
 
-let model: nsfwjs.NSFWJS | null = null;
+// Dynamic imports to ensure these Node.js-only packages are only loaded server-side
+let nsfwjs: typeof import("nsfwjs") | null = null;
+let tf: typeof import("@tensorflow/tfjs-node") | null = null;
+
+let model: Awaited<ReturnType<typeof import("nsfwjs").load>> | null = null;
 let modelInitialized = false;
 
 /**
@@ -11,6 +13,10 @@ let modelInitialized = false;
  */
 async function initializeTensorFlow(): Promise<void> {
   if (!modelInitialized) {
+    // Dynamically import TensorFlow.js Node.js backend (server-side only)
+    if (!tf) {
+      tf = await import("@tensorflow/tfjs-node");
+    }
     // Initialize TensorFlow.js with Node.js backend
     await tf.ready();
     modelInitialized = true;
@@ -21,8 +27,12 @@ async function initializeTensorFlow(): Promise<void> {
  * Initialize the NSFWJS model (lazy loading)
  * The model is loaded on first use and cached for subsequent calls
  */
-async function getModel(): Promise<nsfwjs.NSFWJS> {
+async function getModel() {
   if (!model) {
+    // Dynamically import NSFWJS (server-side only)
+    if (!nsfwjs) {
+      nsfwjs = await import("nsfwjs");
+    }
     await initializeTensorFlow();
     // Load the model from the CDN (quantized version for faster loading)
     model = await nsfwjs.load("https://nsfwjs.com/model/", { size: 299 });
@@ -38,7 +48,7 @@ async function getModel(): Promise<nsfwjs.NSFWJS> {
  */
 export async function moderateImage(
   imageBuffer: Buffer,
-  options: ModerationOptions = {}
+  options: ModerationOptions = {},
 ): Promise<ModerationResult> {
   const threshold = options.threshold ?? 0.5;
   const failClosed = options.failClosed ?? true;
@@ -49,7 +59,7 @@ export async function moderateImage(
     // Convert buffer to ImageData or HTMLImageElement
     // NSFWJS expects an image element, so we'll use a workaround with canvas
     const { createCanvas, loadImage } = await import("canvas");
-    
+
     // Load image from buffer
     const img = await loadImage(imageBuffer);
     const canvas = createCanvas(img.width, img.height);
@@ -102,7 +112,8 @@ export async function moderateImage(
           neutral: 0,
           drawing: 0,
         },
-        reason: "Content moderation check failed. Please try again or contact support.",
+        reason:
+          "Content moderation check failed. Please try again or contact support.",
       };
     }
 
@@ -122,4 +133,3 @@ export async function moderateImage(
     };
   }
 }
-
