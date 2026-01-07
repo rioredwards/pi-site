@@ -15,11 +15,11 @@ My current application is great, but the infra/deployment setup is a mess, so I 
 - Follow the tutorial as a guide for the most part (and reference the example repo)
 - Adapt the tutorial to work in the context of my project... This will entail:
   - Using a raspberry pi to host the next.js application instead of a vps
-  - Using cloudflare tunnels to route traffic to the self-hosted next.js application instead of nginx
-  - Using PM2 to manage the next.js application instead of nginx
+  - Using cloudflare tunnels to route traffic to the self-hosted next.js application (nginx will still be used internally as a reverse proxy, but Cloudflare Tunnel will handle external routing)
+  - Using Docker and nginx to manage the next.js application (similar to tutorial architecture)
   - Using prisma and sqlite for the database instead of postgres (note: this means we don't need a database server)
   - Possibly other things I haven't thought of yet.. feel free to suggest things if you catch anything that is ambiguous or needs to be updated.
-- Add an additional backend for content moderation (My AI Image Validation Service)
+- Add an additional backend for content moderation (My AI Image Validation Service) - this will be internal-only, not exposed publicly
 - Re-introduce the github actions workflow within the new infrastructure
 
 ## Current state of the application
@@ -46,6 +46,7 @@ Non-Vercel service:
 • Traffic flows Cloudflare → tunnel → http://localhost:3000 on the tunnel host.
 • The tunnel is healthy and exposes no public IP.
 • Tunnel traffic is Cloudflare-proxied and isolated from the Vercel setup.
+• nginx acts as reverse proxy between Cloudflare Tunnel and Next.js container only.
 
 # Next.js Application Summary
 
@@ -95,7 +96,7 @@ Non-Vercel service:
 
 - **Self-hosted on Raspberry Pi** (KEEP)
 - **PM2** for process management (KEEP)
-- **Cloudflare Tunnels** for public access (UPDATE: add another domain to the cloudflare tunnel for the new backend for content moderation (My AI Image Validation Service))
+- **Cloudflare Tunnels** for public access (KEEP)
 - **GitHub Actions** with self-hosted runner (UPDATE: after integrating the new deployment workflow, we will need to re-introduce the github actions workflow within the new infrastructure)
 - **TODO**: Need to clean up and extend current infra/scripts to accomodate new backend for content moderation (My AI Image Validation Service) as well as the new deployment workflow.
 
@@ -179,18 +180,51 @@ npm run dev  # Standard Next.js dev server on localhost:3000
 
 #### PM2 Configuration
 
-- Script: `.next/standalone/server.js`
-- Port: 3000
-- Host: 0.0.0.0
-- Logs: `./logs/pm2-error.log` and `./logs/pm2-out.log`
-- Auto-restart: enabled
-- Max memory: 500MB restart threshold
+- **Docker Compose**: Orchestrates both Next.js and FastAPI services
+- **Next.js Container**:
+  - **Dockerfile**: Multi-stage build for Next.js application
+  - **Port**: 3000 (exposed to host for nginx)
+  - **Restart policy**: `unless-stopped` (auto-restart on failure)
+  - **Volumes**:
+    - Database: `prisma/dev.db` (persistent storage)
+    - Images: `public/images/` (persistent storage)
+    - Models: `public/models/` (persistent storage)
+- **FastAPI Container**:
+  - **Dockerfile**: Python 3.11 with FastAPI dependencies
+  - **Port**: 8000 (internal Docker network only, not exposed to host)
+  - **Restart policy**: `unless-stopped` (auto-restart on failure)
+  - **Volumes**: Model files for ML inference
+- **Docker Network**: Both containers on shared bridge network for internal communication
+  - Next.js calls FastAPI using service name: `http://fastapi:8000/analyze`
+
+#### nginx Configuration
+
+- **Reverse proxy**: Routes traffic from Cloudflare Tunnel to Next.js container only
+- **Upstream**: `http://localhost:3000` (Next.js Docker container)
+- **SSL/TLS**: Handled by Cloudflare (Full mode)
+- **Configuration**: `/etc/nginx/sites-available/pi-site` (UPDATE: follow tutorial)
+- **Note**: FastAPI is not exposed through nginx - it's only accessible internally via Docker network
+
+#### Docker Internal Networking
+
+- **Shared Docker Network**: Both Next.js and FastAPI containers run on the same Docker bridge network
+- **Service Discovery**: Containers can communicate using service names defined in `docker-compose.yml`
+- **Next.js → FastAPI Communication**:
+  - Next.js calls FastAPI using: `http://fastapi:8000/analyze`
+  - The hostname `fastapi` resolves to the FastAPI container's IP on the Docker network
+  - No need for CORS since both services are on the same network
+  - FastAPI port 8000 is not exposed to the host - only accessible from other containers
+- **Benefits**:
+  - FastAPI is not publicly accessible (security)
+  - Simple service-to-service communication
+  - No need for complex routing rules in nginx
+  - Follows microservices best practices
 
 #### System Dependencies (Pi)
 
-- Node.js 20+
-- PM2 (global) (UPDATE: replace with nginx)
-- Checked/installed via `scripts/check-system-deps.sh --install`
+- Docker and Docker Compose
+- nginx
+- Checked/installed via setup scripts (UPDATE: follow tutorial)
 
 #### Database (UPDATE: there are a lot of database scripts to manage... we could simplify this)
 
@@ -213,29 +247,29 @@ MOST OF THESE SHOULD BE SCRAPPED IN FAVOR OF THE NEW INFRASTRUCTURE AND DEPLOYME
 
 ### Currently Used Scripts
 
-1. **`deploy.sh`** - Manual deployment from desktop
+1. **`deploy.sh`** - Manual deployment from desktop (UPDATE: adapt for Docker)
    - Tests build locally first
    - Commits and pushes to GitHub
-   - SSHs to Pi, pulls code, installs, builds, restarts PM2
+   - SSHs to Pi, pulls code, builds Docker image, restarts container
    - Used for feature branches
 
-2. **`deploy-from-github.sh`** - Called by GitHub Actions
+2. **`deploy-from-github.sh`** - Called by GitHub Actions (UPDATE: adapt for Docker)
    - Runs on Pi during GitHub Actions workflow
-   - Pulls code, installs, builds, restarts PM2
+   - Pulls code, builds Docker image, restarts container
 
 3. **`build-prod.sh`** - Production build script
    - Called by `npm run build`
    - Handles standalone output and file copying
 
-4. **`setup-pi.sh`** - One-time Pi setup
-   - Installs PM2, system dependencies, creates directories
+4. **`setup-pi.sh`** - One-time Pi setup (UPDATE: adapt for Docker and nginx)
+   - Installs Docker, Docker Compose, nginx, system dependencies, creates directories
 
 5. **`check-system-deps.sh`** - System dependency checker
    - Checks/installs canvas dependencies
    - Called during deployment
 
-6. **`start-server.sh` / `stop-server.sh` / `check-server.sh`** - PM2 management
-   - Helper scripts for managing PM2 process
+6. **`start-server.sh` / `stop-server.sh` / `check-server.sh`** - Docker container management (UPDATE: adapt for Docker)
+   - Helper scripts for managing Docker containers
 
 7. **`update-server.sh`** - Pull code and optionally rebuild
    - For manual updates when already on Pi
@@ -269,9 +303,9 @@ MOST OF THESE SHOULD BE SCRAPPED IN FAVOR OF THE NEW INFRASTRUCTURE AND DEPLOYME
    - `package.json` has `start:debug` script
    - You mentioned debugging didn't work, so these are likely unused
 
-4. **`setup-mac.sh`** - Mac setup script
+4. **`setup-mac.sh`** - Mac setup script (UPDATE: adapt for Docker)
    - Still relevant if you want production-like testing on Mac
-   - Uses PM2 like the Pi setup
+   - Uses Docker like the Pi setup
 
 5. **`fix-database.sh` / `check-database.sh`** - Database utilities
    - May be useful for troubleshooting, but not part of regular workflow
@@ -289,18 +323,21 @@ MOST OF THESE SHOULD BE SCRAPPED IN FAVOR OF THE NEW INFRASTRUCTURE AND DEPLOYME
 
 ### Production (Raspberry Pi)
 
-- Node.js 20+ (ARM64)
-- PM2 for process management
-- System dependencies for canvas
+- Docker and Docker Compose
+- nginx as reverse proxy
+- System dependencies for canvas (included in Docker image)
 - `.env` file with production secrets
 - Self-hosted GitHub Actions runner
 - Cloudflare Tunnel for public access
 
 ### Build Artifacts
 
-- `.next/standalone/` - Complete standalone Next.js app
-- Includes: server.js, static files, public folder, prisma directory
-- No Docker image needed (UPDATE: we should use a containerized deployment workflow as outlined in the tutorial)
+- **Docker images**:
+  - Next.js application container (public-facing)
+  - FastAPI backend container (internal-only)
+- **Next.js container includes**: server.js, static files, public folder, prisma directory
+- **FastAPI container includes**: Python runtime, ML models, FastAPI application
+- Built using multi-stage Dockerfiles and orchestrated with Docker Compose (UPDATE: follow tutorial)
 
 ### Deployment Flow (UPDATE: follow tutorial)
 
@@ -310,26 +347,29 @@ iMac (dev)
   → GitHub
   → Self-hosted runner on Pi
   → git pull
-  → npm install
-  → npm run build
-  → PM2 restart
+  → docker-compose build (builds Next.js and FastAPI containers)
+  → docker-compose down (stop old containers)
+  → docker-compose up -d (start new containers)
+  → nginx reload (if config changed)
 ```
 
 ---
 
 ## Notes for Your Changes
 
-1. **Docker is NOT used** - (UPDATE: we should use a containerized deployment workflow as outlined in the tutorial)
-2. **Debug setup didn't work** - debug configs in ecosystem.config.js are unused (UPDATE: remove these)
-3. **Current workflow**: iMac → GitHub → Self-hosted runner → Pi deployment (UPDATE: follow tutorial to get basic deployment working, then extend it to re-introduce the github actions workflow)
-4. **Scripts are a mix of current and legacy** - many are from experimentation (UPDATE: simplify and clean up the scripts, most of these should be scrapped in favor of the new infrastructure and deployment workflow)
+1. **Docker and nginx will be used** - Following the tutorial architecture with Docker for containerization and nginx as reverse proxy
+2. **PM2 will be removed** - Replaced with Docker's built-in restart policies and nginx for reverse proxying
+3. **Current workflow**: iMac → GitHub → Self-hosted runner → Pi deployment (UPDATE: follow tutorial to get basic Docker/nginx deployment working, then extend it to re-introduce the github actions workflow)
+4. **Scripts are a mix of current and legacy** - many are from experimentation (UPDATE: simplify and clean up the scripts, most of these should be scrapped in favor of the new Docker/nginx infrastructure and deployment workflow)
 5. **Database migrated from JSON** - old JSON metadata system replaced with Prisma/SQLite. The seed data is still sourced from those JSON metadata files... this is annoying to manage. I would like to stop supporting the old JSON metadata system and only use the database. We should use the images in the public/images folder as the seed data.
+6. **Cloudflare Tunnel integration** - nginx will run internally on the Pi, and Cloudflare Tunnel will route external traffic to nginx (which then proxies to the Next.js Docker container). FastAPI backend is internal-only and not exposed publicly. This maintains the security benefits of Cloudflare Tunnel while using nginx for routing to the public-facing Next.js app.
+7. **Internal service communication** - Next.js container communicates with FastAPI container via Docker's internal network using service names (e.g., `http://fastapi:8000`). This keeps the FastAPI service secure and not publicly accessible.
 
 # AI Image Validation Service Summary
 
 A lean microservice for analyzing images for NSFW content and dog detection, with a Next.js frontend. Also includes a next.js application for the frontend which is linked up to the backend for testing and development purposes.
 
-NOTE: This will need to be adapted slightly to work in the context of the Dog Photo Gallery application. Specifically, we will scrap the frontend in this package and only keep the backend. We just need to ensure that the backend is setup to work correctly with the new infrastructure and deployment workflow.
+NOTE: This will need to be adapted slightly to work in the context of the Dog Photo Gallery application. Specifically, we will scrap the frontend in this package and only keep the backend. The FastAPI backend will be containerized and orchestrated alongside the Next.js app using Docker Compose. **IMPORTANT**: The FastAPI service will be internal-only (not exposed through nginx or Cloudflare Tunnel). It will only be accessible from the Next.js container via Docker's internal network. This provides better security by keeping the content moderation service private.
 
 NOTE 2: The required version of python is 3.11. This is essential for the app to work correctly. The libraries are also bound to specifc versions which must not be changed. The app will break if the version of these libraries is not correct.
 
@@ -384,7 +424,7 @@ NOTE 2: The required version of python is 3.11. This is essential for the app to
    uvicorn main:app --host 0.0.0.0 --port 8000
    ```
 
-   The API will be available at `http://<raspberry-pi-ip>:8000`
+   **Note**: In production, the FastAPI service will be containerized and only accessible internally via Docker network (not exposed publicly). The Next.js app will call it using the Docker service name: `http://fastapi:8000`
 
 5. **Test the service:**
 
@@ -405,43 +445,21 @@ NOTE 2: The required version of python is 3.11. This is essential for the app to
 
 ## Frontend Setup
 
-1. **Navigate to frontend directory:**
+**NOTE**: The frontend in this package will be scrapped. Only the FastAPI backend will be used. The Next.js Dog Photo Gallery app will call the FastAPI service internally via Docker network.
 
-   ```bash
-   cd frontend
-   ```
+**For Next.js App Integration:**
 
-2. **Install dependencies:**
+The Next.js app will communicate with FastAPI using Docker service names when running in production:
 
-   ```bash
-   npm install
-   ```
+```typescript
+// In Next.js API routes or server actions
+const response = await fetch("http://fastapi:8000/analyze", {
+  method: "POST",
+  body: formData,
+});
+```
 
-3. **Set the backend URL:**
-
-   Create a `.env.local` file:
-
-   ```bash
-   NEXT_PUBLIC_API_URL=http://<raspberry-pi-ip>:8000
-   ```
-
-   Or for local development:
-
-   ```bash
-   NEXT_PUBLIC_API_URL=http://localhost:8000
-   ```
-
-4. **Run development server:**
-
-   ```bash
-   npm run dev
-   ```
-
-5. **Build for production:**
-   ```bash
-   npm run build
-   npm start
-   ```
+The hostname `fastapi` resolves to the FastAPI container because both containers are on the same Docker network defined in `docker-compose.yml`.
 
 ## API Endpoints
 
@@ -507,15 +525,20 @@ Analyze an uploaded image
 ### Raspberry Pi Considerations
 
 - Models are loaded once at startup (memory efficient)
-- Consider using a process manager like `systemd` or `supervisor` for production
+- Docker will handle process management with restart policies
 - For better performance, consider using a GPU if available
-- PyTorch installation on ARM may require special builds
+- PyTorch installation on ARM may require special builds (handled in Dockerfile)
+- Backend service will be containerized alongside the Next.js app
 
 ### Production Checklist
 
-- CORS? idk...
-- environment variables? idk...
-- SSL/TLS certificates? idk...
+- **CORS configuration**: Not needed for FastAPI since it's internal-only (Next.js calls it directly via Docker network)
+- **Environment variables**: Passed to Docker containers via `.env` file or Docker Compose environment section
+- **SSL/TLS certificates**: Handled by Cloudflare (Full mode) - only applies to Next.js app
+- **nginx configuration**: Routes external traffic to Next.js container only (FastAPI is not exposed)
+- **Docker volumes**: Persistent storage for database, images, and models
+- **Docker network**: Both containers on shared bridge network for internal communication
+- **Service discovery**: Next.js uses Docker service name `fastapi` to communicate with FastAPI container
 
 ## Development
 
