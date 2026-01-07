@@ -67,7 +67,7 @@ echo -e "\n${YELLOW}🔌 Connecting to Raspberry Pi...${NC}"
 echo -e "Host: ${GREEN}$PI_HOST${NC}"
 
 # Download and execute the update script on the Pi
-ssh -o StrictHostKeyChecking=no "$PI_HOST" <<EOF
+ssh -t -o StrictHostKeyChecking=no "$PI_HOST" <<EOF
     set -e
     echo "📥 Downloading update script..."
     curl -o /tmp/update.sh $UPDATE_SCRIPT_URL
