@@ -132,16 +132,29 @@ sudo apt install nginx -y
 sudo rm -f /etc/nginx/sites-available/pi-site
 sudo rm -f /etc/nginx/sites-enabled/pi-site
 
+# Stop Nginx temporarily to allow safe configuration changes
+sudo systemctl stop nginx
+
+# Configure rate limiting zone in main nginx.conf (must be in http context)
+# Remove any existing mylimit zone definition to avoid duplicates
+sudo sed -i '/limit_req_zone.*zone=mylimit/d' /etc/nginx/nginx.conf
+
+# Add rate limiting zone to http block in nginx.conf
+# Find the http block and add the zone definition after the opening brace
+if ! grep -q "limit_req_zone.*zone=mylimit" /etc/nginx/nginx.conf; then
+	# Insert after the http { line
+	sudo sed -i '/^http {/a\    limit_req_zone $binary_remote_addr zone=mylimit:10m rate=10r/s;' /etc/nginx/nginx.conf
+fi
+
 # Create Nginx config with reverse proxy, rate limiting, and streaming support
 # Note: Nginx listens on HTTP only (port 80) - Cloudflare Tunnel handles SSL externally
+# Note: limit_req_zone is defined in nginx.conf, we only use it here
 sudo tee /etc/nginx/sites-available/pi-site >/dev/null <<'EOL'
-limit_req_zone $binary_remote_addr zone=mylimit:10m rate=10r/s;
-
 server {
     listen 80;
     server_name localhost;
 
-    # Enable rate limiting
+    # Enable rate limiting (zone defined in /etc/nginx/nginx.conf)
     limit_req zone=mylimit burst=20 nodelay;
 
     location / {
@@ -162,8 +175,15 @@ EOL
 # Create symbolic link if it doesn't already exist
 sudo ln -s /etc/nginx/sites-available/pi-site /etc/nginx/sites-enabled/pi-site
 
-# Restart Nginx to apply the new configuration
-sudo systemctl restart nginx
+# Test Nginx configuration before starting
+sudo nginx -t
+if [ $? -ne 0 ]; then
+	echo "Nginx configuration test failed. Please check the configuration."
+	exit 1
+fi
+
+# Start Nginx with the new configuration
+sudo systemctl start nginx
 
 # Install Cloudflare Tunnel (cloudflared)
 # Check if cloudflared is already installed
