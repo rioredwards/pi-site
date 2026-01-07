@@ -67,15 +67,16 @@ echo -e "\n${YELLOW}🔌 Connecting to Raspberry Pi...${NC}"
 echo -e "Host: ${GREEN}$PI_HOST${NC}"
 
 # Download and execute the update script on the Pi
-ssh -t -o StrictHostKeyChecking=no "$PI_HOST" <<EOF
-    set -e
-    echo "📥 Downloading update script..."
-    curl -o /tmp/update.sh $UPDATE_SCRIPT_URL
-    chmod +x /tmp/update.sh
-    echo "🚀 Running update script..."
-    /tmp/update.sh
-    echo "🧹 Cleaning up..."
-    rm -f /tmp/update.sh
+# Using -tt to force TTY allocation and -o RequestTTY=force for better output
+ssh -tt -o StrictHostKeyChecking=no -o RequestTTY=force "$PI_HOST" bash <<EOF
+set -e
+echo "📥 Downloading update script..."
+curl -o /tmp/update.sh $UPDATE_SCRIPT_URL
+chmod +x /tmp/update.sh
+echo "🚀 Running update script..."
+/tmp/update.sh
+echo "🧹 Cleaning up..."
+rm -f /tmp/update.sh
 EOF
 
 if [ $? -eq 0 ]; then
