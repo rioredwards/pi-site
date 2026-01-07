@@ -25,6 +25,7 @@ Refer to these next time, so that you don't run into the same issues again:
 ### 1. Nginx duplicate `limit_req_zone` configuration error
 
 **Issue:** Nginx failed to start with error:
+
 ```
 limit_req_zone "mylimit" is already bound to key "$binary_remote_addr"
 ```
@@ -37,27 +38,33 @@ limit_req_zone "mylimit" is already bound to key "$binary_remote_addr"
 **Solution:**
 
 1. **Stop nginx before making configuration changes** to prevent conflicts:
+
    ```bash
    sudo systemctl stop nginx
    ```
 
 2. **Remove `limit_req_zone` from nginx.conf** to clear any existing definitions:
+
    ```bash
    sudo sed -i '/limit_req_zone.*zone=mylimit/d' /etc/nginx/nginx.conf
    ```
 
 3. **Remove `limit_req_zone` from ALL site configs** (not just the pi-site config):
+
    ```bash
    find /etc/nginx/sites-available /etc/nginx/sites-enabled -type f 2>/dev/null | while read config_file; do
        sudo sed -i '/limit_req_zone.*zone=mylimit/d' "$config_file"
    done
    ```
+
    Using `find` instead of a `for` loop is more robust because it:
+
    - Handles empty directories gracefully
    - Works with files that have spaces or special characters
    - Doesn't fail if glob patterns don't match anything
 
 4. **Add the zone definition to nginx.conf in the `http` block** (where it belongs):
+
    ```bash
    if ! grep -q "limit_req_zone.*zone=mylimit" /etc/nginx/nginx.conf; then
        sudo sed -i '/^http {/a\    limit_req_zone $binary_remote_addr zone=mylimit:10m rate=10r/s;' /etc/nginx/nginx.conf
@@ -65,6 +72,7 @@ limit_req_zone "mylimit" is already bound to key "$binary_remote_addr"
    ```
 
 5. **Test configuration before restarting** to catch errors early:
+
    ```bash
    sudo nginx -t
    if [ $? -ne 0 ]; then
@@ -83,11 +91,13 @@ limit_req_zone "mylimit" is already bound to key "$binary_remote_addr"
 ### 2. Git repository URL typo
 
 **Issue:** Script had incorrect repository URL:
+
 - `git@github.com:rioedwards/pi-site.git` (incorrect)
 - Should be: `git@github.com:rioredwards/pi-site.git` (correct)
 
 **Solution:**
 Fixed the `REPO_URL` variable in `deploy.sh`:
+
 ```bash
 REPO_URL="git@github.com:rioredwards/pi-site.git"
 ```
@@ -152,21 +162,26 @@ sudo systemctl start nginx
 ## Key Changes Made to deploy.sh
 
 1. **Added nginx stop before configuration changes** (line 136)
+
    - Prevents conflicts when modifying config files
 
 2. **Removed `limit_req_zone` from all site configs** (lines 145-147)
+
    - Uses `find` for robust file handling
    - Cleans up any existing zone definitions in site-specific configs
 
 3. **Moved `limit_req_zone` to nginx.conf** (lines 140, 151-153)
+
    - Zone definition now in the correct location (`http` context)
    - Only added if it doesn't already exist
 
 4. **Added configuration testing** (lines 181-185)
+
    - Tests nginx config before starting
    - Fails fast if configuration is invalid
 
 5. **Changed from `restart` to `start`** (line 188)
+
    - Since we stopped nginx earlier, we only need to start it
    - More explicit about the intended state
 
@@ -176,8 +191,8 @@ sudo systemctl start nginx
 ---
 
 **Note:** These fixes are now in the deploy script, so future deployments should avoid these issues. The script now properly handles nginx configuration by:
+
 - Stopping nginx before changes
 - Cleaning up duplicate zone definitions from all configs
 - Placing zone definitions in the correct location (http context)
 - Testing configuration before starting
-
