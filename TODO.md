@@ -1,0 +1,12 @@
+- [] "Rebase" self-hosted-nextjs app onto this app then selectively merge back (not actual rebase, but conceptually similar... we want to reset this app to 0, then grab all the code from the other app, then selectively merge back the parts that we want to keep)
+  - [] create new branch
+  - [] clear out repo
+  - [] copy over files
+  - [] sanity check docker/scripts/etc...
+  - [] switch cloudflare tunnel back from hello.rioedwards.com to pi.rioedwards.com
+  - [] ensure everything runs
+  - [] merge back frontend components/pages
+  - [] merge back actions/other next.js backend code
+  - [] replace old prisma/sqlite code with new drizzle/postgres code
+    - [] use existing dog imgs as seed data
+  - [] reintroduce github actions workflow
