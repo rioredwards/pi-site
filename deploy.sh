@@ -141,10 +141,9 @@ sudo sed -i '/limit_req_zone.*zone=mylimit/d' /etc/nginx/nginx.conf
 
 # Remove limit_req_zone definitions from ALL site configs (must be in http context, not server blocks)
 # This prevents conflicts with other site configurations
-for config_file in /etc/nginx/sites-available/* /etc/nginx/sites-enabled/*; do
-	if [ -f "$config_file" ]; then
-		sudo sed -i '/limit_req_zone.*zone=mylimit/d' "$config_file"
-	fi
+# Use find to handle cases where directories might be empty or have special characters
+find /etc/nginx/sites-available /etc/nginx/sites-enabled -type f 2>/dev/null | while read config_file; do
+	sudo sed -i '/limit_req_zone.*zone=mylimit/d' "$config_file"
 done
 
 # Add rate limiting zone to http block in nginx.conf
