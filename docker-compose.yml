@@ -16,7 +16,7 @@ services:
       - my_network
 
   db:
-    image: postgres:latest
+    image: postgres:16
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
