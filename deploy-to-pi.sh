@@ -15,7 +15,7 @@ if [ -f .env.deploy ]; then
 fi
 
 # Configuration
-PI_HOST=${PI_HOST:-"pi@raspberrypi.local"}
+PI_HOST=${PI_HOST:-"rioredwards@rio-raspberry-pi.local"}
 COMMIT_MSG=${1:-"Deploy: $(date +'%Y-%m-%d %H:%M:%S')"}
 UPDATE_SCRIPT_URL="https://raw.githubusercontent.com/rioredwards/pi-site/main/update.sh"
 
