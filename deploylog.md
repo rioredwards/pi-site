@@ -6,12 +6,12 @@ It's all working!
 
 - ✅ Next.js app running in Docker on your Pi
 - ✅ Nginx proxying `localhost:80` → `localhost:3000`
-- ✅ Cloudflare Tunnel routing `hello.rioedwards.com` → `localhost:80`
+- ✅ Cloudflare Tunnel routing `pi.rioedwards.com` → `localhost:80`
 - ✅ DNS resolving correctly (after cache flush)
 - ✅ SSL/TLS handled by Cloudflare
 
 Your Next.js app should now be accessible at:
-**https://hello.rioedwards.com**
+**https://pi.rioedwards.com**
 
 The deployment is complete. The site is accessible from anywhere via the Cloudflare Tunnel, and SSL is handled automatically by Cloudflare.
 

@@ -24,7 +24,7 @@ This repo shows how to deploy a Next.js app and a PostgreSQL database on a Ubunt
 2. **Download the deployment script**:
 
    ```bash
-   curl -o ~/deploy.sh https://raw.githubusercontent.com/rioedwards/next-self-host/main/deploy.sh
+   curl -o ~/deploy.sh https://raw.githubusercontent.com/rioedwards/pi-site/main/deploy.sh
    ```
 
    You can then modify the email and domain name variables inside of the script to use your own.
@@ -72,7 +72,7 @@ http://your-provided-domain.com
 Both the Next.js app and PostgreSQL database will be up and running in Docker containers. To set up your database, you could install `npm` inside your Postgres container and use the Drizzle scripts, or you can use `psql`:
 
 ```bash
-docker exec -it myapp-db-1 sh
+docker exec -it dogtownUSA-db-1 sh
 apk add --no-cache postgresql-client
 psql -U myuser -d mydatabase -c '
 CREATE TABLE IF NOT EXISTS "todos" (
@@ -98,7 +98,7 @@ This will start both services and make your Next.js app available at `http://loc
 For local development without Docker, you can use Bun directly:
 
 ```bash
-cd /Users/rioredwards/Coding/next-self-host
+cd /Users/rioredwards/Coding/dogtownUSA
 
 # Install dependencies (updates bun.lockb)
 bun install
@@ -123,8 +123,8 @@ bun run db:studio
 - `docker-compose down` - shut down the Docker containers
 - `docker-compose up -d` - start containers in the background
 - `sudo systemctl restart nginx` - restart nginx
-- `docker exec -it myapp-web-1 sh` - enter Next.js Docker container
-- `docker exec -it myapp-db-1 psql -U myuser -d mydatabase` - enter Postgres db
+- `docker exec -it dogtownUSA-web-1 sh` - enter Next.js Docker container
+- `docker exec -it dogtownUSA-db-1 psql -U myuser -d mydatabase` - enter Postgres db
 
 ## Other Resources
 

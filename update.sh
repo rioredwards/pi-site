@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Script Vars
-REPO_URL="git@github.com:rioedwards/next-self-host.git"
-APP_DIR=~/myapp
+REPO_URL="git@github.com:rioedwards/pi-site.git"
+APP_DIR=~/dogtownUSA
 
 # Pull the latest changes from the Git repository
 if [ -d "$APP_DIR" ]; then
@@ -15,7 +15,7 @@ else
 	cd $APP_DIR
 fi
 
-# Build and restart the Docker containers from the app directory (~/myapp)
+# Build and restart the Docker containers from the app directory (~/dogtownUSA)
 echo "Rebuilding and restarting Docker containers..."
 # Determine which docker-compose command to use (plugin or standalone)
 if docker compose version &>/dev/null; then

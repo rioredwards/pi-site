@@ -2,8 +2,8 @@
   - [x] create new branch
   - [x] clear out repo
   - [x] copy over files
-  - [] sanity check docker/scripts/etc...
-  - [] switch cloudflare tunnel back from hello.rioedwards.com to pi.rioedwards.com
+  - [x] sanity check docker/scripts/etc...
+  - [x] switch cloudflare tunnel back from hello.rioedwards.com to pi.rioedwards.com
   - [] ensure everything runs
   - [] merge back frontend components/pages
   - [] merge back actions/other next.js backend code

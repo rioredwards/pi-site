@@ -10,8 +10,8 @@ NEXT_PUBLIC_SAFE_KEY="safe-key" # for the demo app
 # Configure your tunnel domain in Cloudflare dashboard after running this script
 
 # Script Vars
-REPO_URL="git@github.com:rioedwards/next-self-host.git"
-APP_DIR=~/myapp
+REPO_URL="git@github.com:rioedwards/pi-site.git"
+APP_DIR=~/dogtownUSA
 SWAP_SIZE="1G"  # Swap size of 1GB
 PI_ARCH="arm64" # aarch64 (ARM64)
 DOCKER_ARCH=$PI_ARCH
@@ -114,7 +114,7 @@ DATABASE_URL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$POSTGRES_DB"
 # For external tools (like Drizzle Studio)
 DATABASE_URL_EXTERNAL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB"
 
-# Create the .env file inside the app directory (~/myapp/.env)
+# Create the .env file inside the app directory (~/dogtownUSA/.env)
 echo "POSTGRES_USER=$POSTGRES_USER" >"$APP_DIR/.env"
 echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >>"$APP_DIR/.env"
 echo "POSTGRES_DB=$POSTGRES_DB" >>"$APP_DIR/.env"
@@ -129,12 +129,12 @@ echo "NEXT_PUBLIC_SAFE_KEY=$NEXT_PUBLIC_SAFE_KEY" >>"$APP_DIR/.env"
 sudo apt install nginx -y
 
 # Remove old Nginx config (if it exists)
-sudo rm -f /etc/nginx/sites-available/myapp
-sudo rm -f /etc/nginx/sites-enabled/myapp
+sudo rm -f /etc/nginx/sites-available/dogtownUSA
+sudo rm -f /etc/nginx/sites-enabled/dogtownUSA
 
 # Create Nginx config with reverse proxy, rate limiting, and streaming support
 # Note: Nginx listens on HTTP only (port 80) - Cloudflare Tunnel handles SSL externally
-sudo tee /etc/nginx/sites-available/myapp >/dev/null <<'EOL'
+sudo tee /etc/nginx/sites-available/dogtownUSA >/dev/null <<'EOL'
 limit_req_zone $binary_remote_addr zone=mylimit:10m rate=10r/s;
 
 server {
@@ -160,7 +160,7 @@ server {
 EOL
 
 # Create symbolic link if it doesn't already exist
-sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/myapp
+sudo ln -s /etc/nginx/sites-available/dogtownUSA /etc/nginx/sites-enabled/dogtownUSA
 
 # Restart Nginx to apply the new configuration
 sudo systemctl restart nginx
@@ -206,7 +206,7 @@ else
 	exit 1
 fi
 
-# Build and run the Docker containers from the app directory (~/myapp)
+# Build and run the Docker containers from the app directory (~/dogtownUSA)
 cd $APP_DIR
 sudo $DOCKER_COMPOSE_CMD up --build -d
 
@@ -225,10 +225,10 @@ NEXT STEPS - Configure Cloudflare Tunnel:
    cloudflared tunnel login
 
 2. Create a tunnel:
-   cloudflared tunnel create myapp
+   cloudflared tunnel create dogtownUSA
 
 3. Configure the tunnel to route to localhost:80:
-   cloudflared tunnel route dns myapp your-domain.com
+   cloudflared tunnel route dns dogtownUSA your-domain.com
    # Or use a config file at ~/.cloudflared/config.yml:
    # tunnel: <tunnel-id>
    # ingress:
@@ -237,7 +237,7 @@ NEXT STEPS - Configure Cloudflare Tunnel:
    #   - service: http_status:404
 
 4. Run the tunnel:
-   cloudflared tunnel run myapp
+   cloudflared tunnel run dogtownUSA
    # Or set it up as a service for auto-start on boot
 
 The .env file has been created with the following values:
