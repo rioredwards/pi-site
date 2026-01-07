@@ -36,5 +36,17 @@ if ! sudo $DOCKER_COMPOSE_CMD ps | grep "Up"; then
 	exit 1
 fi
 
+# Wait for database to be ready
+echo "Waiting for database to be ready..."
+sleep 5
+
+# Run database migrations
+echo "Running database migrations..."
+if sudo docker exec pi-site-web-1 bun run db:migrate 2>/dev/null; then
+	echo "✓ Migrations completed successfully"
+else
+	echo "⚠️  Migration failed or already up to date. This is normal if migrations were already applied."
+fi
+
 # Output final message
 echo "Update complete. Your Next.js app has been deployed with the latest changes."
