@@ -136,8 +136,16 @@ sudo rm -f /etc/nginx/sites-enabled/pi-site
 sudo systemctl stop nginx
 
 # Configure rate limiting zone in main nginx.conf (must be in http context)
-# Remove any existing mylimit zone definition to avoid duplicates
+# Remove any existing mylimit zone definition from nginx.conf to avoid duplicates
 sudo sed -i '/limit_req_zone.*zone=mylimit/d' /etc/nginx/nginx.conf
+
+# Remove limit_req_zone definitions from ALL site configs (must be in http context, not server blocks)
+# This prevents conflicts with other site configurations
+for config_file in /etc/nginx/sites-available/* /etc/nginx/sites-enabled/*; do
+	if [ -f "$config_file" ]; then
+		sudo sed -i '/limit_req_zone.*zone=mylimit/d' "$config_file"
+	fi
+done
 
 # Add rate limiting zone to http block in nginx.conf
 # Find the http block and add the zone definition after the opening brace
