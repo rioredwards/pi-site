@@ -1,7 +1,7 @@
 - [] "Rebase" self-hosted-nextjs app onto this app then selectively merge back (not actual rebase, but conceptually similar... we want to reset this app to 0, then grab all the code from the other app, then selectively merge back the parts that we want to keep)
   - [x] create new branch
-  - [] clear out repo
-  - [] copy over files
+  - [x] clear out repo
+  - [x] copy over files
   - [] sanity check docker/scripts/etc...
   - [] switch cloudflare tunnel back from hello.rioedwards.com to pi.rioedwards.com
   - [] ensure everything runs
