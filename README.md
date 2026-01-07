@@ -85,6 +85,52 @@ CREATE TABLE IF NOT EXISTS "todos" (
 
 For pushing subsequent updates, I also provided an `update.sh` script as an example.
 
+## Automated Deployment from Dev Machine
+
+For a streamlined deployment process, use the `deploy-to-pi.sh` script from your development machine. This script automates the entire process:
+
+1. Commits your changes
+2. Pushes to GitHub
+3. SSHs into your Raspberry Pi
+4. Downloads and runs the update script
+
+### Setup
+
+1. **Configure your Pi connection** (optional - defaults to `pi@raspberrypi.local`):
+
+   ```bash
+   export PI_HOST=pi@your-pi-ip-or-hostname
+   ```
+
+   Or create a `.env.deploy` file:
+
+   ```bash
+   PI_HOST=pi@192.168.1.100
+   ```
+
+2. **Ensure SSH access is set up** (passwordless SSH recommended):
+   ```bash
+   ssh-copy-id pi@your-pi-ip
+   ```
+
+### Usage
+
+```bash
+# Deploy with auto-generated commit message
+./deploy-to-pi.sh
+
+# Deploy with custom commit message
+./deploy-to-pi.sh "Fixed database connection issue"
+```
+
+The script will:
+
+- Check for uncommitted changes
+- Stage and commit all changes
+- Push to GitHub
+- Connect to your Pi and run the update script
+- Rebuild and restart your Docker containers
+
 ## Running Locally
 
 If you want to run this setup locally using Docker, you can follow these steps:
