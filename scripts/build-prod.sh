@@ -19,4 +19,16 @@ cp -r .next/static .next/standalone/.next/static
 echo "📦 Copying public folder to standalone directory..."
 cp -r public .next/standalone/public
 
+# Copy prisma directory to standalone (needed for database)
+echo "📦 Copying prisma directory to standalone..."
+mkdir -p .next/standalone/prisma
+# Copy database file if it exists
+if [ -f prisma/dev.db ]; then
+  cp prisma/dev.db .next/standalone/prisma/dev.db
+fi
+# Copy migrations directory
+if [ -d prisma/migrations ]; then
+  cp -r prisma/migrations .next/standalone/prisma/
+fi
+
 echo "✅ Build complete!"

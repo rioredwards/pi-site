@@ -13,15 +13,26 @@
       "resolveSourceMapLocations": [
         "${workspaceFolder}/**",
         "!**/node_modules/**"
-      ]
+      ],
+      "outFiles": [
+        "${workspaceFolder}/.next/standalone/**/*.js",
+        "${workspaceFolder}/.next/server/**/*.js"
+      ],
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${workspaceFolder}/*",
+        "webpack:///./~/*": "${workspaceFolder}/node_modules/*",
+        "webpack:///*": "*"
+      }
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Debug Standalone Server",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["--inspect", ".next/standalone/server.js"],
-      "cwd": "${workspaceFolder}",
+      "runtimeArgs": ["--inspect=0.0.0.0:9229", "server.js"],
+      "cwd": "${workspaceFolder}/.next/standalone",
       "env": {
         "NODE_ENV": "production"
       },
@@ -35,7 +46,39 @@
       "resolveSourceMapLocations": [
         "${workspaceFolder}/**",
         "!**/node_modules/**"
-      ]
+      ],
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${workspaceFolder}/*",
+        "webpack:///./~/*": "${workspaceFolder}/node_modules/*",
+        "webpack:///*": "*"
+      }
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Debug Server",
+      "port": 9229,
+      "address": "127.0.0.1",
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/.next/standalone/**/*.js",
+        "${workspaceFolder}/.next/server/**/*.js"
+      ],
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${workspaceFolder}/*",
+        "webpack:///./~/*": "${workspaceFolder}/node_modules/*",
+        "webpack:///*": "*"
+      }
     }
   ]
 }

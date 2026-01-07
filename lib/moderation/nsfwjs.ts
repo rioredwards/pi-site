@@ -1,41 +1,36 @@
+import * as tf from "@tensorflow/tfjs-node";
+import * as nsfwjs from "nsfwjs";
+import { join } from "path";
 import { ModerationOptions, ModerationResult } from "./types";
 
-// Dynamic imports to ensure these Node.js-only packages are only loaded server-side
-let nsfwjs: typeof import("nsfwjs") | null = null;
-let tf: typeof import("@tensorflow/tfjs-node") | null = null;
-
-let model: Awaited<ReturnType<typeof import("nsfwjs").load>> | null = null;
-let modelInitialized = false;
-
-/**
- * Initialize TensorFlow.js backend for Node.js
- * This must be called before loading the NSFWJS model
- */
-async function initializeTensorFlow(): Promise<void> {
-  if (!modelInitialized) {
-    // Dynamically import TensorFlow.js Node.js backend (server-side only)
-    if (!tf) {
-      tf = await import("@tensorflow/tfjs-node");
-    }
-    // Initialize TensorFlow.js with Node.js backend
-    await tf.ready();
-    modelInitialized = true;
-  }
-}
+let model: Awaited<ReturnType<typeof nsfwjs.load>> | null = null;
 
 /**
  * Initialize the NSFWJS model (lazy loading)
  * The model is loaded on first use and cached for subsequent calls
+ * Uses local model files to avoid CDN dependency and simplify build
  */
 async function getModel() {
   if (!model) {
-    // Dynamically import NSFWJS (server-side only)
-    if (!nsfwjs) {
-      nsfwjs = await import("nsfwjs");
+    // Use local model files (hosted in public/models/nsfwjs)
+    // Falls back to CDN if local model doesn't exist
+    // In standalone mode, process.cwd() is .next/standalone, so public/ is available
+    // In dev mode, process.cwd() is project root, so public/ is also available
+    const modelPath = join(process.cwd(), "public", "models", "nsfwjs");
+    const localModelUrl = `http://localhost:3000/models/mobilenet_v2_mid/model.json`;
+
+    try {
+      // Try to load local model first
+      model = await nsfwjs.load(localModelUrl);
+      console.log(`✅ Loaded local NSFWJS model from: ${modelPath}`);
+    } catch (error) {
+      console.error("Error loading local NSFWJS model:", error);
+      // Fallback to CDN if local model not found
+      console.warn(
+        `Local model not found at ${modelPath}, using CDN. Run 'zsh scripts/download-model.sh' to download model files.`,
+      );
+      model = await nsfwjs.load();
     }
-    await initializeTensorFlow();
-    // Load the model from the CDN (quantized version for faster loading)
-    model = await nsfwjs.load("https://nsfwjs.com/model/", { size: 299 });
   }
   return model;
 }
@@ -56,18 +51,22 @@ export async function moderateImage(
   try {
     const model = await getModel();
 
-    // Convert buffer to ImageData or HTMLImageElement
-    // NSFWJS expects an image element, so we'll use a workaround with canvas
-    const { createCanvas, loadImage } = await import("canvas");
+    // Image must be in tf.tensor3d format
+    // Convert image buffer to tf.tensor3d with tf.node.decodeImage
+    const imageTensor = await tf.node.decodeImage(imageBuffer, 3);
 
-    // Load image from buffer
-    const img = await loadImage(imageBuffer);
-    const canvas = createCanvas(img.width, img.height);
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
+    // Ensure Tensor3D (decodeImage with channels=3 should return Tensor3D, but TypeScript sees Tensor3D | Tensor4D)
+    const image =
+      imageTensor.rank === 4 ? imageTensor.squeeze([0]) : imageTensor;
 
     // Classify the image
-    const predictions = await model.classify(canvas as any);
+    const predictions = await model.classify(image as any);
+
+    // Tensor memory must be managed explicitly
+    image.dispose();
+    if (imageTensor !== image) {
+      imageTensor.dispose();
+    }
 
     // Extract category scores
     const categories = {
@@ -100,6 +99,7 @@ export async function moderateImage(
         : `Image contains inappropriate content (confidence: ${(inappropriateConfidence * 100).toFixed(1)}%)`,
     };
   } catch (error) {
+    console.error("Content moderation error:", error);
     // If moderation fails, fail closed (block upload) by default
     if (failClosed) {
       return {
@@ -118,7 +118,6 @@ export async function moderateImage(
     }
 
     // Fail open - allow upload but log the error
-    console.error("Content moderation error:", error);
     return {
       approved: true,
       confidence: 0,

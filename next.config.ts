@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     if (!dev && isServer) {
       config.devtool = "source-map";
     }
+
     return config;
   },
   experimental: {
@@ -16,12 +17,8 @@ const nextConfig: NextConfig = {
     },
   },
   // Mark Node.js-only packages as external (not bundled)
-  serverExternalPackages: [
-    "@tensorflow/tfjs-node",
-    "canvas",
-    "@mapbox/node-pre-gyp",
-    "nsfwjs",
-  ],
+  // nsfwjs and buffer are bundled by webpack to avoid ESM import issues
+  serverExternalPackages: ["@tensorflow/tfjs-node", "@mapbox/node-pre-gyp"],
 };
 
 export default nextConfig;
