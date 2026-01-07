@@ -20,6 +20,10 @@ ENV NODE_ENV=production
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/app/db/migrations ./app/db/migrations
+COPY --from=builder /app/app/db/migrate.ts ./app/db/migrate.ts
+COPY --from=builder /app/app/db/drizzle.ts ./app/db/drizzle.ts
+COPY --from=builder /app/app/db/schema.ts ./app/db/schema.ts
 
 EXPOSE 3000
 CMD ["bun", "run", "server.js"]
