@@ -10,7 +10,7 @@ NEXT_PUBLIC_SAFE_KEY="safe-key" # for the demo app
 # Configure your tunnel domain in Cloudflare dashboard after running this script
 
 # Script Vars
-REPO_URL="git@github.com:rioedwards/pi-site.git"
+REPO_URL="git@github.com:rioredwards/pi-site.git"
 APP_DIR=~/pi-site
 SWAP_SIZE="1G"  # Swap size of 1GB
 PI_ARCH="arm64" # aarch64 (ARM64)

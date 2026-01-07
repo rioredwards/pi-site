@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script Vars
-REPO_URL="git@github.com:rioedwards/pi-site.git"
+REPO_URL="git@github.com:rioredwards/pi-site.git"
 APP_DIR=~/pi-site
 
 # Pull the latest changes from the Git repository
