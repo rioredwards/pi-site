@@ -206,7 +206,7 @@ docker-compose -f docker-compose.dev.yml logs db
 docker-compose -f docker-compose.dev.yml ps
 
 # Connect to Postgres directly
-docker exec -it dogtownUSA-db-1 psql -U myuser -d mydatabase
+docker exec -it pi-site-db-1 psql -U myuser -d mydatabase
 ```
 
 ---
