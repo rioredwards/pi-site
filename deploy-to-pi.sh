@@ -15,7 +15,9 @@ if [ -f .env.deploy ]; then
 fi
 
 # Configuration
-PI_HOST=${PI_HOST:-"rioredwards@rio-raspberry-pi.local"}
+# Use SSH config alias (raspberrypi/pi) or full hostname
+# SSH config defines: Host raspberrypi/pi -> uses ~/.ssh/id_rsa_raspberrypi
+PI_HOST=${PI_HOST:-"raspberrypi"}
 COMMIT_MSG=${1:-"Deploy: $(date +'%Y-%m-%d %H:%M:%S')"}
 UPDATE_SCRIPT_URL="https://raw.githubusercontent.com/rioredwards/pi-site/main/update.sh"
 
@@ -68,6 +70,7 @@ echo -e "Host: ${GREEN}$PI_HOST${NC}"
 
 # Download and execute the update script on the Pi
 # Using -tt to force TTY allocation and -o RequestTTY=force for better output
+# SSH config will handle the key, user, and hostname automatically
 ssh -tt -o StrictHostKeyChecking=no -o RequestTTY=force "$PI_HOST" bash <<EOF
 set -e
 echo "📥 Downloading update script..."
