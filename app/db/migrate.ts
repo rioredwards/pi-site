@@ -1,5 +1,7 @@
+import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import path from "path";
+import postgres from "postgres";
 
 // dotenv is optional - Docker provides env vars directly
 // In production, env vars are injected by Docker, so dotenv isn't needed
@@ -15,14 +17,31 @@ async function loadEnv() {
 async function main() {
   await loadEnv();
 
-  // Import after env is loaded
-  const { client, db } = await import("./drizzle");
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL environment variable is not set");
+  }
 
-  await migrate(db, {
-    migrationsFolder: path.join(process.cwd(), "./app/db/migrations"),
+  // Create a separate postgres client for migrations with max: 1
+  // This is required for safe migration execution with postgres-js
+  const migrationsClient = postgres(process.env.DATABASE_URL, {
+    max: 1,
   });
-  console.log(`Migrations complete`);
-  await client.end();
+  const db = drizzle(migrationsClient);
+
+  try {
+    await migrate(db, {
+      migrationsFolder: path.join(process.cwd(), "./app/db/migrations"),
+    });
+    console.log(`Migrations complete`);
+  } catch (error) {
+    console.error("Migration failed:", error);
+    throw error;
+  } finally {
+    await migrationsClient.end();
+  }
 }
 
-main();
+main().catch((error) => {
+  console.error("Migration script failed:", error);
+  process.exit(1);
+});

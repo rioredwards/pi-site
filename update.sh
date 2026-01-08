@@ -69,10 +69,12 @@ sleep 5
 
 # Run database migrations
 echo "Running database migrations..."
-if sudo docker exec pi-site-web-1 bun run db:migrate 2>/dev/null; then
+if sudo docker exec pi-site-web-1 bun run db:migrate; then
 	echo "✓ Migrations completed successfully"
 else
-	echo "⚠️  Migration failed or already up to date. This is normal if migrations were already applied."
+	echo "❌ Migration failed. Check the error above for details."
+	echo "You may need to check the database connection or migration files."
+	exit 1
 fi
 
 # Output final message
