@@ -1,24 +1,37 @@
-import type { Metadata } from 'next';
+import Footer from "@/components/footer";
+import Header from "@/components/header";
+import { Providers } from "@/components/providers";
+import { Toaster } from "@/components/ui/toaster";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Next.js Self Hosted Demo',
-  description: 'This is hosted on Ubuntu Linux with Nginx as a reverse proxy.',
+  title: "DogTownUSA",
+  description: "Welcome to DogTownUSA",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css"
-        />
-      </head>
-      <body>{children}</body>
+    <html lang="en" className="scroll-smooth">
+      <meta
+        name="format-detection"
+        content="telephone=no, date=no, email=no, address=no"
+      />
+      <body className={`${inter.className} flex min-h-screen flex-col`}>
+        <Providers>
+          <Header />
+          <main className="container mx-auto max-w-7xl flex-1">{children}</main>
+          <Toaster />
+          <Footer />
+        </Providers>
+      </body>
     </html>
   );
 }

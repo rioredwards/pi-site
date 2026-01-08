@@ -1,0 +1,87 @@
+name: Deploy to Raspberry Pi
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allows manual triggering from GitHub UI
+  # Explicitly do NOT trigger on pull_request events
+
+jobs:
+  deploy:
+    name: Deploy to Pi
+    # Use self-hosted runner on the Raspberry Pi
+    # This avoids needing to expose SSH or configure port forwarding
+    runs-on: self-hosted
+
+    # Security: Only run if:
+    # 1. This is a push event (not a PR) OR a manual workflow_dispatch
+    # 2. The actor is the repository owner (you)
+    # 3. The repository is not a fork
+    if: |
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.actor == github.repository_owner &&
+      !github.event.repository.fork
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        # Additional security: only checkout from the main repository
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Verify repository ownership
+        run: |
+          echo "Repository: ${{ github.repository }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Owner: ${{ github.repository_owner }}"
+          if [ "${{ github.actor }}" != "${{ github.repository_owner }}" ]; then
+            echo "❌ Security check failed: Actor is not repository owner"
+            exit 1
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test build
+        run: npm run build
+
+      - name: Deploy application
+        run: |
+          cd ~/pi-site
+          git fetch origin
+          git checkout main
+          # Stash any local changes (like package-lock.json) before pulling
+          git stash || true
+          # If stash didn't work, reset package-lock.json to match remote (it should come from repo)
+          git checkout origin/main -- package-lock.json 2>/dev/null || true
+          git pull origin main
+          
+          # Build and restart Docker containers
+          docker-compose down || true
+          docker-compose build
+          docker-compose up -d
+          
+          # Clean up old Docker images to save space
+          docker image prune -f || true
+
+      - name: Deployment status
+        if: success()
+        run: |
+          echo "✅ Deployment successful!"
+          echo "The app should be running on http://localhost:3000"
+          echo "Check container status with: docker-compose ps"
+
+      - name: Deployment failed
+        if: failure()
+        run: |
+          echo "❌ Deployment failed!"
+          echo "Check the logs above for details."
+          echo "Check Docker logs with: docker-compose logs"
+
