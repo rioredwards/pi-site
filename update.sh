@@ -15,6 +15,33 @@ else
 	cd $APP_DIR
 fi
 
+# Ensure .env file exists with DATABASE_URL
+# Load existing values if .env exists, otherwise use defaults from deploy.sh
+if [ -f "$APP_DIR/.env" ]; then
+	# Load existing values from .env (preserve existing password)
+	source "$APP_DIR/.env"
+	# Use existing values or defaults (don't overwrite password if it exists)
+	POSTGRES_USER=${POSTGRES_USER:-"myuser"}
+	POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-$(openssl rand -base64 12)}
+	POSTGRES_DB=${POSTGRES_DB:-"mydatabase"}
+else
+	# Use defaults (matching deploy.sh) - only generate new password if .env doesn't exist
+	POSTGRES_USER="myuser"
+	POSTGRES_PASSWORD=$(openssl rand -base64 12)
+	POSTGRES_DB="mydatabase"
+fi
+
+# Construct DATABASE_URL for Docker internal communication
+DATABASE_URL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$POSTGRES_DB"
+DATABASE_URL_EXTERNAL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB"
+
+# Create or update .env file
+echo "POSTGRES_USER=$POSTGRES_USER" >"$APP_DIR/.env"
+echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >>"$APP_DIR/.env"
+echo "POSTGRES_DB=$POSTGRES_DB" >>"$APP_DIR/.env"
+echo "DATABASE_URL=$DATABASE_URL" >>"$APP_DIR/.env"
+echo "DATABASE_URL_EXTERNAL=$DATABASE_URL_EXTERNAL" >>"$APP_DIR/.env"
+
 # Build and restart the Docker containers from the app directory (~/pi-site)
 echo "Rebuilding and restarting Docker containers..."
 # Determine which docker-compose command to use (plugin or standalone)
