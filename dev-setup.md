@@ -212,3 +212,7 @@ docker exec -it pi-site-db-1 psql -U myuser -d mydatabase
 ---
 
 **Note:** The fixes are now in the codebase, so future local setups should avoid these issues. The `drizzle.config.ts` loads `.env.local` automatically, and `docker-compose.dev.yml` uses the correct Postgres 18+ volume path.
+
+```sql
+CREATE TABLE IF NOT EXISTS todos ( id serial PRIMARY KEY, content varchar(255) NOT NULL, completed boolean DEFAULT false, created_at timestamp DEFAULT now() );
+```
