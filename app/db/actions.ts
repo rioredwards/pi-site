@@ -1,28 +1,23 @@
 "use server";
 
 import { authOptions } from "@/app/auth";
+import { count, eq } from "drizzle-orm";
 import { existsSync, mkdirSync, unlinkSync } from "fs";
 import { writeFile } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
+import { Photo } from "../lib/types";
 import { db } from "./drizzle";
 import { photos } from "./schema";
-import { eq, count, desc } from "drizzle-orm";
-import { Photo } from "../lib/types";
 
-export type APIResponse<T> =
-  | { data: T; error: undefined }
-  | { data: undefined; error: string };
+export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
 
 // Use environment variable if set, otherwise use relative path from CWD
-const IMG_UPLOAD_DIR =
-  process.env.UPLOAD_DIR || join(process.cwd(), "public", "images");
+const IMG_UPLOAD_DIR = process.env.UPLOAD_DIR || join(process.cwd(), "public", "images");
 const IMG_READ_DIR = "/api/assets/images/";
 
-export async function uploadPhoto(
-  formData: FormData,
-): Promise<APIResponse<Photo>> {
+export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return {
@@ -65,6 +60,8 @@ export async function uploadPhoto(
       const validatorFormData = new FormData();
       validatorFormData.append("file", file);
 
+      console.log("backendUrl", backendUrl);
+
       const response = await fetch(backendUrl, {
         method: "POST",
         body: validatorFormData,
@@ -75,7 +72,7 @@ export async function uploadPhoto(
         console.warn("AI validator service unavailable, proceeding without validation");
       } else {
         const analysisResult = await response.json();
-        
+
         // Validate: must be SFW and must be a dog
         if (analysisResult.is_nsfw) {
           return {
@@ -83,7 +80,7 @@ export async function uploadPhoto(
             error: "This image cannot be uploaded as it may contain inappropriate content.",
           };
         }
-        
+
         if (!analysisResult.is_dog) {
           return {
             data: undefined,
@@ -147,18 +144,14 @@ export async function uploadPhoto(
     };
     return response;
   } catch (error) {
-    const errorMsg =
-      error instanceof Error ? error.message : "Request failed...";
+    const errorMsg = error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
   }
 }
 
 export async function getPhotos(): Promise<APIResponse<Photo[]>> {
   try {
-    const dbPhotos = await db
-      .select()
-      .from(photos)
-      .orderBy(photos.order);
+    const dbPhotos = await db.select().from(photos).orderBy(photos.order);
 
     const photoData: Photo[] = dbPhotos.map((photo) => ({
       id: photo.id,
@@ -175,8 +168,7 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
     };
     return response;
   } catch (error) {
-    const errorMsg =
-      error instanceof Error ? error.message : "Request failed...";
+    const errorMsg = error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
   }
 }
@@ -192,11 +184,7 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
 
   try {
     // Fetch photo from database to verify ownership and get filename
-    const [photo] = await db
-      .select()
-      .from(photos)
-      .where(eq(photos.id, id))
-      .limit(1);
+    const [photo] = await db.select().from(photos).where(eq(photos.id, id)).limit(1);
 
     if (!photo) {
       return { data: undefined, error: "Photo not found" };
@@ -218,8 +206,7 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
 
     return { data: undefined, error: undefined };
   } catch (error) {
-    const errorMsg =
-      error instanceof Error ? error.message : "Request failed...";
+    const errorMsg = error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
   }
 }
@@ -230,4 +217,3 @@ function createDirIfNotExists(dir: string): void {
     mkdirSync(dir, { recursive: true });
   }
 }
-
