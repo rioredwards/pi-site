@@ -150,10 +150,10 @@ done
 # Find the http block and add the zone definition after the opening brace
 if ! grep -q "limit_req_zone.*zone=mylimit" /etc/nginx/nginx.conf; then
 	# Insert after the http { line
-	sudo sed -i '/^http {/a\    limit_req_zone $binary_remote_addr zone=mylimit:10m rate=10r/s;' /etc/nginx/nginx.conf
+	sudo sed -i '/^http {/a\    limit_req_zone $binary_remote_addr zone=mylimit:10m rate=30r/s;' /etc/nginx/nginx.conf
 fi
 
-# Create Nginx config with reverse proxy, rate limiting, and streaming support
+# Create Nginx config with reverse proxy, rate limiting, and direct static file serving
 # Note: Nginx listens on HTTP only (port 80) - Cloudflare Tunnel handles SSL externally
 # Note: limit_req_zone is defined in nginx.conf, we only use it here
 sudo tee /etc/nginx/sites-available/pi-site >/dev/null <<'EOL'
@@ -161,10 +161,41 @@ server {
     listen 80;
     server_name localhost;
 
-    # Enable rate limiting (zone defined in /etc/nginx/nginx.conf)
-    limit_req zone=mylimit burst=20 nodelay;
+    # Serve uploaded images directly from Docker volume (bypass Next.js)
+    # This dramatically improves performance by avoiding Node.js for static assets
+    location /images/ {
+        alias /var/lib/docker/volumes/pi-site_uploads_data/_data/;
 
+        # Aggressive caching for uploaded images (immutable due to UUID filenames)
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+
+        # Security headers
+        add_header X-Content-Type-Options "nosniff" always;
+
+        # CORS headers (if needed for Next.js Image optimization)
+        add_header Access-Control-Allow-Origin "*";
+
+        # Disable access logs for images to reduce I/O
+        access_log off;
+
+        # No rate limiting for static images
+        limit_req off;
+
+        # Efficient file serving
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+
+        # Return 404 for missing images instead of proxying to Next.js
+        try_files $uri =404;
+    }
+
+    # Enable rate limiting for dynamic routes only
     location / {
+        # More reasonable rate limit: 30 req/s with burst of 50
+        limit_req zone=mylimit burst=50 nodelay;
+
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;

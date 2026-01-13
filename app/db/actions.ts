@@ -16,7 +16,9 @@ export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; 
 
 // Use environment variable if set, otherwise use relative path from CWD
 const IMG_UPLOAD_DIR = process.env.UPLOAD_DIR || join(process.cwd(), "public", "images");
-const IMG_READ_DIR = "/api/assets/images/";
+// In production with Nginx, images are served directly from /images/
+// In development, they still use the API route fallback
+const IMG_READ_DIR = process.env.NODE_ENV === "production" ? "/images/" : "/api/assets/images/";
 
 export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
   const session = await getServerSession(authOptions);

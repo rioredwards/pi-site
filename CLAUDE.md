@@ -128,9 +128,21 @@ The validation runs before file processing in `uploadPhoto()` server action.
 
 ### Static Asset Serving
 
-Images are served through a custom API route at `/api/assets/[...dir]/route.ts` to work with Docker's standalone output mode. Photos are stored in:
+**Production**: Images are served directly by Nginx from `/images/` for optimal performance. Nginx serves files from the Docker volume at `/var/lib/docker/volumes/pi-site_uploads_data/_data/` with aggressive caching (1 year) and no rate limiting.
+
+**Development**: Images fall back to `/api/assets/images/` which uses a streaming API route with proper caching headers.
+
+Photos are stored in:
 - **Upload path**: `process.env.UPLOAD_DIR` or `{cwd}/public/images`
-- **Read path**: `/api/assets/images/{filename}`
+- **Read path (prod)**: `/images/{filename}` (served by Nginx)
+- **Read path (dev)**: `/api/assets/images/{filename}` (served by Next.js API route)
+
+The environment-aware path selection is in `app/db/actions.ts`:
+```typescript
+const IMG_READ_DIR = process.env.NODE_ENV === "production" ? "/images/" : "/api/assets/images/";
+```
+
+This architecture prevents 503 errors by keeping image requests off the Node.js event loop in production.
 
 ## Environment Variables
 
