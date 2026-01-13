@@ -11,6 +11,7 @@ Your production site was experiencing 503 errors when serving images due to inef
 5. **Missing headers**: No Content-Type or Cache-Control headers
 
 When a page with 20+ dog photos loaded, it would:
+
 - Send 20+ requests through Node.js
 - Block the event loop 20+ times with sync file reads
 - Hit rate limits immediately
@@ -23,6 +24,7 @@ When a page with 20+ dog photos loaded, it would:
 **Changed**: `/images/` requests now bypass Next.js entirely and are served directly by Nginx from the Docker volume.
 
 **Benefits**:
+
 - 10-100x faster response times
 - No Node.js event loop blocking
 - Efficient sendfile() system call
@@ -50,12 +52,14 @@ location /images/ {
 ### 3. Improved API Route (Development Fallback)
 
 **Changed**: `/api/assets/[...dir]/route.ts` now uses:
+
 - Async streaming instead of sync reads
 - Proper Content-Type headers
 - Aggressive caching headers (1 year)
 - ReadableStream for efficient file transfer
 
 **Benefits**:
+
 - Non-blocking I/O
 - Smaller memory footprint
 - Better development experience
@@ -88,7 +92,7 @@ git pull origin main
 # Stop services
 sudo docker compose down
 
-# Reconfigure Nginx (uses updated deploy.sh)
+# Reconfigure Nginx (uses updated deploy.sh) # DID NOT WORK
 sudo bash -c 'source deploy.sh'  # Only run Nginx config section manually, or:
 
 # Update Nginx config manually:
@@ -173,12 +177,14 @@ sudo docker compose logs -f web
 ## Performance Impact
 
 **Before**:
+
 - Image load: ~50-200ms per image
 - Server load: High CPU, blocking I/O
 - Rate limit hits: Frequent 503 errors
 - Concurrent users: Limited by Node.js capacity
 
 **After**:
+
 - Image load: ~5-20ms per image
 - Server load: Minimal (Nginx handles images)
 - Rate limit hits: None for images
@@ -187,11 +193,13 @@ sudo docker compose logs -f web
 ## Architecture Diagram
 
 ### Before
+
 ```
 Browser → Cloudflare Tunnel → Nginx → Next.js → fs.readFileSync() → Disk
 ```
 
 ### After
+
 ```
 Browser → Cloudflare Tunnel → Nginx → Disk (direct)
                               ↓
@@ -231,18 +239,22 @@ sudo nginx -t && sudo systemctl reload nginx
 Consider these enhancements for even better performance:
 
 1. **Image Optimization**:
+
    - Use Next.js Image component with `loader` prop for WebP conversion
    - Implement responsive images with `srcset`
 
 2. **CDN Integration**:
+
    - Upload images to object storage (S3, Cloudflare R2, Backblaze B2)
    - Serve through CDN for global edge caching
 
 3. **Lazy Loading**:
+
    - Implement virtual scrolling for large galleries
    - Use `loading="lazy"` for off-screen images
 
 4. **Compression**:
+
    - Enable Nginx gzip/brotli for text assets
    - Pre-compress images during upload (sharp, imagemagick)
 
@@ -254,6 +266,7 @@ Consider these enhancements for even better performance:
 ## Questions?
 
 If you encounter issues or have questions about these changes, check:
+
 - Nginx logs: `sudo tail -f /var/log/nginx/error.log`
 - Container logs: `sudo docker compose logs -f`
 - Nginx config test: `sudo nginx -t`

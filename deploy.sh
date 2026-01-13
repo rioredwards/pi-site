@@ -180,7 +180,7 @@ server {
         access_log off;
 
         # No rate limiting for static images
-        limit_req off;
+        # limit_req off;
 
         # Efficient file serving
         sendfile on;
