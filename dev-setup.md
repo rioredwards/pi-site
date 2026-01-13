@@ -12,10 +12,12 @@ It's all working!
 
 Your local development environment is ready. You can now:
 
-1. **Start Postgres**: `docker-compose -f docker-compose.dev.yml up -d`
+1. **Start supporting services** (Postgres + AI validator): `npm run dev:services` or `docker-compose -f docker-compose.dev.yml up -d`
 2. **Push database schema**: `npm run db:push`
-3. **Start dev server**: `npm run dev`
+3. **Start Next.js dev server**: `npm run dev`
 4. **View database**: `npm run db:studio` (opens at http://localhost:4983)
+
+**Note:** The AI validator service will be available at `http://localhost:8000` for image validation.
 
 Your Next.js app will be available at:
 **http://localhost:3000**
@@ -157,17 +159,26 @@ NEXT_PUBLIC_SAFE_KEY=safe-key
 
 ## Quick Reference Commands
 
-### Start/Stop Postgres:
+### Start/Stop Development Services:
 
 ```bash
-# Start
+# Start all services (Postgres + AI validator)
+npm run dev:services
+# OR
 docker-compose -f docker-compose.dev.yml up -d
 
-# Stop
+# Stop all services
+npm run dev:services:stop
+# OR
 docker-compose -f docker-compose.dev.yml down
 
 # Stop and remove volumes (fresh start)
 docker-compose -f docker-compose.dev.yml down -v
+
+# View service logs
+npm run dev:services:logs
+# OR
+docker-compose -f docker-compose.dev.yml logs -f
 ```
 
 ### Database operations:

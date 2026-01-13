@@ -15,6 +15,12 @@ services:
       timeout: 5s
       retries: 5
 
+  ai-img-validator:
+    build: ./ai-img-validator
+    ports:
+      - '8000:8000'
+    # Expose port for local development access
+
 volumes:
   postgres_data_dev:
 

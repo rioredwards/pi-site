@@ -55,12 +55,12 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
           ? "http://ai-img-validator:8000"
           : "http://localhost:8000");
 
+      console.log("baseUrl", baseUrl);
+
       const backendUrl = `${baseUrl.replace(/\/+$/, "")}/analyze`;
 
       const validatorFormData = new FormData();
       validatorFormData.append("file", file);
-
-      console.log("backendUrl", backendUrl);
 
       const response = await fetch(backendUrl, {
         method: "POST",
@@ -72,6 +72,8 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
         console.warn("AI validator service unavailable, proceeding without validation");
       } else {
         const analysisResult = await response.json();
+
+        console.log("analysisResult", analysisResult);
 
         // Validate: must be SFW and must be a dog
         if (analysisResult.is_nsfw) {

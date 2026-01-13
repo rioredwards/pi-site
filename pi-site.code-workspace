@@ -1,0 +1,14 @@
+{
+  "folders": [
+	{
+		"path": "."
+	},
+	{
+		"path": "../pi-site-old"
+	},
+	{
+		"path": "../portfolio"
+	}
+],
+  "settings": {}
+}
