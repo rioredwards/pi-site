@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { devLog } from './app/lib/utils.js';
 
 const CACHE_DIR = path.resolve('.cache'); // Adjust the cache directory as needed
 const TAGS_MANIFEST = path.join(CACHE_DIR, 'tags-manifest.json');
@@ -9,9 +10,9 @@ const TAGS_MANIFEST = path.join(CACHE_DIR, 'tags-manifest.json');
 (async () => {
   try {
     await fs.mkdir(CACHE_DIR, { recursive: true });
-    console.log(chalk.blue('🔧 Cache directory initialized'));
+    devLog(chalk.blue('🔧 Cache directory initialized'));
   } catch (err) {
-    console.error('Failed to initialize cache directory', err);
+    devLog('Failed to initialize cache directory', err);
   }
 })();
 
@@ -70,7 +71,7 @@ class CacheHandler {
         const tagData = tagsManifest.items[tag];
         if (tagData && tagData.revalidatedAt > lastModified) {
           isStale = true;
-          console.log(
+          devLog(
             chalk.red(
               `♻️ Cache entry for key ${chalk.bold(
                 key
@@ -82,7 +83,7 @@ class CacheHandler {
       }
 
       if (isStale) {
-        console.log(
+        devLog(
           chalk.yellow(
             `⚠️ Cache entry for key ${chalk.bold(
               key
@@ -92,13 +93,13 @@ class CacheHandler {
         return null;
       }
 
-      console.log(chalk.green(`✅ Cache hit for key: ${chalk.bold(key)}`));
+      devLog(chalk.green(`✅ Cache hit for key: ${chalk.bold(key)}`));
       return {
         lastModified,
         value,
       };
     } catch (err) {
-      console.log(chalk.yellow(`⚠️ Cache miss for key: ${chalk.bold(key)}`));
+      devLog(chalk.yellow(`⚠️ Cache miss for key: ${chalk.bold(key)}`));
       return null;
     }
   }
@@ -121,18 +122,18 @@ class CacheHandler {
 
     try {
       await fs.writeFile(filePath, JSON.stringify(entry));
-      console.log(chalk.cyan(`📥 Set cached data for key: ${chalk.bold(key)}`));
+      devLog(chalk.cyan(`📥 Set cached data for key: ${chalk.bold(key)}`));
       if (tags.length > 0) {
-        console.log(chalk.gray(`   Tags: ${tags.join(', ')}`));
+        devLog(chalk.gray(`   Tags: ${tags.join(', ')}`));
       }
     } catch (err) {
-      console.error(`Failed to write cache entry for key ${key}`, err);
+      devLog(`Failed to write cache entry for key ${key}`, err);
     }
   }
 
   async revalidateTag(tags) {
     const tagsArray = Array.isArray(tags) ? tags : [tags];
-    console.log(
+    devLog(
       chalk.magenta(`🔄 Revalidating tags: ${chalk.bold(tagsArray.join(', '))}`)
     );
 
@@ -140,7 +141,7 @@ class CacheHandler {
 
     for (const tag of tagsArray) {
       await updateTagsManifest(tag, now);
-      console.log(
+      devLog(
         chalk.blue(
           `   ⏰ Tag ${chalk.bold(tag)} revalidated at ${new Date(
             now
@@ -149,7 +150,7 @@ class CacheHandler {
       );
     }
 
-    console.log(
+    devLog(
       chalk.magenta(
         `✨ Revalidation complete for tags: ${chalk.bold(
           tagsArray.join(', ')

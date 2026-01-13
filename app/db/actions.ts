@@ -7,6 +7,7 @@ import { writeFile } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
+import { devLog } from "../../lib/utils";
 import { Photo } from "../lib/types";
 import { db } from "./drizzle";
 import { photos } from "./schema";
@@ -55,7 +56,7 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
           ? "http://ai-img-validator:8000"
           : "http://localhost:8000");
 
-      console.log("baseUrl", baseUrl);
+      devLog("baseUrl", baseUrl);
 
       const backendUrl = `${baseUrl.replace(/\/+$/, "")}/analyze`;
 
@@ -69,11 +70,11 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
 
       if (!response.ok) {
         // If validator service is unavailable, log but don't block upload
-        console.warn("AI validator service unavailable, proceeding without validation");
+        devLog("AI validator service unavailable, proceeding without validation");
       } else {
         const analysisResult = await response.json();
 
-        console.log("analysisResult", analysisResult);
+        devLog("analysisResult", analysisResult);
 
         // Validate: must be SFW and must be a dog
         if (analysisResult.is_nsfw) {
@@ -93,7 +94,7 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     } catch (validatorError) {
       // If validator fails, log but don't block upload (fail open for now)
       // In production, you might want to fail closed
-      console.warn("AI validator check failed:", validatorError);
+      devLog("AI validator check failed:", validatorError);
     }
 
     const bytes = await file.arrayBuffer();

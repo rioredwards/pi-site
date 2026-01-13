@@ -26,10 +26,7 @@ function defineCanvasToBlobIfNotDefined() {
 
 // Modified from https://stackoverflow.com/a/32490603, cc by-sa 3.0
 // -2 = not jpeg, -1 = no data, 1..8 = orientations
-function getExifOrientation(
-  file: Blob,
-  callback: (orientation: number) => void,
-) {
+function getExifOrientation(file: Blob, callback: (orientation: number) => void) {
   // Suggestion from http://code.flickr.net/2012/06/01/parsing-exif-client-side-using-javascript-2/:
   if (file.slice) {
     file = file.slice(0, 131072);
@@ -75,7 +72,7 @@ function getExifOrientation(
 function imgToCanvas(
   img: HTMLImageElement,
   rawWidth: number,
-  rawHeight: number,
+  rawHeight: number
 ): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
   canvas.width = rawWidth;
@@ -91,7 +88,7 @@ export function reduceFileSize(
   acceptFileSize: number,
   maxWidth: number,
   maxHeight: number,
-  quality: number,
+  quality: number
 ): Promise<Blob> {
   defineWindowUrlIfNotDefined();
   defineCanvasToBlobIfNotDefined();
@@ -124,26 +121,20 @@ export function reduceFileSize(
         canvas.toBlob(
           function (blob) {
             if (blob) {
-              console.log(
-                "Resized image to " +
-                  w +
-                  "x" +
-                  h +
-                  ", " +
-                  (blob.size >> 10) +
-                  "kB",
-              );
+              if (process.env.NODE_ENV === "development") {
+                // eslint-disable-next-line no-console
+                console.log("Resized image to " + w + "x" + h + ", " + (blob.size >> 10) + "kB");
+              }
               resolve(blob);
             } else {
               reject(new Error("Blob creation error"));
             }
           },
           "image/jpeg",
-          quality,
+          quality
         );
       });
     };
     img.src = URL.createObjectURL(file);
   });
 }
-

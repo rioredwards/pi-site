@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { devLog } from "@/lib/utils";
 import { LucideDog } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import Image from "next/image";
@@ -69,23 +70,16 @@ export default function PhotoUpload({ addPhoto }: Props) {
     const uploadedPhotos: Photo[] = [];
 
     for (const file of files) {
-      const resizedImg = await reduceFileSize(
-        file,
-        MAX_FILE_SIZE,
-        MAX_WIDTH,
-        MAX_HEIGHT,
-        QUALITY,
-      );
+      const resizedImg = await reduceFileSize(file, MAX_FILE_SIZE, MAX_WIDTH, MAX_HEIGHT, QUALITY);
       const formData = new FormData();
       formData.append("file", resizedImg);
 
       const res = await uploadPhoto(formData);
       if (res.error || !res.data) {
-        console.error(res.error);
+        devLog(res.error);
         toast({
           title: "Error",
-          description:
-            res.error || "There was a problem uploading one of your photos.",
+          description: res.error || "There was a problem uploading one of your photos.",
           variant: "destructive",
         });
         continue;
@@ -155,17 +149,15 @@ export default function PhotoUpload({ addPhoto }: Props) {
               borderRadius="9999px"
               containerClassName="group"
               borderClassName="!opacity-[0.6] transition-all"
-              shadowClassName="!opacity-[0] group-hover:!opacity-[0.2] transition-all"
-            >
+              shadowClassName="!opacity-[0] group-hover:!opacity-[0.2] transition-all">
               <Label
                 htmlFor={session?.user?.id ? "photo" : undefined}
                 onClick={handleUploadButtonClick}
                 className={cn(
                   "flex cursor-pointer items-center justify-center rounded-full px-8 py-4 text-lg font-bold",
                   "text-primary",
-                  "bg-white",
-                )}
-              >
+                  "bg-white"
+                )}>
                 <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-primary transition-all group-hover:text-transparent">
                   <LucideDog className="-mt-[2px] mr-2 inline-block h-6 w-6 text-primary transition-all group-hover:text-red-500" />
                   Upload Your Dogs
@@ -180,18 +172,16 @@ export default function PhotoUpload({ addPhoto }: Props) {
             containerClassName={cn(
               "w-full max-w-[32rem] group mx-auto",
               files.length > 1 && "max-w-[48rem]",
-              files.length > 2 && "max-w-[64rem]",
+              files.length > 2 && "max-w-[64rem]"
             )}
             borderClassName="!opacity-[0.6] transition-all"
-            shadowClassName="!opacity-[0] group-hover:!opacity-[0.4] transition-all"
-          >
+            shadowClassName="!opacity-[0] group-hover:!opacity-[0.4] transition-all">
             <div
               className={cn(
                 "flex flex-col items-center px-14 py-12",
                 "rounded-2xl text-primary",
-                "bg-white",
-              )}
-            >
+                "bg-white"
+              )}>
               <p className="mb-4 text-center text-2xl font-bold">
                 {files.length === 1 ? "Upload this Dog?" : "Upload these Dogs?"}
               </p>
@@ -200,16 +190,14 @@ export default function PhotoUpload({ addPhoto }: Props) {
                 className={cn(
                   "mb-8 grid w-full grid-cols-1 gap-4",
                   files.length > 1 && "md:grid-cols-2",
-                  files.length > 2 && "lg:grid-cols-3",
-                )}
-              >
+                  files.length > 2 && "lg:grid-cols-3"
+                )}>
                 {files.map((file, idx) => (
                   <div
                     key={idx}
                     className={cn(
-                      "relative aspect-square h-full w-full overflow-hidden rounded-lg",
-                    )}
-                  >
+                      "relative aspect-square h-full w-full overflow-hidden rounded-lg"
+                    )}>
                     <Image
                       src={URL.createObjectURL(file)}
                       alt={`Dog photo ${idx + 1}`}
@@ -222,16 +210,14 @@ export default function PhotoUpload({ addPhoto }: Props) {
               <div className="flex w-full space-x-2">
                 <Button
                   onClick={handleCancel}
-                  className="flex-1 bg-gray-200 text-gray-800 transition hover:bg-gray-300"
-                >
+                  className="flex-1 bg-gray-200 text-gray-800 transition hover:bg-gray-300">
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={isSubmitting}
                   variant="default"
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 font-medium text-white transition hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-4 focus:ring-purple-200 dark:focus:ring-purple-800"
-                >
+                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 font-medium text-white transition hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-4 focus:ring-purple-200 dark:focus:ring-purple-800">
                   {!isSubmitting ? (
                     "Upload"
                   ) : (
@@ -259,16 +245,13 @@ export default function PhotoUpload({ addPhoto }: Props) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Sign In Required</DialogTitle>
-            <DialogDescription>
-              Please sign in to upload photos to the gallery.
-            </DialogDescription>
+            <DialogDescription>Please sign in to upload photos to the gallery.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <Button
               onClick={() => signIn("github")}
               className="flex h-11 w-full items-center justify-center gap-3 text-base"
-              variant="outline"
-            >
+              variant="outline">
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
               </svg>
@@ -277,8 +260,7 @@ export default function PhotoUpload({ addPhoto }: Props) {
             <Button
               onClick={() => signIn("google")}
               className="flex h-11 w-full items-center justify-center gap-3 text-base"
-              variant="outline"
-            >
+              variant="outline">
               <svg className="h-5 w-5" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
@@ -310,4 +292,3 @@ export default function PhotoUpload({ addPhoto }: Props) {
     </section>
   );
 }
-

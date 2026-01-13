@@ -5,9 +5,10 @@ import { useSession } from "next-auth/react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import BounceLoader from "react-spinners/BounceLoader";
 import { deletePhoto as deletePhotoFile, getPhotos } from "../app/actions";
-import { ImgCard } from "./ui/imgCard";
-import { useToast } from "../hooks/use-toast";
 import { Photo } from "../app/lib/types";
+import { useToast } from "../hooks/use-toast";
+import { devLog } from "../lib/utils";
+import { ImgCard } from "./ui/imgCard";
 
 export const PhotoUpload = lazy(() => import("@/components/photo-upload"));
 
@@ -26,7 +27,7 @@ export function Main() {
         const shuffledPhotos = shuffle(response.data);
         setPhotos(shuffledPhotos);
       } else {
-        console.error(response.error);
+        devLog(response.error);
         toast({
           title: "Error",
           description: "There was a problem fetching photos.",
@@ -62,7 +63,7 @@ export function Main() {
     }
     const res = await deletePhotoFile(id);
     if (res.error) {
-      console.error(res.error);
+      devLog(res.error);
       toast({
         title: "Error",
         description: res.error || "There was a problem deleting your photo.",
@@ -79,18 +80,14 @@ export function Main() {
 
   return (
     <div className="container mx-auto min-h-96 px-4 py-8">
-      <Suspense>
-        {typeof window !== "undefined" && <PhotoUpload addPhoto={addPhoto} />}
-      </Suspense>
+      <Suspense>{typeof window !== "undefined" && <PhotoUpload addPhoto={addPhoto} />}</Suspense>
       {isLoading ? (
         <div className="mt-24 flex items-center justify-center">
           <BounceLoader color={"rgb(15, 220, 220)"} loading={true} size={25} />
         </div>
       ) : !photos.length ? (
         <div className="mt-24 flex items-center justify-center">
-          <p className="text-lg text-gray-500">
-            No photos yet. Upload one to get started!
-          </p>
+          <p className="text-lg text-gray-500">No photos yet. Upload one to get started!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -110,4 +107,3 @@ export function Main() {
     </div>
   );
 }
-
