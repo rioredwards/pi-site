@@ -4,43 +4,80 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { devLog } from "@/lib/utils";
 import { LucideDog } from "lucide-react";
-import { signIn, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useRef, useState } from "react";
-import PulseLoader from "react-spinners/PulseLoader";
+import { useMemo, useRef, useState } from "react";
 import { uploadPhoto } from "../app/actions";
 import { reduceFileSize } from "../app/lib/imgCompress";
 import { Photo } from "../app/lib/types";
 import { cn } from "../lib/utils";
 import Confetti from "./Confetti";
 import { GradientText } from "./funText";
+import { DogBotCard } from "./ui/dogBotCard";
 import { RotatingGradientBorder } from "./ui/RotatingGradientBorder";
+import { SignInModal } from "./ui/signInModal";
 
 interface Props {
   addPhoto: (photo: Photo) => void;
 }
 
+type ProcessingState = "preSelection" | "selected" | "processing" | "success" | "failure";
+
+function getDogModalTitle(processingState: ProcessingState): string {
+  switch (processingState) {
+    case "preSelection":
+      return "Upload Dog";
+    case "selected":
+      return "Nice Dog!";
+    case "processing":
+      return "Processing Dog...";
+    case "success":
+      return "Dog Uploaded!";
+    case "failure":
+      return "Dog Not Uploaded!";
+  }
+}
+
+function getDogModalDescription(processingState: ProcessingState): string {
+  switch (processingState) {
+    case "preSelection":
+      return "Select a dog photo to upload to the gallery.";
+    case "selected":
+      return "Now press that upload button!";
+    case "processing":
+      return "Hang tight...";
+    case "success":
+      return "Nice!";
+    case "failure":
+      return "Uh oh!";
+  }
+}
+
 export default function PhotoUpload({ addPhoto }: Props) {
   const [files, setFiles] = useState<File[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [processingState, setProcessingState] = useState<ProcessingState>("preSelection");
   const [showSignInModal, setShowSignInModal] = useState(false);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: session, status } = useSession();
   const [showConfetti, setShowConfetti] = useState(false);
 
+  const previewUrl = useMemo(() => {
+    if (!files[0]) return null;
+    return URL.createObjectURL(files[0]);
+  }, [files]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setProcessingState("processing");
 
     if (!session?.user?.id) {
       toast({
@@ -48,7 +85,7 @@ export default function PhotoUpload({ addPhoto }: Props) {
         description: "You must be signed in to upload photos.",
         variant: "destructive",
       });
-      setIsSubmitting(false);
+      setProcessingState("preSelection");
       return;
     }
 
@@ -58,237 +95,250 @@ export default function PhotoUpload({ addPhoto }: Props) {
         description: "Please select at least one photo to upload.",
         variant: "destructive",
       });
-      setIsSubmitting(false);
+      setProcessingState("preSelection");
       return;
     }
 
-    const MAX_FILE_SIZE = 500 * 1000; // 500kB
-    const MAX_WIDTH = 1000; // 1000px
-    const MAX_HEIGHT = 1000; // 1000px
-    const QUALITY = 0.9; // 90%
+    const MIN_PROCESSING_TIME = 5000;
+    const startTime = Date.now();
 
-    const uploadedPhotos: Photo[] = [];
+    const MAX_FILE_SIZE = 500 * 1000;
+    const MAX_WIDTH = 1000;
+    const MAX_HEIGHT = 1000;
+    const QUALITY = 0.9;
 
-    for (const file of files) {
-      const resizedImg = await reduceFileSize(file, MAX_FILE_SIZE, MAX_WIDTH, MAX_HEIGHT, QUALITY);
-      const formData = new FormData();
-      formData.append("file", resizedImg);
+    const file = files[0];
+    const resizedImg = await reduceFileSize(file, MAX_FILE_SIZE, MAX_WIDTH, MAX_HEIGHT, QUALITY);
+    const formData = new FormData();
+    formData.append("file", resizedImg);
 
-      const res = await uploadPhoto(formData);
-      if (res.error || !res.data) {
-        devLog(res.error);
-        toast({
-          title: "Error",
-          description: res.error || "There was a problem uploading one of your photos.",
-          variant: "destructive",
-        });
-        continue;
-      }
+    const res = await uploadPhoto(formData);
 
-      uploadedPhotos.push(res.data);
+    const elapsedTime = Date.now() - startTime;
+    const remainingTime = Math.max(0, MIN_PROCESSING_TIME - elapsedTime);
+    await new Promise((resolve) => setTimeout(resolve, remainingTime));
+
+    if (res.error || !res.data) {
+      devLog(res.error);
+      setProcessingState("failure");
+      return;
     }
 
-    if (uploadedPhotos.length > 0) {
-      toast({
-        title: "Success",
-        description: `${uploadedPhotos.length} photo(s) have been uploaded successfully.`,
-      });
-      uploadedPhotos.forEach(addPhoto);
-      setShowConfetti(true);
-    }
-
-    setFiles([]);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-    setIsSubmitting(false);
+    addPhoto(res.data);
+    setProcessingState("success");
+    setShowConfetti(true);
   };
 
-  const handleCancel = () => {
+  const resetFileInput = () => {
     setFiles([]);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    setProcessingState("preSelection");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleCancel = () => resetFileInput();
+  const handleUploadAnother = () => resetFileInput();
+
+  const handleClose = () => {
+    setShowUploadDialog(false);
+    resetFileInput();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
-      if (selectedFiles.length > 3) {
+      if (selectedFiles.length > 1) {
         toast({
           title: "Error",
-          description: "You can only upload up to 3 photos.",
+          description: "You can only upload 1 photo at a time.",
           variant: "destructive",
         });
         return;
       }
       setFiles(selectedFiles);
+      setProcessingState("selected");
     }
   };
 
-  const handleUploadButtonClick = (e: React.MouseEvent) => {
-    if (status === "loading") {
-      e.preventDefault();
-      return;
-    }
+  const handleUploadButtonClick = () => {
+    if (status === "loading") return;
     if (!session?.user?.id) {
-      e.preventDefault();
       setShowSignInModal(true);
       return;
     }
-    // If authenticated, let the default label behavior work (triggers file input)
+    setShowUploadDialog(true);
   };
+
+  const isLocked = processingState === "processing";
+  const showActions =
+    processingState === "selected" ||
+    processingState === "success" ||
+    processingState === "failure";
 
   return (
     <section className="container mb-8">
-      <form onSubmit={handleSubmit}>
-        {showConfetti && <Confetti setShowConfetti={setShowConfetti} />}
-        {!files.length && (
-          <div className="flex justify-center">
-            <RotatingGradientBorder
-              borderRadius="9999px"
-              containerClassName="group"
-              borderClassName="!opacity-[0.6] transition-all"
-              shadowClassName="!opacity-[0] group-hover:!opacity-[0.2] transition-all">
-              <Label
-                htmlFor={session?.user?.id ? "photo" : undefined}
-                onClick={handleUploadButtonClick}
-                className={cn(
-                  "flex cursor-pointer items-center justify-center rounded-full px-8 py-4 text-lg font-bold",
-                  "text-primary",
-                  "bg-white"
-                )}>
-                <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-primary transition-all group-hover:text-transparent">
-                  <LucideDog className="-mt-[2px] mr-2 inline-block h-6 w-6 text-primary transition-all group-hover:text-red-500" />
-                  Upload Your Dogs
-                </GradientText>
-              </Label>
-            </RotatingGradientBorder>
+      {showConfetti && <Confetti setShowConfetti={setShowConfetti} />}
+
+      <div className="flex justify-center">
+        <RotatingGradientBorder
+          borderRadius="9999px"
+          containerClassName="group"
+          borderClassName="!opacity-[0.6] transition-all"
+          shadowClassName="!opacity-[0] group-hover:!opacity-[0.2] transition-all">
+          <Button
+            onClick={handleUploadButtonClick}
+            className={cn(
+              "flex cursor-pointer items-center justify-center rounded-full px-8 py-8 text-lg font-bold",
+              "text-primary",
+              "bg-white hover:bg-white",
+              "shadow-sm hover:shadow-md transition-shadow"
+            )}>
+            <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-primary transition-all group-hover:text-transparent">
+              <LucideDog
+                style={{ width: "24px", height: "24px" }}
+                className="-mt-[2px] mr-2 inline-block text-primary transition-all group-hover:text-red-500"
+              />
+              Upload Dog Button
+            </GradientText>
+          </Button>
+        </RotatingGradientBorder>
+      </div>
+
+      <Dialog
+        open={showUploadDialog}
+        onOpenChange={(open) => {
+          if (!open) handleClose();
+        }}>
+        <DialogContent className="sm:max-w-[560px] rounded-3xl border border-border/60 bg-background/90 p-0 shadow-2xl backdrop-blur">
+          <div className="px-6 pt-6">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="text-xl tracking-tight">
+                {getDogModalTitle(processingState)}
+              </DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                {getDogModalDescription(processingState)}
+              </DialogDescription>
+            </DialogHeader>
           </div>
-        )}
-        {files.length > 0 && (
-          <RotatingGradientBorder
-            borderRadius="1rem"
-            containerClassName={cn(
-              "w-full max-w-[32rem] group mx-auto",
-              files.length > 1 && "max-w-[48rem]",
-              files.length > 2 && "max-w-[64rem]"
-            )}
-            borderClassName="!opacity-[0.6] transition-all"
-            shadowClassName="!opacity-[0] group-hover:!opacity-[0.4] transition-all">
-            <div
-              className={cn(
-                "flex flex-col items-center px-14 py-12",
-                "rounded-2xl text-primary",
-                "bg-white"
-              )}>
-              <p className="mb-4 text-center text-2xl font-bold">
-                {files.length === 1 ? "Upload this Dog?" : "Upload these Dogs?"}
-              </p>
-              <div className="mb-8 h-[1px] w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-              <div
-                className={cn(
-                  "mb-8 grid w-full grid-cols-1 gap-4",
-                  files.length > 1 && "md:grid-cols-2",
-                  files.length > 2 && "lg:grid-cols-3"
-                )}>
-                {files.map((file, idx) => (
-                  <div
-                    key={idx}
+
+          <div className="px-6 pb-6 pt-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {!files.length ? (
+                <div className="rounded-2xl border border-dashed border-border/80 bg-muted/30 p-3">
+                  <label
+                    htmlFor="photo"
                     className={cn(
-                      "relative aspect-square h-full w-full overflow-hidden rounded-lg"
+                      "group relative flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl p-10",
+                      "transition",
+                      "hover:bg-muted/40 hover:border-border",
+                      "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background"
                     )}>
-                    <Image
-                      src={URL.createObjectURL(file)}
-                      alt={`Dog photo ${idx + 1}`}
-                      fill={true}
-                      className="object-cover"
-                    />
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-background shadow-sm ring-1 ring-border/60 transition group-hover:shadow-md">
+                      <LucideDog className="h-7 w-7 text-muted-foreground" />
+                    </div>
+
+                    <div className="text-center">
+                      <div className="text-sm font-medium text-foreground">
+                        Click to select a dog photo
+                      </div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        JPEG, PNG, or WebP • max 5MB
+                      </div>
+                    </div>
+
+                    <div className="mt-2 inline-flex items-center rounded-full bg-background/70 px-3 py-1 text-[11px] text-muted-foreground ring-1 ring-border/60">
+                      one dog at a time
+                    </div>
+                  </label>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Image stage */}
+                  <div className="relative overflow-hidden rounded-2xl ring-1 ring-border/60">
+                    <div className="relative aspect-square">
+                      <Image
+                        src={previewUrl!}
+                        alt="Dog photo"
+                        fill={true}
+                        className={cn(
+                          "object-cover transition duration-500",
+                          processingState === "processing" ||
+                            processingState === "success" ||
+                            processingState === "failure"
+                            ? "scale-[1.01] saturate-[0.9]"
+                            : ""
+                        )}
+                      />
+
+                      {/* Subtle vignette when card is shown (processing/success/failure) */}
+                      {(processingState === "processing" ||
+                        processingState === "success" ||
+                        processingState === "failure") && (
+                        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/55 via-black/10 to-black/20" />
+                      )}
+
+                      {/* Persistent Dog Bot card overlay (processing/success/failure) */}
+                      <DogBotCard processingState={processingState} />
+                    </div>
                   </div>
-                ))}
-              </div>
-              <div className="flex w-full space-x-2">
-                <Button
-                  onClick={handleCancel}
-                  className="flex-1 bg-gray-200 text-gray-800 transition hover:bg-gray-300">
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  variant="default"
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 font-medium text-white transition hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-4 focus:ring-purple-200 dark:focus:ring-purple-800">
-                  {!isSubmitting ? (
-                    "Upload"
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <PulseLoader color="white" loading={true} size={5} />
-                      Dog Verification Bot Processing...
-                    </span>
+
+                  {/* Actions */}
+                  {showActions && (
+                    <div className="flex gap-2">
+                      {processingState === "selected" ? (
+                        <>
+                          <Button
+                            type="button"
+                            onClick={handleCancel}
+                            variant="outline"
+                            className="flex-1 rounded-xl"
+                            disabled={isLocked}>
+                            Cancel
+                          </Button>
+                          <Button
+                            type="submit"
+                            className="flex-1 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                            disabled={isLocked}>
+                            Upload
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button
+                            type="button"
+                            onClick={handleUploadAnother}
+                            variant="outline"
+                            className="flex-1 rounded-xl"
+                            disabled={isLocked}>
+                            Upload Another
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={handleClose}
+                            className="flex-1 rounded-xl"
+                            disabled={isLocked}>
+                            Close
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   )}
-                </Button>
-              </div>
-            </div>
-          </RotatingGradientBorder>
-        )}
-        <Input
-          id="photo"
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={handleFileChange}
-          className="hidden"
-          ref={fileInputRef}
-        />
-      </form>
-      <Dialog open={showSignInModal} onOpenChange={setShowSignInModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Sign In Required</DialogTitle>
-            <DialogDescription>Please sign in to upload photos to the gallery.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3">
-            <Button
-              onClick={() => signIn("github")}
-              className="flex h-11 w-full items-center justify-center gap-3 text-base"
-              variant="outline">
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-              </svg>
-              Sign in with GitHub
-            </Button>
-            <Button
-              onClick={() => signIn("google")}
-              className="flex h-11 w-full items-center justify-center gap-3 text-base"
-              variant="outline">
-              <svg className="h-5 w-5" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                />
-              </svg>
-              Sign in with Google
-            </Button>
+                </div>
+              )}
+
+              <Input
+                id="photo"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+                ref={fileInputRef}
+              />
+            </form>
           </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setShowSignInModal(false)}>
-              Cancel
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <SignInModal showSignInModal={showSignInModal} setShowSignInModal={setShowSignInModal} />
     </section>
   );
 }

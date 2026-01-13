@@ -7,6 +7,8 @@ services:
       - '3000:3000'
     environment:
       - NODE_ENV=production
+    volumes:
+      - uploads_data:/app/public/images
     depends_on:
       - db
     networks:
@@ -37,6 +39,7 @@ services:
 
 volumes:
   postgres_data:
+  uploads_data:
 
 networks:
   my_network:
