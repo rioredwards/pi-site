@@ -1,12 +1,3 @@
-import { FunIcons, GradientText } from "@/app/components/funText";
-import GitHub from "@/app/components/svg/GitHub";
-import LinkedIn from "@/app/components/svg/LinkedIn";
-import RaspberryPi from "@/app/components/svg/RaspberryPi";
-import YouTube from "@/app/components/svg/YouTube";
-import { ColorfulUnderline } from "@/app/components/ui/ColorfulUnderline";
-import { Flashcard } from "@/app/components/ui/flashcard";
-import PillHighlight from "@/app/components/ui/pillHighlight";
-import { RotatingGradientBorder } from "@/app/components/ui/RotatingGradientBorder";
 import {
   CardContent,
   CardHeader,
@@ -14,7 +5,16 @@ import {
   CardTitle,
   CardWithGradientBorder,
 } from "@/components/card";
+import { FunIcons, GradientText } from "@/components/funText";
 import BlueSky from "@/components/svg/Bluesky";
+import GitHub from "@/components/svg/GitHub";
+import LinkedIn from "@/components/svg/LinkedIn";
+import RaspberryPi from "@/components/svg/RaspberryPi";
+import YouTube from "@/components/svg/YouTube";
+import { ColorfulUnderline } from "@/components/ui/ColorfulUnderline";
+import { Flashcard } from "@/components/ui/flashcard";
+import PillHighlight from "@/components/ui/pillHighlight";
+import { RotatingGradientBorder } from "@/components/ui/RotatingGradientBorder";
 import {
   Blocks,
   Lightbulb,
