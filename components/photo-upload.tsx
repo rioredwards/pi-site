@@ -235,9 +235,10 @@ export default function PhotoUpload({ addPhoto }: Props) {
                   {!isSubmitting ? (
                     "Upload"
                   ) : (
-                    <>
+                    <span className="flex items-center gap-2">
                       <PulseLoader color="white" loading={true} size={5} />
-                    </>
+                      Dog Verification Bot Processing...
+                    </span>
                   )}
                 </Button>
               </div>
