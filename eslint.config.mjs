@@ -23,6 +23,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "scripts/**",
+    "cache-handler.mjs",
+    "server.js",
   ]),
 ]);
 

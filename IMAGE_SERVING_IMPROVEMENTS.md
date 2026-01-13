@@ -93,7 +93,7 @@ git pull origin main
 sudo docker compose down
 
 # Reconfigure Nginx (uses updated deploy.sh) # DID NOT WORK
-sudo bash -c 'source deploy.sh'  # Only run Nginx config section manually, or:
+bash -c 'source deploy.sh'  # Only run Nginx config section manually, or:
 
 # Update Nginx config manually:
 sudo tee /etc/nginx/sites-available/pi-site > /dev/null <<'EOL'

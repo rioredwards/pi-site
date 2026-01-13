@@ -50,7 +50,16 @@ export async function GET(_req: Request, { params }: { params: Promise<{ dir: st
     // Convert Node.js stream to Web ReadableStream
     const webStream = new ReadableStream({
       start(controller) {
-        stream.on("data", (chunk: Buffer) => controller.enqueue(new Uint8Array(chunk)));
+        stream.on("data", (chunk) => {
+          // `createReadStream` can emit either Buffer or string depending on encoding;
+          // normalize to Uint8Array for the Web ReadableStream.
+          if (typeof chunk === "string") {
+            controller.enqueue(new TextEncoder().encode(chunk));
+          } else {
+            // Node Buffers are Uint8Array subclasses, so this is a zero-copy view.
+            controller.enqueue(new Uint8Array(chunk));
+          }
+        });
         stream.on("end", () => controller.close());
         stream.on("error", (error) => controller.error(error));
       },
