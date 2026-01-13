@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { analyzeImageAction } from "../actions";
-import type { AnalysisResult } from "../lib/imgValidatorTypes";
+import { analyzeImageAction } from "../app/actions";
+import type { AnalysisResult } from "../app/lib/imgValidatorTypes";
 
 export default function ImgValidator() {
   const [file, setFile] = useState<File | null>(null);

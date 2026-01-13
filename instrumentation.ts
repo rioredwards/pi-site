@@ -7,16 +7,16 @@ declare global {
 export async function register() {
   global.secrets = {};
 
-  let org = process.env.HCP_ORG;
-  let project = process.env.HCP_PROJECT;
-  let secretName = 'Demo';
+  const org = process.env.HCP_ORG;
+  const project = process.env.HCP_PROJECT;
+  const secretName = 'Demo';
 
   if (!org) {
     global.secrets.apiKey = 'Demo: You have not loaded your secrets';
     return;
   }
 
-  let res = await fetch(
+  const res = await fetch(
     `https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/${org}/projects/${project}/apps/${secretName}/open`,
     {
       headers: {
@@ -25,7 +25,7 @@ export async function register() {
     }
   );
 
-  let { secrets } = await res.json();
+  const { secrets } = await res.json();
   global.secrets.apiKey = secrets[0].version.value;
 
   console.log('Secrets loaded!');

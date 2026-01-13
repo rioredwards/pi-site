@@ -1,14 +1,21 @@
 {
   "folders": [
-	{
-		"path": "."
-	},
-	{
-		"path": "../pi-site-old"
-	},
-	{
-		"path": "../portfolio"
-	}
-],
+    {
+      "name": "pi-site",
+      "path": "."
+    },
+    {
+      "name": "create-next-app-sample",
+      "path": "../create-next-app-sample"
+    },
+    {
+      "name": "pi-site-old",
+      "path": "../pi-site-old"
+    },
+    {
+      "name": "portfolio",
+      "path": "../portfolio"
+    }
+  ],
   "settings": {}
 }
