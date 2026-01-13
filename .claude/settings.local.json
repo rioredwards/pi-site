@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker-compose:*)",
+      "Bash(test:*)",
+      "Bash(tee:*)",
+      "Bash(ls:*)",
+      "Bash(npm run db:push:*)",
+      "Bash(lsof:*)",
+      "Bash(curl:*)",
+      "Bash(docker exec:*)"
+    ]
+  }
+}

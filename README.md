@@ -1,134 +1,278 @@
-# Next.js Self Hosting Example
+# DogTownUSA - Dog Photo Gallery
 
-This repo shows how to deploy a Next.js app and a PostgreSQL database on a Ubuntu Linux server using Docker and Nginx. It showcases using several features of Next.js like caching, ISR, environment variables, and more.
+A Next.js 15 portfolio website for showcasing dog photos with AI-powered validation. Built for self-hosting on a Raspberry Pi using Docker, PostgreSQL, and Cloudflare Tunnel.
 
-[**📹 Watch the tutorial (45m)**](https://www.youtube.com/watch?v=sIVL4JMqRfc)
+## Features
 
-[![Self Hosting Video Thumbnail](https://img.youtube.com/vi/sIVL4JMqRfc/0.jpg)](https://www.youtube.com/watch?v=sIVL4JMqRfc)
+- **Photo Gallery**: Responsive grid display of dog photos (shuffled on load)
+- **AI Image Validation**: NSFW detection + dog verification via FastAPI service
+- **Authentication**: NextAuth with GitHub and Google OAuth
+- **Admin System**: Configurable admin users who can delete any photo
+- **Photo Upload**: Users can upload dog photos with automatic validation
+- **PostgreSQL Database**: Drizzle ORM with proper schema management
+- **Self-Hosted**: Runs on Raspberry Pi with Docker + Cloudflare Tunnel
 
 ## Prerequisites
 
-1. Purchase a domain name
-2. Purchase a Linux Ubuntu server (e.g. [droplet](https://www.digitalocean.com/products/droplets))
-3. Create an `A` DNS record pointing to your server IPv4 address
-4. Install [Bun](https://bun.sh) locally for development (used as the package manager in this repo)
+1. A Linux server (Raspberry Pi, Ubuntu droplet, etc.)
+2. Domain name with Cloudflare DNS
+3. GitHub and/or Google OAuth apps configured
+4. Docker and Docker Compose installed on server
 
-## Quickstart
+## Quick Start (Local Development)
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Start Services
+
+```bash
+# Start PostgreSQL and AI validator services
+npm run dev:services
+
+# Push database schema (first time only)
+npm run db:push
+
+# Start Next.js dev server
+npm run dev
+```
+
+Visit http://localhost:3000
+
+### 3. Stop Services
+
+```bash
+npm run dev:services:stop
+```
+
+## Production Deployment
+
+### Initial Setup
 
 1. **SSH into your server**:
-
    ```bash
-   ssh root@your_server_ip
+   ssh your-server
    ```
 
-2. **Download the deployment script**:
-
+2. **Clone and deploy**:
    ```bash
-   curl -o ~/deploy.sh https://raw.githubusercontent.com/rioredwards/pi-site/main/deploy.sh
-   ```
-
-   You can then modify the email and domain name variables inside of the script to use your own.
-
-3. **Run the deployment script**:
-
-   ```bash
-   chmod +x ~/deploy.sh
+   git clone https://github.com/rioredwards/pi-site.git
+   cd pi-site
+   chmod +x deploy.sh
    ./deploy.sh
    ```
 
-## Supported Features
+   The deployment script will:
+   - Install Docker and dependencies
+   - Set up Nginx reverse proxy
+   - Configure Cloudflare Tunnel
+   - Create PostgreSQL database
+   - Build and start all services
 
-This demo tries to showcase many different Next.js features.
+3. **Configure environment variables**:
+   Edit `.env` on the server with your OAuth credentials:
+   ```bash
+   AUTH_SECRET=your-secret-here
+   GITHUB_CLIENT_ID=your-github-client-id
+   GITHUB_CLIENT_SECRET=your-github-client-secret
+   GOOGLE_CLIENT_ID=your-google-client-id
+   GOOGLE_CLIENT_SECRET=your-google-client-secret
+   ```
 
-- Image Optimization
-- Streaming
-- Talking to a Postgres database
-- Caching
-- Incremental Static Regeneration
-- Reading environment variables
-- Using Middleware
-- Running code on server startup
-- A cron that hits a Route Handler
+4. **Restart services**:
+   ```bash
+   sudo docker compose down
+   sudo docker compose up -d
+   ```
 
-## Deploy Script
-
-I've included a Bash script which does the following:
-
-1. Installs all the necessary packages for your server
-1. Installs Docker, Docker Compose, and Nginx
-1. Clones this repository
-1. Generates an SSL certificate
-1. Builds your Next.js application from the Dockerfile
-1. Sets up Nginx and configures HTTPS and rate limting
-1. Sets up a cron which clears the database every 10m
-1. Creates a `.env` file with your Postgres database creds
-
-Once the deployment completes, your Next.js app will be available at:
-
-```
-http://your-provided-domain.com
-```
-
-Both the Next.js app and PostgreSQL database will be up and running in Docker containers. To set up your database, you could install `npm` inside your Postgres container and use the Drizzle scripts, or you can use `psql`:
+### Updating Production
 
 ```bash
-docker exec -it pi-site-db-1 sh
-apk add --no-cache postgresql-client
-psql -U myuser -d mydatabase -c '
-CREATE TABLE IF NOT EXISTS "todos" (
-  "id" serial PRIMARY KEY NOT NULL,
-  "content" varchar(255) NOT NULL,
-  "completed" boolean DEFAULT false,
-  "created_at" timestamp DEFAULT now()
-);'
+cd ~/pi-site
+./update.sh
 ```
 
-For pushing subsequent updates, I also provided an `update.sh` script as an example.
+This will pull latest changes, rebuild containers, and restart services.
 
-## Running Locally
+## Project Structure
 
-If you want to run this setup locally using Docker, you can follow these steps:
+```
+pi-site/
+├── app/                      # Next.js App Router
+│   ├── db/                   # Database schema and actions
+│   │   ├── schema.ts         # Drizzle schema
+│   │   ├── drizzle.ts        # Database client
+│   │   └── actions.ts        # Server actions
+│   ├── components/           # React components
+│   ├── lib/                  # Utilities and types
+│   ├── api/                  # API routes
+│   └── auth.ts              # NextAuth configuration
+├── ai-img-validator/        # FastAPI image validation service
+├── components/              # Shared components
+├── public/                  # Static assets
+├── types/                   # TypeScript type definitions
+├── docker-compose.yml       # Production services
+├── docker-compose.dev.yml   # Development services
+├── Dockerfile              # Next.js app container
+├── deploy.sh               # Initial deployment script
+└── update.sh               # Update script
+```
+
+## Environment Variables
+
+### Required
 
 ```bash
-docker-compose up -d
+# Database
+POSTGRES_USER=myuser
+POSTGRES_PASSWORD=your-password
+POSTGRES_DB=mydatabase
+DATABASE_URL=postgres://myuser:password@db:5432/mydatabase
+
+# NextAuth
+AUTH_SECRET=your-secret-here
+NEXTAUTH_URL=https://your-domain.com
+GITHUB_CLIENT_ID=your-github-id
+GITHUB_CLIENT_SECRET=your-github-secret
+GOOGLE_CLIENT_ID=your-google-id
+GOOGLE_CLIENT_SECRET=your-google-secret
 ```
 
-This will start both services and make your Next.js app available at `http://localhost:3000` with the PostgreSQL database running in the background. We also create a network so that our two containers can communicate with each other.
-
-For local development without Docker, you can use Bun directly:
+### Optional
 
 ```bash
-cd /Users/rioredwards/Coding/pi-site
+# Admin users (comma-separated provider-accountId format)
+ADMIN_USER_IDS=github-123456,google-789012
 
-# Install dependencies (updates bun.lockb)
-bun install
-
-# Run the Next.js dev server
-bun run dev
+# AI Validator URL (defaults to http://ai-img-validator:8000 in Docker)
+NSFW_API_URL=http://localhost:8000
 ```
 
-An additional FastAPI-based service, `ai-img-validator`, is included under `ai-img-validator` and wired into `docker-compose.yml`. It runs on the internal Docker network and is consumed via a Next.js server action used by the `ImgValidator` UI for NSFW + dog detection.
+## Tech Stack
 
-If you want to view the contents of the local database, you can use Drizzle Studio:
+- **Frontend**: Next.js 15, React, Tailwind CSS v4
+- **Backend**: Next.js Server Actions, NextAuth v4
+- **Database**: PostgreSQL 17 + Drizzle ORM
+- **AI Service**: FastAPI (Python) with NSFW + dog detection
+- **Deployment**: Docker, Nginx, Cloudflare Tunnel
+- **Icons**: @hugeicons (not lucide-react!)
+
+## Development Commands
 
 ```bash
-bun run db:studio
+# Package management
+npm install              # Install dependencies
+npm update              # Update packages
+
+# Development
+npm run dev             # Start dev server
+npm run dev:services    # Start Postgres + AI validator
+npm run dev:services:stop  # Stop services
+npm run dev:services:logs  # View service logs
+
+# Database
+npm run db:push         # Push schema changes
+npm run db:generate     # Generate migrations
+npm run db:studio       # Open Drizzle Studio
+
+# Build
+npm run build           # Build for production
+npm run start           # Start production server
 ```
 
-## Helpful Commands
+## Database Management
 
-- `docker-compose ps` – check status of Docker containers
-- `docker-compose logs web` – view Next.js output logs
-- `docker-compose logs cron` – view cron logs
-- `docker-compose down` - shut down the Docker containers
-- `docker-compose up -d` - start containers in the background
-- `sudo systemctl restart nginx` - restart nginx
-- `docker exec -it pi-site-web-1 sh` - enter Next.js Docker container
-- `docker exec -it pi-site-db-1 psql -U myuser -d mydatabase` - enter Postgres db
+### Local Development
 
-## Other Resources
+```bash
+# Push schema
+npm run db:push
 
-- [Kubernetes Example](https://github.com/ezeparziale/nextjs-k8s)
-- [Redis Cache Adapter for Next.js](https://github.com/vercel/next.js/tree/canary/examples/cache-handler-redis)
-- [ipx – Image optimization library](https://github.com/unjs/ipx)
-- [OrbStack - Fast Docker desktop client](https://orbstack.dev/)
+# View database in browser
+npm run db:studio
+
+# Direct database access
+docker exec -it pi-site-db-1 psql -U myuser -d mydatabase
+```
+
+### Production
+
+```bash
+# SSH into server
+ssh your-server
+cd ~/pi-site
+
+# Access database
+sudo docker compose exec db psql -U myuser -d mydatabase
+```
+
+## OAuth Setup
+
+### GitHub OAuth App
+
+1. Go to https://github.com/settings/developers
+2. Create a new OAuth App
+3. Set **Authorization callback URL** to:
+   ```
+   https://your-domain.com/api/auth/callback/github
+   ```
+4. Add Client ID and Secret to `.env`
+
+### Google OAuth App
+
+1. Go to https://console.cloud.google.com/apis/credentials
+2. Create OAuth 2.0 Client ID
+3. Add to **Authorized redirect URIs**:
+   ```
+   https://your-domain.com/api/auth/callback/google
+   ```
+4. Add Client ID and Secret to `.env`
+
+## Admin Users
+
+To make a user an admin:
+
+1. Sign in to the app
+2. Check the database for your user ID:
+   ```sql
+   SELECT * FROM photos WHERE user_id LIKE 'github-%' OR user_id LIKE 'google-%';
+   ```
+3. Add your user ID to `.env`:
+   ```bash
+   ADMIN_USER_IDS=github-123456,google-789012
+   ```
+4. Restart the app
+
+Admins can delete any photo; regular users can only delete their own.
+
+## Troubleshooting
+
+### Database Connection Issues
+
+If you see "Failed query" errors:
+- Ensure `DATABASE_URL_EXTERNAL` is NOT set in production `.env`
+- Use `DATABASE_URL=postgres://...@db:5432/...` (points to Docker service)
+- Restart containers: `sudo docker compose down && sudo docker compose up -d`
+
+### Auth Issues
+
+If you get "NO_SECRET" errors:
+- Ensure `AUTH_SECRET` is set in `.env`
+- Restart containers after changing `.env`
+
+### Image Upload Fails
+
+- Check AI validator is running: `sudo docker compose ps`
+- View logs: `sudo docker compose logs ai-img-validator`
+- Ensure images are < 5MB and are JPEG/PNG/WebP format
+
+## License
+
+MIT
+
+## Credits
+
+Based on the [Next.js Self-Hosting Example](https://github.com/leerob/next-self-host) by Lee Robinson.
