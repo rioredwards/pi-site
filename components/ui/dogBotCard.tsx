@@ -63,12 +63,12 @@ export function DogBotCard({ processingState }: DogBotCardProps) {
   return (
     <div className="absolute inset-0 z-10 flex items-center justify-center p-5">
       {/* Backdrop blur layer */}
-      <div className="absolute inset-0 bg-black/35 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-black/45 backdrop-blur-[2px]" />
 
       <div
         className={cn(
           "relative w-full max-w-[380px] rounded-2xl border p-5 shadow-2xl",
-          "bg-white/10 backdrop-blur-md",
+          "bg-white/20 backdrop-blur-md",
           "ring-1",
           dogBot.tone === "success" && "border-emerald-200/20 ring-emerald-200/20",
           dogBot.tone === "failure" && "border-rose-200/20 ring-rose-200/20",
