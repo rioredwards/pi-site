@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 // This route enables serving files from the public directory without restarting the server.
 // See: https://github.com/vercel/next.js/discussions/16417#discussioncomment-11647448
 
-export async function GET(_, { params }: { params: Promise<{ dir: string[] }> }) {
+export async function GET(_req: Request, { params }: { params: Promise<{ dir: string[] }> }) {
   const dir = (await params).dir.join("/");
   if (!dir) {
     return new NextResponse(null, { status: 500 });
