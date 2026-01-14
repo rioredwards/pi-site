@@ -1,199 +1,267 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
 
-# Env Vars
-POSTGRES_USER="myuser"
-POSTGRES_PASSWORD=$(openssl rand -hex 16) # URL-safe random password (hex)
-POSTGRES_DB="mydatabase"
-SECRET_KEY="my-secret"          # for the demo app
-NEXT_PUBLIC_SAFE_KEY="safe-key" # for the demo app
-# Cloudflare Tunnel will handle external routing
-# Configure your tunnel domain in Cloudflare dashboard after running this script
+# -------------------------
+# pi-site deploy script (Raspberry Pi) — rsync-first mode
+#
+# Philosophy:
+# - This script NEVER generates or stores secrets.
+# - You must sync an env file to the Pi BEFORE running it.
+#   e.g. from your dev-machine:
+#     rsync -avz --chmod=600 ./secrets/pi-site.env.prod pi@raspberrypi:~/pi-site/.env
+#
+# What this script does:
+# - Installs/updates system deps (docker, nginx, cloudflared)
+# - Pulls latest repo changes
+# - Validates required env keys exist in ~/pi-site/.env
+# - Starts services via docker compose using --env-file
+# -------------------------
 
-# Script Vars
+trap 'echo "ERROR: deploy failed on line $LINENO" >&2' ERR
+
+log() { printf "\n▶ %s\n" "$*"; }
+warn() { printf "\n⚠ %s\n" "$*" >&2; }
+die() { printf "\nERROR: %s\n" "$*" >&2; exit 1; }
+
+need_cmd() {
+  command -v "$1" >/dev/null 2>&1 || die "Missing required command: $1";
+}
+
+# -------------------------
+# Config (edit if needed)
+# -------------------------
 REPO_URL="git@github.com:rioredwards/pi-site.git"
-APP_DIR=~/pi-site
-SWAP_SIZE="1G"  # Swap size of 1GB
-PI_ARCH="arm64" # aarch64 (ARM64)
-DOCKER_ARCH=$PI_ARCH
-CLOUDFLARED_ARCH=$PI_ARCH
+APP_DIR="${HOME}/pi-site"
+BRANCH="main"
 
-# Update package list and upgrade existing packages
-sudo apt update && sudo apt upgrade -y
+SWAP_SIZE="1G"   # only created if /swapfile missing
+PI_ARCH="arm64"
+DOCKER_ARCH="$PI_ARCH"
+CLOUDFLARED_ARCH="$PI_ARCH"
 
-# Add Swap Space (only if it doesn't already exist)
-if [ ! -f /swapfile ]; then
-	echo "Adding swap space..."
-	sudo fallocate -l $SWAP_SIZE /swapfile
-	sudo chmod 600 /swapfile
-	sudo mkswap /swapfile
-	sudo swapon /swapfile
-	# Make swap permanent
-	echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
-else
-	echo "Swap file already exists, skipping..."
-fi
+SITE_NAME="pi-site"
+ENV_FILE="$APP_DIR/.env.prod"           # synced from your dev-machine
+ENV_EXAMPLE_FILE="$APP_DIR/.env.example" # optional: you can keep in repo
 
-# Install Docker (Debian/Raspberry Pi OS compatible method)
-if ! command -v docker &>/dev/null; then
-	echo "Installing Docker..."
-	# Install prerequisites
-	sudo apt install -y ca-certificates curl gnupg
+# -------------------------
+# Helpers
+# -------------------------
+apt_update_upgrade() {
+  log "Updating packages (apt update/upgrade)..."
+  sudo apt-get update -y
+  sudo apt-get upgrade -y
+}
 
-	# Detect OS (Debian or Ubuntu)
-	if [ -f /etc/debian_version ]; then
-		OS_ID="debian"
-		OS_CODENAME=$(lsb_release -cs)
-	else
-		OS_ID="ubuntu"
-		OS_CODENAME=$(lsb_release -cs)
-	fi
+ensure_swap() {
+  if [[ -f /swapfile ]]; then
+    log "Swap file already exists, skipping..."
+    return
+  fi
 
-	# Add Docker's official GPG key (modern method, not apt-key)
-	sudo install -m 0755 -d /etc/apt/keyrings
-	curl -fsSL https://download.docker.com/linux/${OS_ID}/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-	sudo chmod a+r /etc/apt/keyrings/docker.gpg
+  log "Adding swap space (${SWAP_SIZE})..."
+  sudo fallocate -l "$SWAP_SIZE" /swapfile
+  sudo chmod 600 /swapfile
+  sudo mkswap /swapfile
+  sudo swapon /swapfile
 
-	# Add Docker repository
-	echo "deb [arch=$DOCKER_ARCH signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${OS_ID} ${OS_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+  if ! grep -qE '^/swapfile\s+' /etc/fstab; then
+    echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab >/dev/null
+  fi
+}
 
-	sudo apt update
-	sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-else
-	echo "Docker already installed."
-fi
+install_docker_if_needed() {
+  if command -v docker >/dev/null 2>&1; then
+    log "Docker already installed."
+    return
+  fi
 
-# Fix Docker IPv6 issue: configure Docker and system to use IPv4
-sudo mkdir -p /etc/docker
-echo '{"ipv6": false, "fixed-cidr-v6": "", "dns": ["8.8.8.8", "8.8.4.4"]}' | sudo tee /etc/docker/daemon.json >/dev/null
+  log "Installing Docker..."
+  sudo apt-get install -y ca-certificates curl gnupg lsb-release
 
-# Configure system to prefer IPv4 for DNS lookups
-echo "precedence ::ffff:0:0/96  100" | sudo tee -a /etc/gai.conf >/dev/null 2>&1 || echo "precedence ::ffff:0:0/96  100" | sudo tee /etc/gai.conf >/dev/null
+  local os_id os_codename
+  if [[ -f /etc/debian_version ]]; then
+    os_id="debian"
+  else
+    os_id="ubuntu"
+  fi
+  os_codename="$(lsb_release -cs)"
 
-# Update DNS to use Google DNS (returns IPv4 addresses)
-if [ -f /etc/resolv.conf ] && ! grep -q "8.8.8.8" /etc/resolv.conf; then
-	sudo sed -i '1inameserver 8.8.8.8' /etc/resolv.conf
-	sudo sed -i '1inameserver 8.8.4.4' /etc/resolv.conf
-fi
+  sudo install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL "https://download.docker.com/linux/${os_id}/gpg" | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
-# Install Docker Compose standalone (if plugin version is not available)
-if ! docker compose version &>/dev/null 2>&1; then
-	if ! command -v docker-compose &>/dev/null; then
-		echo "Installing Docker Compose standalone..."
-		sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-		sudo chmod +x /usr/local/bin/docker-compose
+  echo "deb [arch=${DOCKER_ARCH} signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${os_id} ${os_codename} stable" \
+    | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
 
-		# Verify installation
-		if ! docker-compose --version &>/dev/null; then
-			echo "Docker Compose installation failed. Exiting."
-			exit 1
-		fi
-	else
-		echo "Docker Compose standalone already available."
-	fi
-else
-	echo "Docker Compose plugin already available."
-fi
+  sudo apt-get update -y
+  sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+}
 
-# Ensure Docker starts on boot and start Docker service
-sudo systemctl enable docker
-sudo systemctl start docker
+configure_docker_daemon_ipv4() {
+  # Optional: your original script forced IPv4 DNS. Keep if you truly need it.
+  log "Configuring Docker daemon (IPv6 off, DNS set)..."
+  sudo mkdir -p /etc/docker
+  echo '{"ipv6": false, "fixed-cidr-v6": "", "dns": ["8.8.8.8", "8.8.4.4"]}' \
+    | sudo tee /etc/docker/daemon.json >/dev/null
 
-# Clone the Git repository
-if [ -d "$APP_DIR" ]; then
-	echo "Directory $APP_DIR already exists. Pulling latest changes..."
-	cd $APP_DIR && git pull
-else
-	echo "Cloning repository from $REPO_URL..."
-	git clone $REPO_URL $APP_DIR
-	cd $APP_DIR
-fi
+  if ! grep -q "precedence ::ffff:0:0/96" /etc/gai.conf 2>/dev/null; then
+    echo "precedence ::ffff:0:0/96  100" | sudo tee -a /etc/gai.conf >/dev/null
+  fi
+}
 
-# For Docker internal communication ("db" is the name of Postgres container)
-DATABASE_URL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$POSTGRES_DB"
+ensure_docker_running() {
+  log "Ensuring Docker is enabled and running..."
+  sudo systemctl enable docker
+  sudo systemctl start docker
+}
 
-# For external tools (like Drizzle Studio)
-DATABASE_URL_EXTERNAL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB"
+# Decide once whether docker needs sudo on this machine.
+setup_docker_prefix() {
+  DOCKER_PREFIX=(docker)
+  if ! docker info >/dev/null 2>&1; then
+    DOCKER_PREFIX=(sudo env "PATH=$PATH" docker)
+  fi
+}
 
-# Create the .env file inside the app directory (~/pi-site/.env)
-echo "POSTGRES_USER=$POSTGRES_USER" >"$APP_DIR/.env"
-echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >>"$APP_DIR/.env"
-echo "POSTGRES_DB=$POSTGRES_DB" >>"$APP_DIR/.env"
-echo "DATABASE_URL=$DATABASE_URL" >>"$APP_DIR/.env"
-echo "DATABASE_URL_EXTERNAL=$DATABASE_URL_EXTERNAL" >>"$APP_DIR/.env"
+setup_compose_cmd() {
+  COMPOSE_CMD=()
 
-# These are just for the demo of env vars
-echo "SECRET_KEY=$SECRET_KEY" >>"$APP_DIR/.env"
-echo "NEXT_PUBLIC_SAFE_KEY=$NEXT_PUBLIC_SAFE_KEY" >>"$APP_DIR/.env"
+  if "${DOCKER_PREFIX[@]}" compose version >/dev/null 2>&1; then
+    COMPOSE_CMD=("${DOCKER_PREFIX[@]}" compose)
+    return
+  fi
 
-# Install Nginx
-sudo apt install nginx -y
+  if command -v docker-compose >/dev/null 2>&1; then
+    if [[ "${DOCKER_PREFIX[*]}" == docker ]]; then
+      COMPOSE_CMD=(docker-compose)
+    else
+      COMPOSE_CMD=(sudo env "PATH=$PATH" docker-compose)
+    fi
+    return
+  fi
 
-# Remove old Nginx config (if it exists)
-sudo rm -f /etc/nginx/sites-available/pi-site
-sudo rm -f /etc/nginx/sites-enabled/pi-site
+  die "Docker Compose not found (tried 'docker compose' and 'docker-compose')."
+}
 
-# Stop Nginx temporarily to allow safe configuration changes
-sudo systemctl stop nginx
+clone_or_update_repo() {
+  if [[ -d "$APP_DIR/.git" ]]; then
+    log "Updating repo in $APP_DIR..."
+    git -C "$APP_DIR" fetch origin "$BRANCH"
+    git -C "$APP_DIR" merge --ff-only "origin/$BRANCH"
+    return
+  fi
 
-# Configure rate limiting zone in main nginx.conf (must be in http context)
-# Remove any existing mylimit zone definition from nginx.conf to avoid duplicates
-sudo sed -i '/limit_req_zone.*zone=mylimit/d' /etc/nginx/nginx.conf
+  if [[ -e "$APP_DIR" ]]; then
+    die "$APP_DIR exists but is not a git repo (missing .git). Refusing to continue."
+  fi
 
-# Remove limit_req_zone definitions from ALL site configs (must be in http context, not server blocks)
-# This prevents conflicts with other site configurations
-# Use find to handle cases where directories might be empty or have special characters
-find /etc/nginx/sites-available /etc/nginx/sites-enabled -type f 2>/dev/null | while read config_file; do
-	sudo sed -i '/limit_req_zone.*zone=mylimit/d' "$config_file"
-done
+  log "Cloning repository from $REPO_URL..."
+  git clone --branch "$BRANCH" --single-branch "$REPO_URL" "$APP_DIR"
+}
 
-# Add rate limiting zone to http block in nginx.conf
-# Find the http block and add the zone definition after the opening brace
-if ! grep -q "limit_req_zone.*zone=mylimit" /etc/nginx/nginx.conf; then
-	# Insert after the http { line
-	sudo sed -i '/^http {/a\    limit_req_zone $binary_remote_addr zone=mylimit:10m rate=30r/s;' /etc/nginx/nginx.conf
-fi
+ensure_env_file_present() {
+  if [[ -f "$ENV_FILE" ]]; then
+    # minimal permission sanity check
+    local perms
+    perms="$(stat -c "%a" "$ENV_FILE" 2>/dev/null || true)"
+    if [[ -n "$perms" && "$perms" != "600" ]]; then
+      warn "$ENV_FILE permissions are $perms (recommended: 600)."
+    fi
+    return
+  fi
 
-# Create Nginx config with reverse proxy, rate limiting, and direct static file serving
-# Note: Nginx listens on HTTP only (port 80) - Cloudflare Tunnel handles SSL externally
-# Note: limit_req_zone is defined in nginx.conf, we only use it here
-sudo tee /etc/nginx/sites-available/pi-site >/dev/null <<'EOL'
+  warn "Missing env file: $ENV_FILE"
+  if [[ -f "$ENV_EXAMPLE_FILE" ]]; then
+    warn "A template exists at $ENV_EXAMPLE_FILE. Copy it on your dev-machine, fill it, and rsync it to the Pi."
+  fi
+
+  cat <<'EOM' >&2
+
+Sync your production env file from your dev-machine before deploying, e.g.:
+
+  rsync -avz --chmod=600 ./secrets/pi-site.env.prod pi@raspberrypi:~/pi-site/.env
+
+Then re-run:
+
+  ./deploy.sh
+EOM
+
+  exit 1
+}
+
+get_env_value() {
+  # Reads KEY=value lines (no eval). Returns empty string if missing.
+  local key="$1"
+  local file="$2"
+  local line
+
+  line="$(grep -E "^${key}=" "$file" 2>/dev/null | tail -n 1 || true)"
+  printf "%s" "${line#${key}=}"
+}
+
+require_env_key() {
+  local key="$1"
+  local v
+  v="$(get_env_value "$key" "$ENV_FILE")"
+  [[ -n "$v" ]] || die "Missing required env var '${key}' in $ENV_FILE"
+}
+
+validate_env() {
+  # Required for Compose/db/app correctness
+  require_env_key POSTGRES_USER
+  require_env_key POSTGRES_PASSWORD
+  require_env_key POSTGRES_DB
+  require_env_key DATABASE_URL
+	require_env_key AUTH_SECRET
+	require_env_key NEXTAUTH_URL
+
+  # Required because you're baking NEXT_PUBLIC_* during docker build
+  require_env_key NEXT_PUBLIC_SAFE_KEY
+}
+
+install_nginx_if_needed() {
+  if command -v nginx >/dev/null 2>&1; then
+    log "Nginx already installed."
+    return
+  fi
+  log "Installing Nginx..."
+  sudo apt-get install -y nginx
+}
+
+configure_nginx() {
+  log "Configuring Nginx..."
+  sudo systemctl stop nginx || true
+
+  # Rate limit zone in dedicated file (http context)
+  sudo install -m 0644 /dev/null "/etc/nginx/conf.d/${SITE_NAME}-rate-limit.conf"
+  echo 'limit_req_zone $binary_remote_addr zone=mylimit:10m rate=30r/s;' \
+    | sudo tee "/etc/nginx/conf.d/${SITE_NAME}-rate-limit.conf" >/dev/null
+
+  # Site config
+  sudo tee "/etc/nginx/sites-available/${SITE_NAME}" >/dev/null <<'EOL'
 server {
     listen 80;
     server_name localhost;
 
-    # Serve uploaded images directly from Docker volume (bypass Next.js)
-    # This dramatically improves performance by avoiding Node.js for static assets
     location /images/ {
         alias /var/lib/docker/volumes/pi-site_uploads_data/_data/;
 
-        # Aggressive caching for uploaded images (immutable due to UUID filenames)
         expires 1y;
         add_header Cache-Control "public, immutable";
-
-        # Security headers
         add_header X-Content-Type-Options "nosniff" always;
-
-        # CORS headers (if needed for Next.js Image optimization)
         add_header Access-Control-Allow-Origin "*";
 
-        # Disable access logs for images to reduce I/O
         access_log off;
 
-        # No rate limiting for static images
-        # limit_req off;
-
-        # Efficient file serving
         sendfile on;
         tcp_nopush on;
         tcp_nodelay on;
 
-        # Return 404 for missing images instead of proxying to Next.js
         try_files $uri =404;
     }
 
-    # Enable rate limiting for dynamic routes only
     location / {
-        # More reasonable rate limit: 30 req/s with burst of 50
         limit_req zone=mylimit burst=50 nodelay;
 
         proxy_pass http://localhost:3000;
@@ -203,109 +271,107 @@ server {
         proxy_set_header Host $host;
         proxy_cache_bypass $http_upgrade;
 
-        # Disable buffering for streaming support
         proxy_buffering off;
         proxy_set_header X-Accel-Buffering no;
     }
 }
 EOL
 
-# Create symbolic link if it doesn't already exist
-sudo ln -s /etc/nginx/sites-available/pi-site /etc/nginx/sites-enabled/pi-site
+  sudo ln -sf "/etc/nginx/sites-available/${SITE_NAME}" "/etc/nginx/sites-enabled/${SITE_NAME}"
 
-# Test Nginx configuration before starting
-sudo nginx -t
-if [ $? -ne 0 ]; then
-	echo "Nginx configuration test failed. Please check the configuration."
-	exit 1
-fi
+  sudo nginx -t
+  sudo systemctl start nginx
+}
 
-# Start Nginx with the new configuration
-sudo systemctl start nginx
+install_cloudflared_if_needed() {
+  if command -v cloudflared >/dev/null 2>&1; then
+    log "Cloudflared already installed."
+    return
+  fi
 
-# Install Cloudflare Tunnel (cloudflared)
-# Check if cloudflared is already installed
-if ! command -v cloudflared &>/dev/null; then
-	echo "Installing Cloudflare Tunnel..."
+  log "Installing Cloudflare Tunnel (cloudflared)..."
+  need_cmd curl
+  need_cmd wget
 
-	CLOUDFLARED_VERSION=$(curl -s https://api.github.com/repos/cloudflare/cloudflared/releases/latest | grep tag_name | cut -d '"' -f 4 | sed 's/v//')
-	sudo wget -O /usr/local/bin/cloudflared "https://github.com/cloudflare/cloudflared/releases/download/v${CLOUDFLARED_VERSION}/cloudflared-linux-${CLOUDFLARED_ARCH}"
-	sudo chmod +x /usr/local/bin/cloudflared
+  local version
+  version="$(curl -fsSL https://api.github.com/repos/cloudflare/cloudflared/releases/latest \
+    | grep -m1 '"tag_name"' \
+    | cut -d '"' -f 4 \
+    | sed 's/^v//')"
 
-	# Verify installation
-	cloudflared --version
-	if [ $? -ne 0 ]; then
-		echo "Cloudflare Tunnel installation failed. Exiting."
-		exit 1
-	fi
-else
-	echo "Cloudflare Tunnel already installed."
-fi
+  [[ -n "$version" ]] || die "Failed to resolve latest cloudflared version"
 
-# Restart Docker to apply configuration
-if sudo systemctl is-active --quiet docker; then
-	sudo systemctl stop docker.socket 2>/dev/null
-	sudo systemctl stop docker 2>/dev/null
-	sleep 2
-	sudo systemctl start docker
-else
-	sudo systemctl start docker
-	sudo systemctl enable docker
-fi
-sleep 2
+  sudo wget -q -O /usr/local/bin/cloudflared \
+    "https://github.com/cloudflare/cloudflared/releases/download/v${version}/cloudflared-linux-${CLOUDFLARED_ARCH}"
+  sudo chmod +x /usr/local/bin/cloudflared
 
-# Determine which docker-compose command to use (plugin or standalone)
-if docker compose version &>/dev/null; then
-	DOCKER_COMPOSE_CMD="docker compose"
-elif command -v docker-compose &>/dev/null; then
-	DOCKER_COMPOSE_CMD="docker-compose"
-else
-	echo "Docker Compose not found. Exiting."
-	exit 1
-fi
+  cloudflared --version >/dev/null
+}
 
-# Build and run the Docker containers from the app directory (~/pi-site)
-cd $APP_DIR
-sudo $DOCKER_COMPOSE_CMD up --build -d
+restart_docker() {
+  log "Restarting Docker to apply configuration..."
+  sudo systemctl daemon-reload || true
+  sudo systemctl restart docker
+  sleep 2
+}
 
-# Check if Docker Compose started correctly
-if ! sudo $DOCKER_COMPOSE_CMD ps | grep -q "Up"; then
-	echo "Docker containers failed to start. Check logs with '$DOCKER_COMPOSE_CMD logs'."
-	exit 1
-fi
+compose_up() {
+  log "Building and starting Docker containers..."
 
-# Output final message
-echo "Deployment complete. Your Next.js app and PostgreSQL database are now running.
-Nginx is configured as an internal reverse proxy on port 80.
+  # Always run against the correct project dir and env file.
+  "${COMPOSE_CMD[@]}" --project-directory "$APP_DIR" --env-file "$ENV_FILE" up -d --build
 
-NEXT STEPS - Configure Cloudflare Tunnel:
-1. Authenticate with Cloudflare:
+  if ! "${COMPOSE_CMD[@]}" --project-directory "$APP_DIR" ps | grep -q "Up"; then
+    warn "Containers may not have started correctly. Showing last logs..."
+    "${COMPOSE_CMD[@]}" --project-directory "$APP_DIR" logs --tail=200 || true
+    die "Docker containers failed to start."
+  fi
+}
+
+# -------------------------
+# Main
+# -------------------------
+need_cmd git
+need_cmd sudo
+
+apt_update_upgrade
+ensure_swap
+install_docker_if_needed
+configure_docker_daemon_ipv4
+ensure_docker_running
+
+setup_docker_prefix
+setup_compose_cmd
+
+clone_or_update_repo
+ensure_env_file_present
+validate_env
+
+install_nginx_if_needed
+configure_nginx
+
+install_cloudflared_if_needed
+restart_docker
+compose_up
+
+log "Deployment complete."
+cat <<'EOM'
+
+Next steps (Cloudflare Tunnel):
+1) Authenticate:
    cloudflared tunnel login
 
-2. Create a tunnel:
+2) Create a tunnel:
    cloudflared tunnel create pi-site
 
-3. Configure the tunnel to route to localhost:80:
+3) Route a hostname to localhost:80:
    cloudflared tunnel route dns pi-site your-domain.com
-   # Or use a config file at ~/.cloudflared/config.yml:
-   # tunnel: <tunnel-id>
-   # ingress:
-   #   - hostname: your-domain.com
-   #     service: http://localhost:80
-   #   - service: http_status:404
 
-4. Run the tunnel:
+4) Run the tunnel:
    cloudflared tunnel run pi-site
-   # Or set it up as a service for auto-start on boot
 
-The .env file has been created with the following values:
-- POSTGRES_USER
-- POSTGRES_PASSWORD (randomly generated)
-- POSTGRES_DB
-- DATABASE_URL
-- DATABASE_URL_EXTERNAL
-- SECRET_KEY
-- NEXT_PUBLIC_SAFE_KEY
-
-Note: Nginx is listening on port 80 internally. Cloudflare Tunnel will handle
-external SSL/TLS termination and route traffic to your Raspberry Pi."
+Notes:
+- Nginx is listening on port 80 internally.
+- Cloudflare Tunnel should terminate TLS and route to http://localhost:80.
+- Env file is required at: ~/pi-site/.env (sync it from your dev-machine).
+EOM
