@@ -11,6 +11,10 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+ARG NEXT_PUBLIC_SAFE_KEY
+ENV NEXT_PUBLIC_SAFE_KEY=$NEXT_PUBLIC_SAFE_KEY
+
 RUN npm run build
 
 # Stage 3: Production server
