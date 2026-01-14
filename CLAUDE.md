@@ -9,6 +9,7 @@ A Next.js 15 portfolio website that showcases dog photos with AI-powered validat
 ## Development Commands
 
 ### Package Management
+
 This project uses **npm** as the package manager (not Bun, despite references in README).
 
 ```bash
@@ -60,6 +61,7 @@ npm run start           # Start production server (uses standalone output)
 ## Architecture
 
 ### Core Technologies
+
 - **Next.js 15**: App Router, React Server Components, Server Actions
 - **PostgreSQL**: Database with Drizzle ORM
 - **NextAuth v4**: OAuth authentication (GitHub + Google)
@@ -89,6 +91,7 @@ docker-compose.yml        # Production services
 ### Database Connection
 
 The app uses environment-based connection strings:
+
 - **`DATABASE_URL_EXTERNAL`**: Used when running outside Docker (local dev)
 - **`DATABASE_URL`**: Used when running inside Docker (points to `db` service)
 
@@ -97,6 +100,7 @@ Schema is defined in `app/db/schema.ts` using Drizzle ORM. The main table is `ph
 ### Authentication System
 
 NextAuth is configured in `app/auth.ts` with:
+
 - **Providers**: GitHub and Google OAuth
 - **Session Strategy**: JWT-based
 - **User IDs**: Format is `{provider}-{accountId}` (e.g., "github-123456")
@@ -107,9 +111,7 @@ NextAuth is configured in `app/auth.ts` with:
 Server actions are defined in `app/db/actions.ts` and follow this pattern:
 
 ```typescript
-export type APIResponse<T> =
-  | { data: T; error: undefined }
-  | { data: undefined; error: string };
+export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
 ```
 
 All actions return `APIResponse<T>` for consistent error handling.
@@ -117,10 +119,12 @@ All actions return `APIResponse<T>` for consistent error handling.
 ### AI Image Validation
 
 The `ai-img-validator` FastAPI service runs on port 8000 and validates:
+
 1. **NSFW content detection**: Rejects inappropriate images
 2. **Dog detection**: Ensures uploaded photos contain dogs
 
-Service URL is configured via `NSFW_API_URL` env var:
+Service URL is configured via `IMG_VALIDATOR_URL` env var:
+
 - Development: `http://localhost:8000`
 - Production: `http://ai-img-validator:8000`
 
@@ -133,11 +137,13 @@ The validation runs before file processing in `uploadPhoto()` server action.
 **Development**: Images fall back to `/api/assets/images/` which uses a streaming API route with proper caching headers.
 
 Photos are stored in:
-- **Upload path**: `process.env.UPLOAD_DIR` or `{cwd}/public/images`
+
+- **Upload path**: `process.env.IMG_UPLOAD_URL` or `{cwd}/public/images`
 - **Read path (prod)**: `/images/{filename}` (served by Nginx)
 - **Read path (dev)**: `/api/assets/images/{filename}` (served by Next.js API route)
 
 The environment-aware path selection is in `app/db/actions.ts`:
+
 ```typescript
 const IMG_READ_DIR = process.env.NODE_ENV === "production" ? "/images/" : "/api/assets/images/";
 ```
@@ -167,7 +173,7 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 ADMIN_USER_IDS=github-123456,google-789012
 
 # AI Validator (optional override)
-NSFW_API_URL=http://localhost:8000
+IMG_VALIDATOR_URL=http://localhost:8000
 ```
 
 ## Icon Usage
@@ -178,12 +184,7 @@ NSFW_API_URL=http://localhost:8000
 import { IconName } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
-<HugeiconsIcon
-  icon={IconName}
-  size={16}
-  color="currentColor"
-  strokeWidth={2}
-/>
+<HugeiconsIcon icon={IconName} size={16} color="currentColor" strokeWidth={2} />;
 ```
 
 ## Project Philosophy
@@ -197,17 +198,22 @@ import { HugeiconsIcon } from "@hugeicons/react";
 ## Common Issues & Solutions
 
 ### Postgres 18+ Volume Path
+
 If Postgres container fails to start, ensure `docker-compose.dev.yml` uses the correct volume path:
+
 ```yaml
 volumes:
-  - postgres_data_dev:/var/lib/postgresql  # NOT /var/lib/postgresql/data
+  - postgres_data_dev:/var/lib/postgresql # NOT /var/lib/postgresql/data
 ```
 
 ### Drizzle Kit Environment Loading
+
 `drizzle.config.ts` should load `.env.local` for local development. If environment variables aren't found, verify the config loads dotenv properly.
 
 ### Connection Refused Errors
+
 Ensure Postgres container is running and healthy before running `db:push`:
+
 ```bash
 docker-compose -f docker-compose.dev.yml ps  # Check status
 docker-compose -f docker-compose.dev.yml logs db  # Check logs
@@ -216,6 +222,7 @@ docker-compose -f docker-compose.dev.yml logs db  # Check logs
 ## Deployment
 
 The project includes deployment scripts for self-hosting on Ubuntu:
+
 - `deploy.sh`: Initial deployment (installs dependencies, sets up Docker, Nginx, SSL)
 - `update.sh`: Push updates to running production environment
 
