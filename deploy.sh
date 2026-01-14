@@ -9,7 +9,7 @@ IFS=$'\n\t'
 # - This script NEVER generates or stores secrets.
 # - You must sync an env file to the Pi BEFORE running it.
 #   e.g. from your dev-machine:
-#     rsync -avz --chmod=600 ./secrets/pi-site.env.prod pi@raspberrypi:~/pi-site/.env.prod
+#     rsync -avz .env.prod pi:~/pi-site/.env.prod
 #
 # What this script does:
 # - Installs/updates system deps (docker, nginx, cloudflared)
@@ -73,7 +73,7 @@ ensure_env_file_present() {
 
 Sync your production env file from your dev-machine before deploying:
 
-  rsync -avz --chmod=600 ./secrets/pi-site.env.prod pi@raspberrypi:~/pi-site/.env.prod
+  rsync -avz .env.prod pi:~/pi-site/.env.prod
 
 Then re-run:
 
