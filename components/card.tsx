@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { RotatingGradientBorder } from "@/components/ui/RotatingGradientBorder";
-import { cn } from "@/lib/utils";
+import { cn } from "@/app/lib/utils";
 
 const CardWithGradientBorder = React.forwardRef<
   HTMLDivElement,

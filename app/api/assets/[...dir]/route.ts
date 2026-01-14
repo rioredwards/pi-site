@@ -1,7 +1,7 @@
 import { createReadStream, existsSync, statSync } from "fs";
 import { NextResponse } from "next/server";
 import { join } from "path";
-import { devLog } from "../../../../lib/utils";
+import { devLog } from "@/app/lib/utils";
 
 // This route serves as a fallback for development when Nginx isn't handling static files
 // In production, Nginx should serve images directly from /images/ for better performance

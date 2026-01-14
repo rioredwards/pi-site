@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/app/lib/utils";
 
 interface Props {
   className?: string;
@@ -12,11 +12,7 @@ function BlueSky({ width = 20, className }: Props) {
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
       width={width}
-      className={cn(
-        className,
-        "text-[#0285FF] filter-none hover:scale-105 hover:brightness-105",
-      )}
-    >
+      className={cn(className, "text-[#0285FF] filter-none hover:scale-105 hover:brightness-105")}>
       <title>Bluesky</title>
       <path
         style={{ fill: "currentcolor" }}
@@ -26,4 +22,3 @@ function BlueSky({ width = 20, className }: Props) {
   );
 }
 export default BlueSky;
-

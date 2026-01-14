@@ -1,7 +1,7 @@
+import { devLog } from '@/app/lib/utils';
 import chalk from 'chalk';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { devLog } from './app/lib/utils.js';
 
 const CACHE_DIR = path.resolve('.cache'); // Adjust the cache directory as needed
 const TAGS_MANIFEST = path.join(CACHE_DIR, 'tags-manifest.json');

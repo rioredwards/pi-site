@@ -1,6 +1,6 @@
 "use server";
 
-import { devLog } from "../lib/utils";
+import { devLog } from "@/app/lib/utils";
 import { deletePhoto, getPhotos, uploadPhoto } from "./db/actions";
 import { AnalysisResult } from "./lib/imgValidatorTypes";
 

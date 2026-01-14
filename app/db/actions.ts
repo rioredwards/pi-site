@@ -7,7 +7,7 @@ import { writeFile } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
-import { devLog } from "../../lib/utils";
+import { devLog } from "@/app/lib/utils";
 import { Photo } from "../lib/types";
 import { db } from "./drizzle";
 import { photos } from "./schema";

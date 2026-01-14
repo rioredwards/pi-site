@@ -1,4 +1,5 @@
 "use client";
+import { cn, devLog } from "@/app/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { devLog } from "@/lib/utils";
 import { LucideDog } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -17,7 +17,6 @@ import { useMemo, useRef, useState } from "react";
 import { uploadPhoto } from "../app/actions";
 import { reduceFileSize } from "../app/lib/imgCompress";
 import { Photo } from "../app/lib/types";
-import { cn } from "../lib/utils";
 import Confetti from "./Confetti";
 import { GradientText } from "./funText";
 import { DogBotCard } from "./ui/dogBotCard";

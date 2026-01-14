@@ -7,7 +7,7 @@ import BounceLoader from "react-spinners/BounceLoader";
 import { deletePhoto as deletePhotoFile, getPhotos } from "../app/actions";
 import { Photo } from "../app/lib/types";
 import { useToast } from "../hooks/use-toast";
-import { devLog } from "../lib/utils";
+import { devLog } from "@/app/lib/utils";
 import { ImgCard } from "./ui/imgCard";
 
 export const PhotoUpload = lazy(() => import("@/components/photo-upload"));

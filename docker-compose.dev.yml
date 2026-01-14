@@ -2,7 +2,7 @@ services:
   db:
     image: postgres:17
     env_file:
-      - .env
+      - .env # TODO: determine if this should be .env.local
     ports:
       - "127.0.0.1:5432:5432"
     volumes:

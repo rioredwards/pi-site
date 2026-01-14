@@ -10,6 +10,7 @@ trap 'echo "ERROR: failed on line $LINENO" >&2' ERR
 # -------------------------
 REPO_URL="git@github.com:rioredwards/pi-site.git"
 APP_DIR="${HOME}/pi-site"
+ENV_FILE="$APP_DIR/.env.prod"
 BRANCH="main"
 
 log() { printf "\n▶ %s\n" "$*"; }
@@ -51,11 +52,11 @@ if ! docker info >/dev/null 2>&1; then
 fi
 
 # Pick compose command (plugin v2: `docker compose`, standalone v1: `docker-compose`)
-COMPOSE=()
+COMPOSE_CMD=()
 if "${SUDO_ENV[@]}" docker compose version >/dev/null 2>&1; then
-  COMPOSE=("${SUDO_ENV[@]}" docker compose)
+  COMPOSE_CMD=("${SUDO_ENV[@]}" docker compose)
 elif command -v docker-compose >/dev/null 2>&1; then
-  COMPOSE=("${SUDO_ENV[@]}" docker-compose)
+  COMPOSE_CMD=("${SUDO_ENV[@]}" docker-compose)
 else
   echo "ERROR: Docker Compose not found (tried 'docker compose' and 'docker-compose')." >&2
   exit 1
@@ -67,13 +68,16 @@ fi
 log "Rebuilding and restarting Docker containers..."
 cd "$APP_DIR"
 
-"${COMPOSE[@]}" down
-"${COMPOSE[@]}" up -d --build
+"${COMPOSE_CMD[@]}" down
+"${COMPOSE_CMD[@]}" \
+    --project-directory "$APP_DIR" \
+    --env-file "$ENV_FILE" \
+    up -d --build
 
 # Basic health check (works for both v1 and v2)
-if ! "${COMPOSE[@]}" ps | grep -q "Up"; then
+if ! "${COMPOSE_CMD[@]}" ps | grep -q "Up"; then
   echo "ERROR: Docker containers may not have started correctly." >&2
-  echo "Try: ${COMPOSE[*]} logs" >&2
+  echo "Try: ${COMPOSE_CMD[*]} logs" >&2
   exit 1
 fi
 

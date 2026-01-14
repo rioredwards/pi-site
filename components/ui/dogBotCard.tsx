@@ -1,5 +1,5 @@
 "use client";
-import { cn } from "@/lib/utils";
+import { cn } from "@/app/lib/utils";
 
 type ProcessingState = "preSelection" | "selected" | "processing" | "success" | "failure";
 
