@@ -138,7 +138,7 @@ The validation runs before file processing in `uploadPhoto()` server action.
 
 Photos are stored in:
 
-- **Upload path**: `process.env.IMG_UPLOAD_URL` or `{cwd}/public/images`
+- **Upload path**: `process.env.IMG_UPLOAD_DIR` or `{cwd}/public/images`
 - **Read path (prod)**: `/images/{filename}` (served by Nginx)
 - **Read path (dev)**: `/api/assets/images/{filename}` (served by Next.js API route)
 

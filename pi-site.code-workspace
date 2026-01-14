@@ -11,10 +11,6 @@
     {
       "name": "pi-site-old",
       "path": "../pi-site-old"
-    },
-    {
-      "name": "portfolio",
-      "path": "../portfolio"
     }
   ],
   "settings": {}

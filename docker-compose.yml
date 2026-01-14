@@ -1,5 +1,5 @@
 services:
- web:
+  web:
     build:
       context: .
       args:

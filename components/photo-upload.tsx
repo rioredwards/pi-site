@@ -111,7 +111,6 @@ export default function PhotoUpload({ addPhoto }: Props) {
     const resizedImg = await reduceFileSize(file, MAX_FILE_SIZE, MAX_WIDTH, MAX_HEIGHT, QUALITY);
     const formData = new FormData();
     formData.append("file", resizedImg);
-
     const res = await uploadPhoto(formData);
 
     const elapsedTime = Date.now() - startTime;
@@ -296,7 +295,7 @@ export default function PhotoUpload({ addPhoto }: Props) {
                           </Button>
                           <Button
                             type="submit"
-                            className="flex-1 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                            className="flex-1 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                             disabled={isLocked}>
                             Upload
                           </Button>

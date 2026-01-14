@@ -14,7 +14,12 @@ import { photos } from "./schema";
 
 export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
 
-const IMG_UPLOAD_URL = process.env.IMG_UPLOAD_URL!;
+const IMG_UPLOAD_DIR = process.env.IMG_UPLOAD_DIR!;
+
+// Debug logging to understand what's happening
+devLog("IMG_UPLOAD_DIR:", IMG_UPLOAD_DIR);
+devLog("NODE_ENV:", process.env.NODE_ENV);
+devLog("cwd:", process.cwd());
 
 const IMAGE_READ_BASE_URL = "/api/assets/images";
 
@@ -101,8 +106,8 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     const uniqueImgFilename = `${imgId}-${imgFilename}`;
 
     // Create the upload directory if it doesn't exist
-    createDirIfNotExists(IMG_UPLOAD_URL);
-    const imgFilePath = join(IMG_UPLOAD_URL, uniqueImgFilename);
+    createDirIfNotExists(IMG_UPLOAD_DIR);
+    const imgFilePath = join(IMG_UPLOAD_DIR, uniqueImgFilename);
 
     // Write the image file to the images directory
     await writeFile(imgFilePath, buffer);
@@ -198,7 +203,7 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
     await db.delete(photos).where(eq(photos.id, id));
 
     // Delete the image file from filesystem
-    const imgFilePath = join(IMG_UPLOAD_URL, photo.imgFilename);
+    const imgFilePath = join(IMG_UPLOAD_DIR, photo.imgFilename);
     if (existsSync(imgFilePath)) {
       unlinkSync(imgFilePath);
     }
@@ -212,7 +217,18 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
 
 // Helper function to create a directory if it doesn't exist
 function createDirIfNotExists(dir: string): void {
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
+  try {
+    devLog(`Checking if directory exists: ${dir}`);
+    if (!existsSync(dir)) {
+      devLog(`Directory doesn't exist, creating: ${dir}`);
+      mkdirSync(dir, { recursive: true });
+      devLog(`Successfully created upload directory: ${dir}`);
+    } else {
+      devLog(`Directory already exists: ${dir}`);
+    }
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : "Unknown error";
+    devLog(`Failed to create directory "${dir}". Error:`, error);
+    throw new Error(`Failed to create upload directory "${dir}": ${errorMsg}`);
   }
 }

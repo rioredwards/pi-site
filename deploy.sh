@@ -9,7 +9,7 @@ IFS=$'\n\t'
 # - This script NEVER generates or stores secrets.
 # - You must sync an env file to the Pi BEFORE running it.
 #   e.g. from your dev-machine:
-#     rsync -avz --chmod=600 ./secrets/pi-site.env.prod pi@raspberrypi:~/pi-site/.env.prod
+#     rsync -avz --chmod=600 ./secrets/pi-site.env.prod pi@raspberrypi:~/pi-site/.env
 #
 # What this script does:
 # - Installs/updates system deps (docker, nginx, cloudflared)
@@ -124,7 +124,7 @@ validate_env() {
 	require_env_key PUBLIC_IMG_VALIDATOR_BASE_URL
 
 	# server-only filesystem path
-	require_env_key IMG_UPLOAD_URL
+	require_env_key IMG_UPLOAD_DIR
 
 
 	# --- Demo ---
@@ -254,7 +254,7 @@ cat <<'EOM'
 Notes:
 - Env file: ~/pi-site/.env.prod
 - Image URLs: /api/assets/images/{filename}
-- Filesystem storage: $IMG_UPLOAD_URL (inside containers)
+- Filesystem storage: $IMG_UPLOAD_DIR (inside containers)
 - Nginx serves images directly from the Docker volume
 
 EOM
