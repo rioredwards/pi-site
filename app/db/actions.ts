@@ -21,7 +21,7 @@ devLog("IMG_UPLOAD_DIR:", IMG_UPLOAD_DIR);
 devLog("NODE_ENV:", process.env.NODE_ENV);
 devLog("cwd:", process.cwd());
 
-const IMAGE_READ_BASE_URL = "/api/assets/images";
+const IMAGE_READ_BASE_URL = "/api/assets/images/";
 
 export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
   const session = await getServerSession(authOptions);

@@ -17,8 +17,12 @@ const MIME_TYPES: Record<string, string> = {
   ".svg": "image/svg+xml",
 };
 
+// Upload directory from environment (matches where actions.ts uploads files)
+const IMG_UPLOAD_DIR = process.env.IMG_UPLOAD_DIR! || join(process.cwd(), "public", "images");
+
 export async function GET(_req: Request, { params }: { params: Promise<{ dir: string[] }> }) {
-  const dir = (await params).dir.join("/");
+  const dirParts = (await params).dir;
+  const dir = dirParts.join("/");
   if (!dir) {
     return new NextResponse(null, { status: 500 });
   }
@@ -29,8 +33,18 @@ export async function GET(_req: Request, { params }: { params: Promise<{ dir: st
   }
 
   try {
-    // Use absolute path to ensure it works with standalone mode and Docker
-    const filePath = join(process.cwd(), "public", dir);
+    let filePath: string;
+
+    // If path starts with "images/", serve from the upload directory
+    if (dirParts[0] === "images" && dirParts.length > 1) {
+      const filename = dirParts.slice(1).join("/");
+      filePath = join(IMG_UPLOAD_DIR, filename);
+    } else {
+      // Fallback to public directory for other assets
+      filePath = join(process.cwd(), "public", dir);
+    }
+
+    devLog("Serving file from:", filePath);
 
     // Check if file exists
     if (!existsSync(filePath)) {

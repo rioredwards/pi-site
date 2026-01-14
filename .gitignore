@@ -3,6 +3,7 @@
 server.js
 public/images/*
 logs/*
+.data/*
 
 # Python
 __pycache__/
