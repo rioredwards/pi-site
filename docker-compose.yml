@@ -5,13 +5,13 @@ services:
       args:
         NEXT_PUBLIC_SAFE_KEY: ${NEXT_PUBLIC_SAFE_KEY}
     env_file:
-      - .env
+      - .env.prod
     ports:
       - '3000:3000'
     environment:
       NODE_ENV: production
     volumes:
-      - uploads_data:/app/public/images
+      - uploads_data:/data/uploads/images
     depends_on:
       db:
         condition: service_healthy
@@ -28,7 +28,7 @@ services:
   db:
     image: postgres:17
     env_file:
-      - .env
+      - .env.prod
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
