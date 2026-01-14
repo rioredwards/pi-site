@@ -14,11 +14,9 @@ import { photos } from "./schema";
 
 export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
 
-// Use environment variable if set, otherwise use relative path from CWD
-const IMG_UPLOAD_DIR = process.env.UPLOAD_DIR || join(process.cwd(), "public", "images");
-// In production with Nginx, images are served directly from /images/
-// In development, they still use the API route fallback
-const IMG_READ_DIR = process.env.NODE_ENV === "production" ? "/images/" : "/api/assets/images/";
+const IMG_UPLOAD_URL = process.env.IMG_UPLOAD_URL!;
+
+const IMAGE_READ_BASE_URL = "/api/assets/images";
 
 export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
   const session = await getServerSession(authOptions);
@@ -52,20 +50,16 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
   try {
     // AI image validator check (before processing the file)
     try {
-      const baseUrl =
-        process.env.NSFW_API_URL ??
-        (process.env.NODE_ENV === "production"
-          ? "http://ai-img-validator:8000"
-          : "http://localhost:8000");
+      const validatorBaseUrl = process.env.PUBLIC_IMG_VALIDATOR_BASE_URL!;
 
-      devLog("baseUrl", baseUrl);
+      const validatorUrl = `${validatorBaseUrl.replace(/\/+$/, "")}/analyze`;
 
-      const backendUrl = `${baseUrl.replace(/\/+$/, "")}/analyze`;
+      devLog("validatorUrl: ", validatorUrl);
 
       const validatorFormData = new FormData();
       validatorFormData.append("file", file);
 
-      const response = await fetch(backendUrl, {
+      const response = await fetch(validatorUrl, {
         method: "POST",
         body: validatorFormData,
       });
@@ -107,8 +101,8 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     const uniqueImgFilename = `${imgId}-${imgFilename}`;
 
     // Create the upload directory if it doesn't exist
-    createDirIfNotExists(IMG_UPLOAD_DIR);
-    const imgFilePath = join(IMG_UPLOAD_DIR, uniqueImgFilename);
+    createDirIfNotExists(IMG_UPLOAD_URL);
+    const imgFilePath = join(IMG_UPLOAD_URL, uniqueImgFilename);
 
     // Write the image file to the images directory
     await writeFile(imgFilePath, buffer);
@@ -125,7 +119,7 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
         imgFilename: uniqueImgFilename,
         userId: session.user.id,
         order: photoCount + 1,
-        src: IMG_READ_DIR + uniqueImgFilename,
+        src: IMAGE_READ_BASE_URL + uniqueImgFilename,
         alt: `Dog photo ${photoCount + 1}`,
       })
       .returning();
@@ -204,7 +198,7 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
     await db.delete(photos).where(eq(photos.id, id));
 
     // Delete the image file from filesystem
-    const imgFilePath = join(IMG_UPLOAD_DIR, photo.imgFilename);
+    const imgFilePath = join(IMG_UPLOAD_URL, photo.imgFilename);
     if (existsSync(imgFilePath)) {
       unlinkSync(imgFilePath);
     }

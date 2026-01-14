@@ -1,10 +1,11 @@
 "use server";
 
+import { devLog } from "../lib/utils";
+import { deletePhoto, getPhotos, uploadPhoto } from "./db/actions";
 import { AnalysisResult } from "./lib/imgValidatorTypes";
-import { getPhotos, uploadPhoto, deletePhoto } from "./db/actions";
 
 // Re-export database actions
-export { getPhotos, uploadPhoto, deletePhoto };
+export { deletePhoto, getPhotos, uploadPhoto };
 
 /**
  * Server action to proxy image analysis requests to the ai-img-validator service.
@@ -18,18 +19,16 @@ export async function analyzeImageAction(formData: FormData): Promise<AnalysisRe
   }
 
   // Prefer explicit env override; otherwise pick a sensible default.
-  const baseUrl =
-    process.env.NSFW_API_URL ??
-    (process.env.NODE_ENV === "production"
-      ? "http://ai-img-validator:8000"
-      : "http://localhost:8000");
+  const validatorBaseUrl = process.env.PUBLIC_IMG_VALIDATOR_BASE_URL!;
 
-  const backendUrl = `${baseUrl.replace(/\/+$/, "")}/analyze`;
+  const validatorUrl = `${validatorBaseUrl.replace(/\/+$/, "")}/analyze`;
+
+  devLog("validatorUrl: ", validatorUrl);
 
   const outbound = new FormData();
   outbound.append("file", file);
 
-  const response = await fetch(backendUrl, {
+  const response = await fetch(validatorUrl, {
     method: "POST",
     body: outbound,
   });
