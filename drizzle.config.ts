@@ -1,9 +1,5 @@
 import type { Config } from "drizzle-kit";
 
-// Load .env.local for local development, fallback to .env
-// dotenv.config({ path: resolve(process.cwd(), ".env.local") });
-// dotenv.config({ path: resolve(process.cwd(), ".env") });
-
 export default {
   schema: "./app/db/schema.ts",
   out: "./app/db/migrations",
