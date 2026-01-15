@@ -17,6 +17,13 @@ services:
         condition: service_healthy
       ai-img-validator:
         condition: service_started
+      system-profiler:
+        condition: service_started
+    networks:
+      - my_network
+
+  system-profiler:
+    build: ./system-profiler
     networks:
       - my_network
 

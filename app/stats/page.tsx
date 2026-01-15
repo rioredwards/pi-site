@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 // Revalidate static info every 60 seconds
 export const revalidate = 60;
 
-export default function StatsPage() {
-  const staticInfo = getStaticSystemInfo();
+export default async function StatsPage() {
+  const staticInfo = await getStaticSystemInfo();
 
   return (
     <div className="container mx-auto py-8 px-4">

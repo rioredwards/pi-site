@@ -14,12 +14,16 @@ services:
       retries: 10
     networks:
       - my_network
+
+  system-profiler:
+    build: ./system-profiler
+    ports:
+      - '8787:8787'
  
   ai-img-validator:
     build: ./ai-img-validator
     ports:
       - '8000:8000'
-    # Expose port for local development access
 
 volumes:
   postgres_data_dev:

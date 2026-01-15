@@ -1,6 +1,15 @@
 import { execSync } from "child_process";
 import { existsSync, readFileSync } from "fs";
 import * as os from "os";
+import { devLog } from "./utils";
+
+type SystemInfoResponse = {
+  message: string;
+  stats: {
+    platform: string;
+    architecture: string;
+  };
+};
 
 // Types for system statistics
 export interface StaticSystemInfo {
@@ -26,6 +35,12 @@ export interface LiveSystemStats {
   uptimeSeconds: number;
   uptimeFormatted: string;
   timestamp: number;
+}
+
+const SYSTEM_PROFILER_BASE_URL = process.env.SYSTEM_PROFILER_BASE_URL!;
+
+if (!SYSTEM_PROFILER_BASE_URL) {
+  throw new Error("SYSTEM_PROFILER_BASE_URL is not set");
 }
 
 // Helper to safely read a file
@@ -232,14 +247,34 @@ function formatUptime(seconds: number): string {
 }
 
 // Get static system information (called once, can be cached)
-export function getStaticSystemInfo(): StaticSystemInfo {
+export async function getStaticSystemInfo(): Promise<StaticSystemInfo> {
+  console.log("SYSTEM_PROFILER_BASE_URL: ", SYSTEM_PROFILER_BASE_URL);
+  const url = `${SYSTEM_PROFILER_BASE_URL}/debug/stats`;
+  console.log("url: ", url);
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch system stats: ${response.statusText}`);
+  }
+
+  const data = (await response.json()) as SystemInfoResponse;
+
+  devLog("⚙️ system-stats data: ", data);
+
+  if (data.message !== "System stats") {
+    throw new Error(`Invalid response from system stats: ${data.message}`);
+  }
+
+  const { platform, architecture } = data.stats;
+
   const cpus = os.cpus();
   const osRelease = getOsRelease();
 
   return {
     hostname: "raspberry-pi", // Sanitized - don't expose real hostname
-    platform: os.platform(),
-    arch: os.arch(),
+    platform: platform,
+    arch: architecture,
     cpuModel: cpus[0]?.model?.trim() || "Unknown",
     cpuCores: cpus.length,
     totalMemoryGB: Math.round((os.totalmem() / 1024 / 1024 / 1024) * 10) / 10,
