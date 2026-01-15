@@ -9,15 +9,15 @@ A Next.js 15 portfolio website for showcasing dog photos with AI-powered validat
 - **Authentication**: NextAuth with GitHub and Google OAuth
 - **Admin System**: Configurable admin users who can delete any photo
 - **Photo Upload**: Users can upload dog photos with automatic validation
-- **PostgreSQL Database**: Drizzle ORM with proper schema management
-- **Self-Hosted**: Runs on Raspberry Pi with Docker + Cloudflare Tunnel
+- **PostgreSQL Database**: Drizzle ORM with migration support
+- **Self-Hosted**: Runs on Raspberry Pi with Docker + Nginx
 
 ## Prerequisites
 
-1. A Linux server (Raspberry Pi, Ubuntu droplet, etc.)
-2. Domain name with Cloudflare DNS
+1. A Linux server (Raspberry Pi, Ubuntu, etc.)
+2. Domain name with Cloudflare DNS (for tunnel)
 3. GitHub and/or Google OAuth apps configured
-4. Docker and Docker Compose installed on server
+4. SSH access to your server
 
 ## Quick Start (Local Development)
 
@@ -27,7 +27,14 @@ A Next.js 15 portfolio website for showcasing dog photos with AI-powered validat
 npm install
 ```
 
-### 2. Start Services
+### 2. Configure Environment
+
+```bash
+cp .env.example .env.local
+# Edit .env.local with your values
+```
+
+### 3. Start Services
 
 ```bash
 # Start PostgreSQL and AI validator services
@@ -42,7 +49,7 @@ npm run dev
 
 Visit http://localhost:3000
 
-### 3. Stop Services
+### 4. Stop Services
 
 ```bash
 npm run dev:services:stop
@@ -52,73 +59,67 @@ npm run dev:services:stop
 
 ### Initial Setup
 
-1. **SSH into your server**:
+1. **Create your production env file locally**:
    ```bash
-   ssh your-server
+   cp .env.example .env.prod
+   # Edit .env.prod with production values
    ```
 
-2. **Clone and deploy**:
+2. **Sync env file to your server**:
    ```bash
-   git clone https://github.com/rioredwards/pi-site.git
-   cd pi-site
+   rsync -avz .env.prod pi@your-server:~/pi-site/.env.prod
+   ```
+
+3. **SSH into your server and deploy**:
+   ```bash
+   ssh your-server
+   git clone https://github.com/rioredwards/pi-site.git ~/pi-site
+   cd ~/pi-site
    chmod +x deploy.sh
    ./deploy.sh
    ```
 
    The deployment script will:
-   - Install Docker and dependencies
+   - Install Docker if needed
    - Set up Nginx reverse proxy
-   - Configure Cloudflare Tunnel
-   - Create PostgreSQL database
-   - Build and start all services
-
-3. **Configure environment variables**:
-   Edit `.env` on the server with your OAuth credentials:
-   ```bash
-   AUTH_SECRET=your-secret-here
-   GITHUB_CLIENT_ID=your-github-client-id
-   GITHUB_CLIENT_SECRET=your-github-client-secret
-   GOOGLE_CLIENT_ID=your-google-client-id
-   GOOGLE_CLIENT_SECRET=your-google-client-secret
-   ```
-
-4. **Restart services**:
-   ```bash
-   sudo docker compose down
-   sudo docker compose up -d
-   ```
+   - Build and start all containers
+   - Run database migrations automatically
+   - Clean up old Docker images
 
 ### Updating Production
 
 ```bash
+# On your server
 cd ~/pi-site
 ./update.sh
 ```
 
-This will pull latest changes, rebuild containers, and restart services.
+Or simply re-run `./deploy.sh` - it's safe to run repeatedly.
 
 ## Project Structure
 
 ```
 pi-site/
 ├── app/                      # Next.js App Router
-│   ├── db/                   # Database schema and actions
+│   ├── db/                   # Database schema, client, and migrations
 │   │   ├── schema.ts         # Drizzle schema
 │   │   ├── drizzle.ts        # Database client
-│   │   └── actions.ts        # Server actions
-│   ├── components/           # React components
+│   │   ├── actions.ts        # Server actions
+│   │   └── migrations/       # SQL migration files
 │   ├── lib/                  # Utilities and types
 │   ├── api/                  # API routes
-│   └── auth.ts              # NextAuth configuration
-├── ai-img-validator/        # FastAPI image validation service
-├── components/              # Shared components
-├── public/                  # Static assets
-├── types/                   # TypeScript type definitions
-├── docker-compose.yml       # Production services
-├── docker-compose.dev.yml   # Development services
-├── Dockerfile              # Next.js app container
-├── deploy.sh               # Initial deployment script
-└── update.sh               # Update script
+│   └── auth.ts               # NextAuth configuration
+├── components/               # React components
+├── scripts/                  # Build and deployment scripts
+│   ├── run-migrations.js     # Production migration runner
+│   └── docker-entrypoint.sh  # Container startup script
+├── ai-img-validator/         # FastAPI image validation service
+├── docker-compose.yml        # Production services
+├── docker-compose.dev.yml    # Development services
+├── docker-compose.staging.yml # Staging services
+├── Dockerfile                # Next.js app container
+├── deploy.sh                 # Initial deployment script
+└── update.sh                 # Update script
 ```
 
 ## Environment Variables
@@ -139,63 +140,88 @@ GITHUB_CLIENT_ID=your-github-id
 GITHUB_CLIENT_SECRET=your-github-secret
 GOOGLE_CLIENT_ID=your-google-id
 GOOGLE_CLIENT_SECRET=your-google-secret
+
+# Image handling
+PUBLIC_IMG_VALIDATOR_BASE_URL=http://ai-img-validator:8000  # prod
+IMG_UPLOAD_DIR=/data/uploads/images                          # prod
+
+# App keys
+SECRET_KEY=your-secret-key
+NEXT_PUBLIC_SAFE_KEY=your-public-key
 ```
+
+### Development vs Production
+
+| Variable | Development | Production |
+|----------|-------------|------------|
+| `DATABASE_URL` | `...@localhost:5432/...` | `...@db:5432/...` |
+| `PUBLIC_IMG_VALIDATOR_BASE_URL` | `http://localhost:8000` | `http://ai-img-validator:8000` |
+| `IMG_UPLOAD_DIR` | `./.data/uploads/images` | `/data/uploads/images` |
 
 ### Optional
 
 ```bash
 # Admin users (comma-separated provider-accountId format)
 ADMIN_USER_IDS=github-123456,google-789012
-
-# AI Validator URL (defaults to http://ai-img-validator:8000 in Docker)
-NSFW_API_URL=http://localhost:8000
 ```
 
 ## Tech Stack
 
-- **Frontend**: Next.js 15, React, Tailwind CSS v4
+- **Frontend**: Next.js 15, React 19, Tailwind CSS v4
 - **Backend**: Next.js Server Actions, NextAuth v4
 - **Database**: PostgreSQL 17 + Drizzle ORM
 - **AI Service**: FastAPI (Python) with NSFW + dog detection
 - **Deployment**: Docker, Nginx, Cloudflare Tunnel
-- **Icons**: @hugeicons (not lucide-react!)
+- **Icons**: Lucide React
 
 ## Development Commands
 
 ```bash
-# Package management
-npm install              # Install dependencies
-npm update              # Update packages
-
 # Development
-npm run dev             # Start dev server
-npm run dev:services    # Start Postgres + AI validator
-npm run dev:services:stop  # Stop services
-npm run dev:services:logs  # View service logs
+npm run dev                    # Start Next.js dev server
+npm run dev:services           # Start Postgres + AI validator
+npm run dev:services:stop      # Stop dev services
+npm run dev:services:logs      # View dev service logs
+
+# Staging (full stack locally in Docker)
+npm run staging:services       # Start all services in Docker
+npm run staging:services:stop  # Stop staging
+npm run staging:services:logs  # View staging logs
+npm run staging:services:reset # Wipe staging (including volumes)
 
 # Database
-npm run db:push         # Push schema changes
-npm run db:generate     # Generate migrations
-npm run db:studio       # Open Drizzle Studio
+npm run db:generate            # Generate migrations from schema changes
+npm run db:migrate             # Run pending migrations
+npm run db:push                # Push schema directly (dev only)
+npm run db:studio              # Open Drizzle Studio
 
 # Build
-npm run build           # Build for production
-npm run start           # Start production server
+npm run build                  # Build for production
+npm run start                  # Start production server
+npm run lint                   # Run ESLint
+npm run typecheck              # Run TypeScript check
 ```
 
 ## Database Management
 
+### Migration Workflow
+
+1. Make changes to `app/db/schema.ts`
+2. Generate migration: `npm run db:generate`
+3. Commit the migration files in `app/db/migrations/`
+4. Deploy - migrations run automatically at container startup
+
 ### Local Development
 
 ```bash
-# Push schema
+# Quick schema sync (no migrations)
 npm run db:push
 
 # View database in browser
 npm run db:studio
 
 # Direct database access
-docker exec -it pi-site-db-1 psql -U myuser -d mydatabase
+docker exec -it pi_site_dev-db-1 psql -U myuser -d mydatabase
 ```
 
 ### Production
@@ -206,7 +232,7 @@ ssh your-server
 cd ~/pi-site
 
 # Access database
-sudo docker compose exec db psql -U myuser -d mydatabase
+docker compose exec db psql -U myuser -d mydatabase
 ```
 
 ## OAuth Setup
@@ -219,7 +245,7 @@ sudo docker compose exec db psql -U myuser -d mydatabase
    ```
    https://your-domain.com/api/auth/callback/github
    ```
-4. Add Client ID and Secret to `.env`
+4. Add Client ID and Secret to `.env.prod`
 
 ### Google OAuth App
 
@@ -229,18 +255,18 @@ sudo docker compose exec db psql -U myuser -d mydatabase
    ```
    https://your-domain.com/api/auth/callback/google
    ```
-4. Add Client ID and Secret to `.env`
+4. Add Client ID and Secret to `.env.prod`
 
 ## Admin Users
 
 To make a user an admin:
 
 1. Sign in to the app
-2. Check the database for your user ID:
+2. Check your user ID in the database:
    ```sql
-   SELECT * FROM photos WHERE user_id LIKE 'github-%' OR user_id LIKE 'google-%';
+   SELECT DISTINCT user_id FROM photos;
    ```
-3. Add your user ID to `.env`:
+3. Add your user ID to `.env.prod`:
    ```bash
    ADMIN_USER_IDS=github-123456,google-789012
    ```
@@ -252,22 +278,43 @@ Admins can delete any photo; regular users can only delete their own.
 
 ### Database Connection Issues
 
-If you see "Failed query" errors:
-- Ensure `DATABASE_URL_EXTERNAL` is NOT set in production `.env`
-- Use `DATABASE_URL=postgres://...@db:5432/...` (points to Docker service)
-- Restart containers: `sudo docker compose down && sudo docker compose up -d`
+- Ensure DATABASE_URL uses `db` as hostname in production (Docker network)
+- Use `localhost` only in development
+- Restart containers: `docker compose down && docker compose up -d`
 
 ### Auth Issues
 
-If you get "NO_SECRET" errors:
-- Ensure `AUTH_SECRET` is set in `.env`
-- Restart containers after changing `.env`
+- Ensure `AUTH_SECRET` is set
+- Ensure `NEXTAUTH_URL` matches your actual domain
+- Restart containers after changing env vars
 
 ### Image Upload Fails
 
-- Check AI validator is running: `sudo docker compose ps`
-- View logs: `sudo docker compose logs ai-img-validator`
+- Check AI validator is running: `docker compose ps`
+- View logs: `docker compose logs ai-img-validator`
 - Ensure images are < 5MB and are JPEG/PNG/WebP format
+
+### Docker IPv6 Issues
+
+If Docker can't pull images due to IPv6 issues:
+```bash
+# Disable IPv6 for Docker
+sudo tee /etc/docker/daemon.json > /dev/null <<'EOF'
+{
+  "ip6tables": false,
+  "ipv6": false
+}
+EOF
+sudo systemctl restart docker
+```
+
+### Disk Space (Old Docker Images)
+
+The deploy script automatically prunes old images. For manual cleanup:
+```bash
+docker image prune -f           # Remove unused images
+docker system prune -af         # Remove everything unused (careful!)
+```
 
 ## License
 

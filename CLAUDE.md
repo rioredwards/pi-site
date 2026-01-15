@@ -48,8 +48,8 @@ npm run db:migrate      # Run pending migrations
 npm run db:push         # Push schema directly (dev only, skips migrations)
 npm run db:studio       # Open Drizzle Studio (http://localhost:4983)
 
-# Direct Postgres access
-docker exec -it pi-site-db-1 psql -U myuser -d mydatabase
+# Direct Postgres access (dev)
+docker exec -it pi_site_dev-db-1 psql -U myuser -d mydatabase
 ```
 
 **Migration Workflow (Production):**
@@ -132,7 +132,7 @@ The `ai-img-validator` FastAPI service runs on port 8000 and validates:
 1. **NSFW content detection**: Rejects inappropriate images
 2. **Dog detection**: Ensures uploaded photos contain dogs
 
-Service URL is configured via `IMG_VALIDATOR_URL` env var:
+Service URL is configured via `PUBLIC_IMG_VALIDATOR_BASE_URL` env var:
 
 - Development: `http://localhost:8000`
 - Production: `http://ai-img-validator:8000`
@@ -141,21 +141,15 @@ The validation runs before file processing in `uploadPhoto()` server action.
 
 ### Static Asset Serving
 
-**Production**: Images are served directly by Nginx from `/images/` for optimal performance. Nginx serves files from the Docker volume at `/var/lib/docker/volumes/pi-site_uploads_data/_data/` with aggressive caching (1 year) and no rate limiting.
+Images use the path `/api/assets/images/{filename}` in all environments.
 
-**Development**: Images fall back to `/api/assets/images/` which uses a streaming API route with proper caching headers.
+**Production**: Nginx intercepts `/api/assets/images/` requests and serves files directly from the Docker volume (`/var/lib/docker/volumes/pi-site_uploads_data/_data/`) with aggressive caching (1 year). This bypasses Node.js entirely.
+
+**Development**: The Next.js API route at `app/api/assets/[...dir]/route.ts` serves files with streaming and proper caching headers.
 
 Photos are stored in:
-
-- **Upload path**: `process.env.IMG_UPLOAD_DIR` or `{cwd}/public/images`
-- **Read path (prod)**: `/images/{filename}` (served by Nginx)
-- **Read path (dev)**: `/api/assets/images/{filename}` (served by Next.js API route)
-
-The environment-aware path selection is in `app/db/actions.ts`:
-
-```typescript
-const IMG_READ_DIR = process.env.NODE_ENV === "production" ? "/images/" : "/api/assets/images/";
-```
+- **Upload path**: `process.env.IMG_UPLOAD_DIR` (dev: `./.data/uploads/images`, prod: `/data/uploads/images`)
+- **Read path**: `/api/assets/images/{filename}` (both environments)
 
 This architecture prevents 503 errors by keeping image requests off the Node.js event loop in production.
 
@@ -164,7 +158,7 @@ This architecture prevents 503 errors by keeping image requests off the Node.js 
 Required for local development (`.env.local`):
 
 ```bash
-# Database (local dev)
+# Database
 POSTGRES_USER=myuser
 POSTGRES_PASSWORD=mypassword
 POSTGRES_DB=mydatabase
@@ -172,28 +166,38 @@ DATABASE_URL=postgres://myuser:mypassword@localhost:5432/mydatabase
 DATABASE_URL_EXTERNAL=postgres://myuser:mypassword@localhost:5432/mydatabase
 
 # NextAuth
+NEXTAUTH_URL=http://localhost:3000
 AUTH_SECRET=my-secret
 GITHUB_CLIENT_ID=your-github-client-id
 GITHUB_CLIENT_SECRET=your-github-client-secret
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 
+# Image handling
+PUBLIC_IMG_VALIDATOR_BASE_URL=http://localhost:8000
+IMG_UPLOAD_DIR=./.data/uploads/images
+
+# App keys
+SECRET_KEY=dev-secret
+NEXT_PUBLIC_SAFE_KEY=dev-public
+
 # Admin users (optional)
 ADMIN_USER_IDS=github-123456,google-789012
-
-# AI Validator (optional override)
-IMG_VALIDATOR_URL=http://localhost:8000
 ```
+
+For production (`.env.prod`), key differences:
+- `DATABASE_URL` uses `db` hostname instead of `localhost`
+- `PUBLIC_IMG_VALIDATOR_BASE_URL=http://ai-img-validator:8000`
+- `IMG_UPLOAD_DIR=/data/uploads/images`
 
 ## Icon Usage
 
-**ALWAYS use @hugeicons instead of lucide-react**:
+This project uses **lucide-react** for icons:
 
 ```typescript
-import { IconName } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { IconName } from "lucide-react";
 
-<HugeiconsIcon icon={IconName} size={16} color="currentColor" strokeWidth={2} />;
+<IconName className="h-4 w-4" />
 ```
 
 ## Project Philosophy
