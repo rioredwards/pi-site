@@ -25,6 +25,7 @@ const eslintConfig = defineConfig([
     "scripts/**",
     "cache-handler.mjs",
     "server.js",
+    "system-profiler/**",
   ]),
 ]);
 

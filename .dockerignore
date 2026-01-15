@@ -1,6 +1,7 @@
 public/images/*
 logs/*
 .data/*
+system-profiler/*
 
 # Development files and directories
 .git
