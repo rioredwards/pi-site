@@ -1,6 +1,6 @@
 "use client";
-import { AuthButton } from "@/components/auth-button";
 import { cn } from "@/app/lib/utils";
+import { AuthButton } from "@/components/auth-button";
 import { PawPrint } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -11,6 +11,7 @@ export default function Header() {
   const navigation = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
+    { name: "Stats", href: "/stats" },
   ];
 
   return (

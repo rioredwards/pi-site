@@ -11,6 +11,9 @@
     {
       "name": "pi-site-old",
       "path": "../pi-site-old"
+    },
+    {
+      "path": "../next-self-host"
     }
   ],
   "settings": {}
