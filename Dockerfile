@@ -21,9 +21,17 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+
+# Copy Next.js standalone build
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
+# Copy migrations and migration script
+COPY --from=builder /app/app/db/migrations ./app/db/migrations
+COPY --from=builder /app/scripts/run-migrations.js ./scripts/run-migrations.js
+COPY --from=builder /app/scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
+RUN chmod +x ./scripts/docker-entrypoint.sh
+
 EXPOSE 3000
-CMD ["node", "server.js"]
+ENTRYPOINT ["./scripts/docker-entrypoint.sh"]

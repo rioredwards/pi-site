@@ -43,13 +43,22 @@ docker-compose -f docker-compose.dev.yml logs -f
 ### Database Operations
 
 ```bash
-npm run db:push         # Push schema changes to database
-npm run db:generate     # Generate migrations
+npm run db:generate     # Generate migrations from schema changes (dev only)
+npm run db:migrate      # Run pending migrations
+npm run db:push         # Push schema directly (dev only, skips migrations)
 npm run db:studio       # Open Drizzle Studio (http://localhost:4983)
 
 # Direct Postgres access
 docker exec -it pi-site-db-1 psql -U myuser -d mydatabase
 ```
+
+**Migration Workflow (Production):**
+1. Make schema changes in `app/db/schema.ts`
+2. Run `npm run db:generate` to create migration SQL files
+3. Commit the migration files in `app/db/migrations/`
+4. Deploy - migrations run automatically at container startup
+
+Note: `db:push` is for development only. Production uses migrations which are safe and reversible.
 
 ### Build & Production
 
