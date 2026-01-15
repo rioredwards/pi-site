@@ -1,6 +1,6 @@
 import { execSync } from "child_process";
 import { existsSync, readFileSync } from "fs";
-import os from "os";
+import * as os from "os";
 
 // Types for system statistics
 export interface StaticSystemInfo {
@@ -40,31 +40,51 @@ function safeReadFile(path: string): string | null {
   return null;
 }
 
-// Parse /etc/os-release for OS info
+// Parse OS release info in a platform-agnostic way
 function getOsRelease(): { name: string; version: string } {
-  const content = safeReadFile("/etc/os-release");
-  if (!content) {
-    return { name: os.type(), version: os.release() };
+  const platform = os.platform();
+
+  if (platform === "linux") {
+    const content = safeReadFile("/etc/os-release");
+    if (!content) {
+      return { name: os.type(), version: os.release() };
+    }
+
+    const lines = content.split("\n");
+    let name = os.type();
+    let version = "";
+
+    for (const line of lines) {
+      if (line.startsWith("PRETTY_NAME=")) {
+        name = line.split("=")[1]?.replace(/"/g, "") || name;
+      }
+      if (line.startsWith("VERSION=")) {
+        version = line.split("=")[1]?.replace(/"/g, "") || version;
+      }
+    }
+
+    return { name, version };
+  } else if (platform === "darwin") {
+    try {
+      // Use sw_vers command for macOS
+      const productName = execSync("sw_vers -productName", { encoding: "utf-8" }).trim();
+      const productVersion = execSync("sw_vers -productVersion", { encoding: "utf-8" }).trim();
+      return { name: productName, version: productVersion };
+    } catch {
+      return { name: os.type(), version: os.release() };
+    }
   }
 
-  const lines = content.split("\n");
-  let name = os.type();
-  let version = "";
-
-  for (const line of lines) {
-    if (line.startsWith("PRETTY_NAME=")) {
-      name = line.split("=")[1]?.replace(/"/g, "") || name;
-    }
-    if (line.startsWith("VERSION=")) {
-      version = line.split("=")[1]?.replace(/"/g, "") || version;
-    }
-  }
-
-  return { name, version };
+  // Fallback for other platforms
+  return { name: os.type(), version: os.release() };
 }
 
-// Get Raspberry Pi model from /proc/device-tree/model
+// Get Raspberry Pi model (Linux only)
 function getPiModel(): string | null {
+  if (os.platform() !== "linux") {
+    return null;
+  }
+
   const model = safeReadFile("/proc/device-tree/model");
   if (model) {
     // Remove null bytes that sometimes appear
@@ -73,26 +93,63 @@ function getPiModel(): string | null {
   return null;
 }
 
-// Get CPU temperature (Raspberry Pi specific)
+// Get CPU temperature
 function getCpuTemp(): number | null {
-  // Try Raspberry Pi thermal zone
-  const temp = safeReadFile("/sys/class/thermal/thermal_zone0/temp");
-  if (temp) {
-    const milliCelsius = parseInt(temp, 10);
-    if (!isNaN(milliCelsius)) {
-      return Math.round((milliCelsius / 1000) * 10) / 10; // Round to 1 decimal
+  const platform = os.platform();
+
+  if (platform === "linux") {
+    // Try Raspberry Pi thermal zone
+    const temp = safeReadFile("/sys/class/thermal/thermal_zone0/temp");
+    if (temp) {
+      const milliCelsius = parseInt(temp, 10);
+      if (!isNaN(milliCelsius)) {
+        return Math.round((milliCelsius / 1000) * 10) / 10; // Round to 1 decimal
+      }
+    }
+  } else if (platform === "darwin") {
+    try {
+      // Use powermetrics for macOS CPU temperature
+      const output = execSync(
+        "sudo powermetrics --samplers smc -n1 -i1000 | grep -E 'CPU die temperature:' | awk '{print $4}'",
+        {
+          encoding: "utf-8",
+        }
+      );
+      const temp = parseFloat(output.trim());
+      if (!isNaN(temp)) {
+        return Math.round(temp * 10) / 10; // Round to 1 decimal
+      }
+    } catch {
+      // powermetrics requires sudo, fallback to null
     }
   }
+
   return null;
 }
 
 // Get total disk space for root partition
 function getTotalDiskGB(): number {
   try {
-    const output = execSync("df -B1 / 2>/dev/null | tail -1 | awk '{print $2}'", {
-      encoding: "utf-8",
-    });
-    const bytes = parseInt(output.trim(), 10);
+    // Use platform-appropriate df command
+    const platform = os.platform();
+    let command: string;
+
+    if (platform === "darwin") {
+      // macOS df output format might differ slightly
+      command = "df -k / 2>/dev/null | tail -1 | awk '{print $2}'";
+    } else {
+      // Linux and others
+      command = "df -B1 / 2>/dev/null | tail -1 | awk '{print $2}'";
+    }
+
+    const output = execSync(command, { encoding: "utf-8" });
+    let bytes = parseInt(output.trim(), 10);
+
+    // If using -k flag, convert from KB to bytes
+    if (platform === "darwin" && !isNaN(bytes)) {
+      bytes *= 1024;
+    }
+
     if (!isNaN(bytes)) {
       return Math.round((bytes / 1024 / 1024 / 1024) * 10) / 10;
     }
@@ -107,35 +164,57 @@ let prevCpuTimes: { idle: number; total: number } | null = null;
 
 // Get CPU usage percentage
 function getCpuUsage(): number {
-  const statContent = safeReadFile("/proc/stat");
-  if (!statContent) {
-    // Fallback: use os.loadavg as rough approximation
-    const load = os.loadavg()[0];
-    const cpus = os.cpus().length;
-    return Math.min(Math.round((load / cpus) * 100), 100);
-  }
+  const platform = os.platform();
 
-  const cpuLine = statContent.split("\n").find((line) => line.startsWith("cpu "));
-  if (!cpuLine) return 0;
+  if (platform === "linux") {
+    const statContent = safeReadFile("/proc/stat");
+    if (!statContent) {
+      // Fallback: use os.loadavg as rough approximation
+      const load = os.loadavg()[0];
+      const cpus = os.cpus().length;
+      return Math.min(Math.round((load / cpus) * 100), 100);
+    }
 
-  const parts = cpuLine.split(/\s+/).slice(1).map(Number);
-  const idle = parts[3] + (parts[4] || 0); // idle + iowait
-  const total = parts.reduce((a, b) => a + b, 0);
+    const cpuLine = statContent.split("\n").find((line) => line.startsWith("cpu "));
+    if (!cpuLine) return 0;
 
-  if (!prevCpuTimes) {
+    const parts = cpuLine.split(/\s+/).slice(1).map(Number);
+    const idle = parts[3] + (parts[4] || 0); // idle + iowait
+    const total = parts.reduce((a, b) => a + b, 0);
+
+    if (!prevCpuTimes) {
+      prevCpuTimes = { idle, total };
+      return 0;
+    }
+
+    const idleDelta = idle - prevCpuTimes.idle;
+    const totalDelta = total - prevCpuTimes.total;
+
     prevCpuTimes = { idle, total };
-    return 0;
+
+    if (totalDelta === 0) return 0;
+
+    const usage = ((totalDelta - idleDelta) / totalDelta) * 100;
+    return Math.round(usage * 10) / 10;
+  } else if (platform === "darwin") {
+    try {
+      // Use sysctl for macOS CPU usage
+      const output = execSync("ps -A -o %cpu | awk '{s+=$1} END {print s}'", {
+        encoding: "utf-8",
+      });
+      const usage = parseFloat(output.trim());
+      if (!isNaN(usage)) {
+        return Math.round(usage * 10) / 10;
+      }
+    } catch {
+      // Fallback to load average
+    }
   }
 
-  const idleDelta = idle - prevCpuTimes.idle;
-  const totalDelta = total - prevCpuTimes.total;
-
-  prevCpuTimes = { idle, total };
-
-  if (totalDelta === 0) return 0;
-
-  const usage = ((totalDelta - idleDelta) / totalDelta) * 100;
-  return Math.round(usage * 10) / 10;
+  // Fallback: use os.loadavg as rough approximation for any platform
+  const load = os.loadavg()[0];
+  const cpus = os.cpus().length;
+  return Math.min(Math.round((load / cpus) * 100), 100);
 }
 
 // Format uptime into human readable string

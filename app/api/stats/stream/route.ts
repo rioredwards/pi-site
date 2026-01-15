@@ -9,39 +9,69 @@ const INTERVAL_MS = 5000;
 export async function GET() {
   const encoder = new TextEncoder();
 
+  let intervalId: NodeJS.Timeout | null = null;
+
   const stream = new ReadableStream({
     async start(controller) {
       // Send initial data immediately
-      const initialData = getLiveSystemStats();
-      controller.enqueue(encoder.encode(`data: ${JSON.stringify(initialData)}\n\n`));
+      try {
+        const initialData = getLiveSystemStats();
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(initialData)}\n\n`));
+      } catch (error) {
+        devLog("Error getting initial live stats:", error);
+        controller.enqueue(
+          encoder.encode(
+            `event: error\ndata: ${JSON.stringify({ error: "Failed to get initial stats" })}\n\n`
+          )
+        );
+      }
 
-      // Set up interval to send updates every 5 seconds
-      const intervalId = setInterval(() => {
+      // Function to send periodic updates
+      const sendUpdate = () => {
         try {
-          const stats = getLiveSystemStats();
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify(stats)}\n\n`));
+          // Check if controller is still active before enqueuing
+          if (controller.desiredSize !== null && controller.desiredSize >= 0) {
+            const stats = getLiveSystemStats();
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(stats)}\n\n`));
+          } else {
+            // Controller is closed, stop the interval
+            if (intervalId) {
+              clearInterval(intervalId);
+              intervalId = null;
+            }
+            return;
+          }
         } catch (error) {
           devLog("Error getting live stats:", error);
-          // Send error event but don't close the stream
-          controller.enqueue(
-            encoder.encode(
-              `event: error\ndata: ${JSON.stringify({ error: "Failed to get stats" })}\n\n`
-            )
-          );
+          try {
+            // Check if controller is still active before sending error
+            if (controller.desiredSize !== null && controller.desiredSize >= 0) {
+              controller.enqueue(
+                encoder.encode(
+                  `event: error\ndata: ${JSON.stringify({ error: "Failed to get stats" })}\n\n`
+                )
+              );
+            }
+          } catch (enqueueError) {
+            // Controller is closed, stop trying to send data
+            if (intervalId) {
+              clearInterval(intervalId);
+              intervalId = null;
+            }
+            return;
+          }
         }
-      }, INTERVAL_MS);
+      };
 
-      // Clean up when the connection is closed
-      // Note: This is handled by the cancel callback below
-      // Store the interval ID for cleanup
-      (controller as any)._intervalId = intervalId;
+      // Set up interval to send updates every 5 seconds
+      intervalId = setInterval(sendUpdate, INTERVAL_MS);
     },
 
-    cancel(controller) {
+    cancel() {
       // Clean up the interval when client disconnects
-      const intervalId = (controller as any)._intervalId;
       if (intervalId) {
         clearInterval(intervalId);
+        intervalId = null;
       }
     },
   });
