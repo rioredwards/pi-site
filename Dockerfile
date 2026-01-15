@@ -33,5 +33,8 @@ COPY --from=builder /app/scripts/run-migrations.js ./scripts/run-migrations.js
 COPY --from=builder /app/scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
 RUN chmod +x ./scripts/docker-entrypoint.sh
 
+# Install minimal deps for migration script (not included in standalone build)
+RUN npm install --no-save drizzle-orm postgres
+
 EXPOSE 3000
 ENTRYPOINT ["./scripts/docker-entrypoint.sh"]
