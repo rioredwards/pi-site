@@ -173,6 +173,9 @@ compose_up() {
     --project-directory "$APP_DIR" \
     --env-file "$ENV_FILE" \
     up -d --build
+
+  log "Cleaning up old Docker images..."
+  docker image prune -f
 }
 
 # -------------------------
