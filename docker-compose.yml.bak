@@ -5,14 +5,13 @@ services:
       args:
         NEXT_PUBLIC_SAFE_KEY: ${NEXT_PUBLIC_SAFE_KEY}
     env_file:
-      - .env.staging
+      - .env.prod
     ports:
       - '3000:3000'
     environment:
       NODE_ENV: production
     volumes:
-      # relative path on host maps to absolute path in container
-      - ./.data/uploads/images:/data/uploads/images
+      - uploads_data:/data/uploads/images
     depends_on:
       db:
         condition: service_healthy
@@ -20,17 +19,23 @@ services:
         condition: service_started
       system-profiler:
         condition: service_started
+    networks:
+      - my_network
 
   system-profiler:
     build: ./system-profiler
+    networks:
+      - my_network
 
   ai-img-validator:
     build: ./ai-img-validator
+    networks:
+      - my_network
 
   db:
     image: postgres:17
     env_file:
-      - .env.staging
+      - .env.prod
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
@@ -40,7 +45,14 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - my_network
 
 volumes:
   postgres_data:
   uploads_data:
+
+networks:
+  my_network:
+    name: my_network
+    driver: bridge

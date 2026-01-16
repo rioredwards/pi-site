@@ -20,12 +20,18 @@ services:
         condition: service_started
       system-profiler:
         condition: service_started
+    networks:
+      - my_network
 
   system-profiler:
     build: ./system-profiler
+    networks:
+      - my_network
 
   ai-img-validator:
     build: ./ai-img-validator
+    networks:
+      - my_network
 
   db:
     image: postgres:17
@@ -40,7 +46,14 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - my_network
 
 volumes:
   postgres_data:
   uploads_data:
+
+networks:
+  my_network:
+    name: my_network
+    driver: bridge

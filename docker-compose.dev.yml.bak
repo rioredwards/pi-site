@@ -12,6 +12,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - my_network
 
   system-profiler:
     build: ./system-profiler
@@ -29,3 +31,7 @@ services:
 
 volumes:
   postgres_data_dev:
+
+networks:
+  my_network:
+    driver: bridge

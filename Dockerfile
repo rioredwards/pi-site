@@ -22,23 +22,29 @@ FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Copy Next.js standalone build
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-# Copy migrations and migration script
-COPY --from=builder /app/app/db/migrations ./app/db/migrations
-COPY --from=builder /app/scripts/run-migrations.js ./scripts/run-migrations.js
-COPY --from=builder /app/scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
+# Copy Next.js standalone build with proper ownership
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy migrations and migration script with proper ownership
+COPY --from=builder --chown=nextjs:nodejs /app/app/db/migrations ./app/db/migrations
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/run-migrations.js ./scripts/run-migrations.js
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
 RUN chmod +x ./scripts/docker-entrypoint.sh
 
-# Install minimal deps for migration script (not included in standalone build)
-# Copy directly from deps stage - they're already installed there!
-COPY --from=deps /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
-COPY --from=deps /app/node_modules/postgres ./node_modules/postgres
-# postgres depends on pg (native module)
-# COPY --from=deps /app/node_modules/pg ./node_modules/pg
+# Install minimal runtime dependencies for migration script
+# Using a minimal package.json approach instead of copying from deps stage
+RUN echo '{"dependencies":{"drizzle-orm":"^0.45.1","postgres":"^3.4.5"}}' > package.json && \
+    npm install --omit=dev --ignore-scripts && \
+    rm package.json
+
+# Switch to non-root user
+USER nextjs
 
 EXPOSE 3000
 ENTRYPOINT ["./scripts/docker-entrypoint.sh"]
