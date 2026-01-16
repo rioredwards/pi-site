@@ -1,5 +1,6 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import os from "os";
 
 const app = new Hono();
 
@@ -16,8 +17,8 @@ function getSystemInfo(): SystemInfoResponse {
   return {
     message: "System stats",
     stats: {
-      platform: "(demo-data)",
-      architecture: "(demo-data)",
+      platform: os.platform(),
+      architecture: os.arch(),
     },
   };
 }
