@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "dev": "npm run db:migrate && next dev --turbopack",
+    "dev": "next dev --turbopack",
     "build": "next build && npm run postbuild",
     "postbuild": "node scripts/prepare-standalone.js",
     "start": "node server.js",

@@ -1,0 +1,19 @@
+# request to local system-profiler service
+GET http://localhost:8787/ HTTP/1.1
+content-type: application/json
+
+###
+
+
+GET http://localhost:8787/debug/stats HTTP/1.1
+content-type: application/json
+
+###
+
+GET http://localhost:8787/stream HTTP/1.1
+content-type: application/json
+
+###
+
+GET http://localhost:8787/streamText HTTP/1.1
+content-type: application/json

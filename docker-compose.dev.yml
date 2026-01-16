@@ -17,6 +17,10 @@ services:
 
   system-profiler:
     build: ./system-profiler
+    # Allow for local development with hot reloading
+    volumes:
+        - ./system-profiler:/app/system-profiler # Mount your code
+        - /app/system-profiler/node_modules # Preserve node_modules
     ports:
       - '8787:8787'
  

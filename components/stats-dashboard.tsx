@@ -5,6 +5,7 @@ import { devLog } from "@/app/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { toast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
+import { LiveStats } from "./live-stats";
 
 export function StatItem({ title, value }: { title: string; value: string }) {
   return (
@@ -88,6 +89,8 @@ export function StatsDashboard() {
         <span className="h-2 w-2 rounded-full bg-green-500" />
         Stats Dashboard
       </div>
+
+      <LiveStats />
 
       {/* Stats grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
