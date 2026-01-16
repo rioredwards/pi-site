@@ -187,14 +187,14 @@ export default function PhotoUpload({ addPhoto }: Props) {
             className={cn(
               "flex cursor-pointer items-center justify-center rounded-full px-8 py-8 text-lg font-bold",
               "text-primary",
-              "bg-white hover:bg-white",
+              "bg-background hover:bg-background",
               "shadow-sm transition-shadow hover:shadow-md pointer-coarse:shadow-md",
               "pointer-coarse:animate-pulse"
             )}>
             <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-primary transition-all group-hover:text-transparent pointer-coarse:text-transparent">
               <LucideDog
                 style={{ width: "24px", height: "24px" }}
-                className="-mt-[2px] mr-2 inline-block text-primary transition-all group-hover:text-red-500 pointer-coarse:text-red-500"
+                className="-mt-[2px] mr-2 inline-block text-primary dark:group-hover:text-red-500 transition-all group-hover:text-red-500 pointer-coarse:text-red-500"
               />
               Upload Dog Button
             </GradientText>

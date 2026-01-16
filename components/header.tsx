@@ -4,6 +4,7 @@ import { AuthButton } from "@/components/auth-button";
 import { PawPrint } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ModeToggle } from "./ui/modeToggle";
 
 export default function Header() {
   const pathname = usePathname();
@@ -37,6 +38,7 @@ export default function Header() {
             </Link>
           ))}
           <AuthButton />
+          <ModeToggle />
         </nav>
       </div>
     </header>
