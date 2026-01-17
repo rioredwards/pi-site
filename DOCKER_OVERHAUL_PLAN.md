@@ -102,30 +102,27 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml config > /dev/nu
 
 ---
 
-## Phase 5: Production Hardening (1.5 hours)
+## ✅ Phase 5: Production Hardening (1.5 hours)
 
 **Deliverables**:
-1. `nginx/nginx.conf` (reverse proxy, image serving)
-2. `.env.prod.example` (production template)
-3. `DEPLOYMENT.md` (quick-start guide)
+1. ✅ `nginx/pi-site.conf` (reverse proxy, image serving - version controlled)
+2. ✅ `.env.prod.example` (production template)
+3. ✅ `DEPLOYMENT.md` (quick-start guide)
 
 **Updates to `docker-compose.prod.yml`**:
-- Add nginx service (reverse proxy)
-- Add health checks to all services
-- Add resource limits (cpus/memory)
+- ✅ Add health checks to all services (web, ai-img-validator, system-profiler)
+- ✅ Resource limits already present from earlier phases
+- Nginx stays on host (simpler for SSL/volume access)
 
-**Health Checks Needed**:
+**Health Checks Added**:
 - web: `wget -q --spider http://localhost:3000`
-- ai-img-validator: `curl -f http://localhost:8000/health`
-- system-profiler: `curl -f http://localhost:8787/health`
+- ai-img-validator: Python urllib check to localhost:8000
+- system-profiler: `wget -q --spider http://localhost:8787`
 
-**Optional**: Add health endpoints to your services if they don't have them
+**Updates to `deploy.sh`**: ✅
+- Now uses version-controlled `nginx/pi-site.conf` instead of inline heredoc
 
-**Validation**: 
-```bash
-docker run --rm -v $(pwd)/nginx:/etc/nginx:ro nginx:alpine nginx -t
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d && sleep 5 && docker compose -f docker-compose.yml -f docker-compose.prod.yml down
-```
+**Validation**: ✅ All configs valid
 
 **Commit**: `"Phase 5: Production hardening"`
 

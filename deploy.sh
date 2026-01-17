@@ -70,48 +70,19 @@ install_nginx_if_needed() {
 
 configure_nginx() {
   log "Configuring Nginx..."
-  sudo systemctl stop nginx || true
 
-  sudo tee "/etc/nginx/sites-available/${SITE_NAME}" >/dev/null <<'EOF'
-server {
-    listen 80;
-    server_name _;
+  # Use version-controlled config from repo
+  local nginx_conf="${APP_DIR}/nginx/pi-site.conf"
+  [[ -f "$nginx_conf" ]] || die "Missing nginx config: $nginx_conf"
 
-    # Serve user-uploaded images directly from Docker volume
-    location /api/assets/images/ {
-        alias /var/lib/docker/volumes/pi_site_prod_uploads/_data/;
-
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-        add_header X-Content-Type-Options "nosniff" always;
-        add_header Access-Control-Allow-Origin "*";
-
-        access_log off;
-        sendfile on;
-        tcp_nopush on;
-        tcp_nodelay on;
-
-        try_files $uri =404;
-    }
-
-    # Proxy everything else to Next.js
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-EOF
+  sudo cp "$nginx_conf" "/etc/nginx/sites-available/${SITE_NAME}"
 
   sudo ln -sf \
     "/etc/nginx/sites-available/${SITE_NAME}" \
     "/etc/nginx/sites-enabled/${SITE_NAME}"
 
-  sudo nginx -t
-  sudo systemctl start nginx
+  sudo nginx -t || die "Nginx config test failed"
+  sudo systemctl reload nginx || sudo systemctl start nginx
 }
 
 # -------------------------
