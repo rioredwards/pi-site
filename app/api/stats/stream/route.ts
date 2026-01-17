@@ -10,7 +10,8 @@ export async function GET() {
     async start(controller) {
       try {
         // Fetch from the Hono streamText endpoint
-        const response = await fetch("http://localhost:8787/streamText");
+        const systemProfilerUrl = process.env.SYSTEM_PROFILER_BASE_URL || "http://localhost:8787";
+        const response = await fetch(`${systemProfilerUrl}/streamText`);
 
         devLog("🔵 response:", response);
 
