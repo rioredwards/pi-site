@@ -1,13 +1,13 @@
 "use server";
 
 import { authOptions } from "@/app/auth";
+import { devLog } from "@/app/lib/utils";
 import { count, eq } from "drizzle-orm";
 import { existsSync, mkdirSync, unlinkSync } from "fs";
 import { writeFile } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
-import { devLog } from "@/app/lib/utils";
 import { Photo } from "../lib/types";
 import { db } from "./drizzle";
 import { photos } from "./schema";
@@ -24,6 +24,7 @@ devLog("cwd:", process.cwd());
 const IMAGE_READ_BASE_URL = "/api/assets/images/";
 
 export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
+  console.error("🔥🔥🔥=== UPLOAD PHOTO CALLED ===🔥🔥🔥");
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return {

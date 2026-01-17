@@ -13,19 +13,19 @@
 - docker-compose.yml: Only shared service definitions, no env-specific values
 - Remove: All `networks:` configuration
 
-**Validation**: ❌ `npm run dev:services && docker compose ps && npm run dev:services:stop`
+**Validation**: ✅ `npm run dev:services && docker compose ps && npm run dev:services:stop`
 
-**Commit**: `"Phase 1: Foundation & security hardening"`
+**Commit**: ✅ `"Phase 1: Foundation & security hardening"`
 
 ---
 
 ## Phase 2: Environment Separation (1 hour)
 
 **Deliverables**:
-1. `docker-compose.override.yml` (dev - auto-loaded, bind mounts)
-2. `docker-compose.prod.yml` (named volumes, restart: unless-stopped)
-3. `docker-compose.staging.yml` (like prod but staging-named volumes)
-4. `docker-compose.test.yml` (for CI/CD)
+1.`docker-compose.override.yml` (dev - auto-loaded, bind mounts)
+2. ✅ `docker-compose.prod.yml` (named volumes, restart: unless-stopped)
+3. ✅ `docker-compose.staging.yml` (like prod but staging-named volumes)
+4. ~~`docker-compose.test.yml` (for CI/CD)~~ Out of scope for now
 
 **Key Strategy**:
 - Base file (`docker-compose.yml`) = shared, no env vars
