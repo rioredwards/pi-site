@@ -3,19 +3,15 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # -------------------------
-# pi-site deploy script (Raspberry Pi) — rsync-first mode
+# pi-site Full Deployment Script (Raspberry Pi)
 #
-# Philosophy:
-# - This script NEVER generates or stores secrets.
-# - You must sync an env file to the Pi BEFORE running it.
-#   e.g. from your dev-machine:
-#     rsync -avz .env.prod pi:~/pi-site/.env.prod
+# This script handles:
+# - System dependencies (Docker, Nginx)
+# - Nginx configuration
+# - Then delegates to scripts/deploy-prod.sh for Compose orchestration
 #
-# What this script does:
-# - Installs/updates system deps (docker, nginx, cloudflared)
-# - Pulls latest repo changes
-# - Validates required env keys exist in ~/pi-site/.env.prod
-# - Starts services via docker compose using --env-file
+# For routine updates (when system is already set up), use:
+#   ./scripts/update-prod.sh
 # -------------------------
 
 trap 'echo "ERROR: deploy failed on line $LINENO" >&2' ERR
@@ -31,109 +27,13 @@ need_cmd() {
 # -------------------------
 # Config
 # -------------------------
-REPO_URL="git@github.com:rioredwards/pi-site.git"
-APP_DIR="${HOME}/pi-site"
-BRANCH="main"
-
+export APP_DIR="${HOME}/pi-site"
+export BRANCH="main"
 SITE_NAME="pi-site"
-ENV_FILE="$APP_DIR/.env.prod"
-ENV_EXAMPLE_FILE="$APP_DIR/.env.example"
-
-PI_ARCH="arm64"
-DOCKER_ARCH="$PI_ARCH"
-CLOUDFLARED_ARCH="$PI_ARCH"
+DOCKER_ARCH="arm64"
 
 # -------------------------
-# Repo
-# -------------------------
-clone_or_update_repo() {
-  if [[ -d "$APP_DIR/.git" ]]; then
-    log "Updating repo..."
-    git -C "$APP_DIR" fetch origin "$BRANCH"
-    git -C "$APP_DIR" merge --ff-only "origin/$BRANCH"
-    return
-  fi
-
-  log "Cloning repo..."
-  git clone --branch "$BRANCH" --single-branch "$REPO_URL" "$APP_DIR"
-}
-
-# -------------------------
-# Env validation
-# -------------------------
-ensure_env_file_present() {
-  [[ -f "$ENV_FILE" ]] && return
-
-  warn "Missing env file: $ENV_FILE"
-  if [[ -f "$ENV_EXAMPLE_FILE" ]]; then
-    warn "Template exists at $ENV_EXAMPLE_FILE"
-  fi
-
-  cat <<'EOM' >&2
-
-Sync your production env file from your dev-machine before deploying:
-
-  rsync -avz .env.prod pi:~/pi-site/.env.prod
-
-Then re-run:
-
-  ./deploy.sh
-EOM
-  exit 1
-}
-
-get_env_value() {
-  local key="$1"
-  grep -E "^${key}=" "$ENV_FILE" | tail -n 1 | cut -d= -f2- || true
-}
-
-require_env_key() {
-  local key="$1"
-  [[ -n "$(get_env_value "$key")" ]] || die "Missing required env var '$key'"
-}
-
-validate_env() {
-  # Core runtime
-	# --- Database ---
-	require_env_key POSTGRES_USER
-	require_env_key POSTGRES_PASSWORD
-	require_env_key POSTGRES_DB
-
-	# Next.js runtime DB
-	require_env_key DATABASE_URL
-
-	# Drizzle CLI / Studio
-	# require_env_key DATABASE_URL_EXTERNAL
-
-
-	# --- Auth ---
-	require_env_key NEXTAUTH_URL
-	require_env_key AUTH_SECRET
-
-
-	# --- OAuth ---
-	require_env_key GITHUB_CLIENT_ID
-	require_env_key GITHUB_CLIENT_SECRET
-
-	require_env_key GOOGLE_CLIENT_ID
-	require_env_key GOOGLE_CLIENT_SECRET
-
-
-	# --- Image handling ---
-	# server-to-server (Next -> validator)
-	require_env_key PUBLIC_IMG_VALIDATOR_BASE_URL
-
-	# server-only filesystem path
-	require_env_key IMG_UPLOAD_DIR
-
-
-	# --- Demo ---
-	require_env_key SECRET_KEY
-	require_env_key NEXT_PUBLIC_SAFE_KEY
-}
-
-# -------------------------
-# Docker
+# Docker Installation
 # -------------------------
 install_docker_if_needed() {
   command -v docker >/dev/null 2>&1 && return
@@ -159,31 +59,12 @@ ensure_docker_running() {
   sudo systemctl start docker
 }
 
-setup_compose_cmd() {
-  if docker compose version >/dev/null 2>&1; then
-    COMPOSE_CMD=(docker compose)
-  else
-    die "docker compose not available"
-  fi
-}
-
-compose_up() {
-  log "Building and starting containers..."
-  "${COMPOSE_CMD[@]}" \
-    --project-directory "$APP_DIR" \
-    -f docker-compose.yml \
-    -f docker-compose.prod.yml \
-    up -d --build
-
-  log "Cleaning up old Docker images..."
-  docker image prune -f
-}
-
 # -------------------------
-# Nginx
+# Nginx Installation & Configuration
 # -------------------------
 install_nginx_if_needed() {
   command -v nginx >/dev/null 2>&1 && return
+  log "Installing Nginx..."
   sudo apt-get install -y nginx
 }
 
@@ -196,10 +77,9 @@ server {
     listen 80;
     server_name _;
 
-    # Serve user-uploaded images
-    # DB src: /api/assets/images/{filename}
+    # Serve user-uploaded images directly from Docker volume
     location /api/assets/images/ {
-        alias /var/lib/docker/volumes/pi-site_uploads_data/_data/;
+        alias /var/lib/docker/volumes/pi_site_prod_uploads/_data/;
 
         expires 1y;
         add_header Cache-Control "public, immutable";
@@ -214,12 +94,14 @@ server {
         try_files $uri =404;
     }
 
+    # Proxy everything else to Next.js
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
     }
 }
 EOF
@@ -238,27 +120,18 @@ EOF
 need_cmd git
 need_cmd sudo
 
-clone_or_update_repo
-ensure_env_file_present
-validate_env
-
+log "Setting up system dependencies..."
 install_docker_if_needed
 ensure_docker_running
-setup_compose_cmd
-
 install_nginx_if_needed
 configure_nginx
 
-compose_up
+log "Running deployment..."
+# Delegate to the Compose-focused deployment script
+"${APP_DIR}/scripts/deploy-prod.sh" || {
+  # If deploy-prod.sh doesn't exist yet (first clone), run it from repo root
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  "${SCRIPT_DIR}/scripts/deploy-prod.sh"
+}
 
-log "Deployment complete."
-
-cat <<'EOM'
-
-Notes:
-- Env file: ~/pi-site/.env.prod
-- Image URLs: /api/assets/images/{filename}
-- Filesystem storage: $IMG_UPLOAD_DIR (inside containers)
-- Nginx serves images directly from the Docker volume
-
-EOM
+log "Full deployment complete!"
