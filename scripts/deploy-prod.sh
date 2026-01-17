@@ -105,7 +105,7 @@ validate_env() {
 # Docker Compose
 # -------------------------
 COMPOSE_FILES=(-f docker-compose.yml -f docker-compose.prod.yml)
-DEFAULT_BUILD_SERVICES="web system-profiler"
+DEFAULT_BUILD_SERVICES=(web system-profiler)
 
 ensure_stable_images() {
   # ai-img-validator uses a cached :stable image to avoid slow rebuilds
@@ -124,8 +124,8 @@ compose_up() {
   ensure_stable_images
 
   # Only build web and system-profiler (ai-img-validator uses cached image)
-  log "Building: $DEFAULT_BUILD_SERVICES"
-  docker compose "${COMPOSE_FILES[@]}" build $DEFAULT_BUILD_SERVICES
+  log "Building: ${DEFAULT_BUILD_SERVICES[*]}"
+  docker compose "${COMPOSE_FILES[@]}" build "${DEFAULT_BUILD_SERVICES[@]}"
 
   log "Starting all services..."
   docker compose "${COMPOSE_FILES[@]}" up -d
