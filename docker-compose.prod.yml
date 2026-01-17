@@ -21,10 +21,6 @@ services:
         limits:
           cpus: '2'
           memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-
   system-profiler:
     restart: unless-stopped
     healthcheck:
@@ -38,9 +34,6 @@ services:
         limits:
           cpus: '1'
           memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
 
   ai-img-validator:
     restart: unless-stopped
@@ -55,9 +48,6 @@ services:
         limits:
           cpus: '2'
           memory: 2G
-        reservations:
-          cpus: '1'
-          memory: 1G
 
   db:
     env_file:
@@ -72,9 +62,6 @@ services:
         limits:
           cpus: '1'
           memory: 512M
-        reservations:
-          cpus: '0.5'
-          memory: 256M
 
 volumes:
   postgres_data:

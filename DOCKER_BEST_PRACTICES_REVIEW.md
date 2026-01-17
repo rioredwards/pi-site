@@ -506,9 +506,6 @@ services:
             limits:
               cpus: '2'
               memory: 1G
-            reservations:
-              cpus: '0.5'
-              memory: 512M
     ```
 
 ---
