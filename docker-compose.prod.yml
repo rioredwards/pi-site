@@ -1,46 +1,65 @@
+# Production configuration
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
 services:
   web:
-    build:
-      context: .
-      args:
-        NEXT_PUBLIC_SAFE_KEY: ${NEXT_PUBLIC_SAFE_KEY}
     env_file:
       - .env.prod
-    ports:
-      - '3000:3000'
     environment:
       NODE_ENV: production
     volumes:
       - uploads_data:/data/uploads/images
-    depends_on:
-      db:
-        condition: service_healthy
-      ai-img-validator:
-        condition: service_started
-      system-profiler:
-        condition: service_started
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
 
   system-profiler:
-    build: ./system-profiler
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 
   ai-img-validator:
-    build: ./ai-img-validator
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
 
   db:
-    image: postgres:17
     env_file:
       - .env.prod
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
 
 volumes:
   postgres_data:
+    name: pi_site_prod_data
   uploads_data:
-
+    name: pi_site_prod_uploads

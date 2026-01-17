@@ -1,0 +1,32 @@
+# Development overrides - automatically loaded by 'docker compose'
+# This file is auto-loaded when you run: docker compose up
+# No need to specify -f docker-compose.override.yml
+
+services:
+  web:
+    env_file:
+      - .env.local
+    volumes:
+      - ./.data/uploads/images:/data/uploads/images
+
+  db:
+    env_file:
+      - .env.local
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+
+  system-profiler:
+    volumes:
+      - ./system-profiler:/app/system-profiler  # Mount code for hot-reloading
+      - /app/system-profiler/node_modules       # Preserve container's node_modules
+    ports:
+      - '8787:8787'
+
+  ai-img-validator:
+    ports:
+      - '8000:8000'
+
+volumes:
+  postgres_data_dev:

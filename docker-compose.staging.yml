@@ -1,46 +1,33 @@
+# Staging configuration
+# Usage: docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
+
 services:
   web:
-    build:
-      context: .
-      args:
-        NEXT_PUBLIC_SAFE_KEY: ${NEXT_PUBLIC_SAFE_KEY}
     env_file:
       - .env.staging
-    ports:
-      - '3000:3000'
     environment:
       NODE_ENV: production
     volumes:
-      # relative path on host maps to absolute path in container
-      - ./.data/uploads/images:/data/uploads/images
-    depends_on:
-      db:
-        condition: service_healthy
-      ai-img-validator:
-        condition: service_started
-      system-profiler:
-        condition: service_started
+      - uploads_data:/data/uploads/images
+    restart: unless-stopped
 
   system-profiler:
-    build: ./system-profiler
+    restart: unless-stopped
 
   ai-img-validator:
-    build: ./ai-img-validator
+    restart: unless-stopped
 
   db:
-    image: postgres:17
     env_file:
       - .env.staging
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+    name: pi_site_staging_data
   uploads_data:
+    name: pi_site_staging_uploads
