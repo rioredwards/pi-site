@@ -60,7 +60,46 @@ For code updates after initial deployment:
 ./scripts/update-prod.sh
 ```
 
-This pulls the latest code and rebuilds containers.
+This pulls the latest code and rebuilds `web` and `system-profiler`.
+
+### Build Behavior
+
+To speed up deploys, only frequently-changing services are rebuilt by default:
+
+| Service | Default Build | Notes |
+|---------|---------------|-------|
+| `web` | Yes | Next.js app |
+| `system-profiler` | Yes | Hono API |
+| `ai-img-validator` | No | Uses cached `:stable` image |
+| `db` | No | Uses `postgres:17` image |
+
+### Selective Builds
+
+```bash
+# Default: build web + system-profiler
+./update.sh
+
+# Build only web
+./update.sh web
+
+# Build only system-profiler
+./update.sh system-profiler
+
+# Build both explicitly
+./update.sh web system-profiler
+```
+
+### Rebuilding ai-img-validator
+
+The AI image validator rarely changes, so it uses a cached image. When you do need to rebuild it:
+
+```bash
+./scripts/build-stable-services.sh
+```
+
+This builds and tags `pi-site/ai-img-validator:stable`. Run this:
+- On first deployment (done automatically by `deploy.sh`)
+- When `ai-img-validator/` code changes
 
 ## Manual Operations
 
@@ -186,8 +225,9 @@ pi-site/
 ├── update.sh                    # Quick update wrapper
 ├── scripts/
 │   ├── deploy-prod.sh          # Core deployment (compose orchestration)
-│   ├── update-prod.sh          # Quick update (pull + rebuild)
-│   └── cleanup-prod.sh         # Project cleanup
+│   ├── update-prod.sh          # Quick update (pull + rebuild web/system-profiler)
+│   ├── cleanup-prod.sh         # Project cleanup
+│   └── build-stable-services.sh # Rebuild ai-img-validator when needed
 ├── nginx/
 │   └── pi-site.conf            # Nginx config (version controlled)
 ├── docker-compose.yml          # Base config (shared)
