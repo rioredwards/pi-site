@@ -104,28 +104,48 @@ validate_env() {
 # -------------------------
 # Docker Compose
 # -------------------------
+COMPOSE_FILES="-f docker-compose.yml -f docker-compose.prod.yml"
+DEFAULT_BUILD_SERVICES="web system-profiler"
+
+ensure_stable_images() {
+  # ai-img-validator uses a cached :stable image to avoid slow rebuilds
+  if ! docker image inspect pi-site/ai-img-validator:stable >/dev/null 2>&1; then
+    log "Building ai-img-validator:stable (first time only)..."
+    docker build -t pi-site/ai-img-validator:stable ./ai-img-validator
+  else
+    log "Using cached ai-img-validator:stable image"
+  fi
+}
+
 compose_up() {
   log "Building and starting containers..."
   cd "$APP_DIR"
 
-  docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+  ensure_stable_images
+
+  # Only build web and system-profiler (ai-img-validator uses cached image)
+  log "Building: $DEFAULT_BUILD_SERVICES"
+  docker compose $COMPOSE_FILES build $DEFAULT_BUILD_SERVICES
+
+  log "Starting all services..."
+  docker compose $COMPOSE_FILES up -d
 
   log "Waiting for services to be healthy..."
   sleep 5
 
   # Check if containers are running
-  if ! docker compose -f docker-compose.yml -f docker-compose.prod.yml ps | grep -q "Up"; then
+  if ! docker compose $COMPOSE_FILES ps | grep -q "Up"; then
     warn "Some containers may not have started correctly"
-    docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
+    docker compose $COMPOSE_FILES ps
     exit 1
   fi
 
-  docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
+  docker compose $COMPOSE_FILES ps
 }
 
 cleanup_images() {
-  log "Cleaning up old Docker images..."
-  docker image prune -f
+  log "Cleaning up dangling images only..."
+  docker image prune -f --filter "dangling=true"
 }
 
 # -------------------------

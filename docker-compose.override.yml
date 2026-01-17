@@ -25,6 +25,7 @@ services:
       - '8787:8787'
 
   ai-img-validator:
+    build: ./ai-img-validator  # Dev: build from source (prod uses cached image)
     ports:
       - '8000:8000'
 

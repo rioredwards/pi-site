@@ -24,7 +24,7 @@ services:
     build: ./system-profiler
 
   ai-img-validator:
-    build: ./ai-img-validator
+    image: pi-site/ai-img-validator:stable
 
   db:
     image: postgres:17
