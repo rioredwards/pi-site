@@ -51,6 +51,7 @@ yarn-error.log*
 # keep the example files
 !.env.example
 !.env.local.example
+!.env.prod.example
 
 # backup files
 *.bak
