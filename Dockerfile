@@ -22,9 +22,16 @@ FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
+# Install su-exec for dropping privileges in entrypoint
+RUN apk add --no-cache su-exec
+
 # Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
+
+# Create upload directory with correct ownership
+# (volume will be mounted here, but this ensures the path exists)
+RUN mkdir -p /data/uploads/images && chown -R nextjs:nodejs /data
 
 # Copy Next.js standalone build with proper ownership
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
@@ -43,8 +50,8 @@ RUN chmod +x ./scripts/docker-entrypoint.sh
 COPY --from=deps --chown=nextjs:nodejs /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
 COPY --from=deps --chown=nextjs:nodejs /app/node_modules/postgres ./node_modules/postgres
 
-# Switch to non-root user
-USER nextjs
+# NOTE: We don't use USER here because the entrypoint needs to run as root
+# initially to fix volume permissions, then drops to nextjs via su-exec
 
 EXPOSE 3000
 ENTRYPOINT ["./scripts/docker-entrypoint.sh"]
