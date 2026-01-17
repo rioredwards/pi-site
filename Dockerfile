@@ -37,11 +37,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/scripts/run-migrations.js ./scrip
 COPY --from=builder --chown=nextjs:nodejs /app/scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
 RUN chmod +x ./scripts/docker-entrypoint.sh
 
-# Install minimal runtime dependencies for migration script
-# Using a minimal package.json approach instead of copying from deps stage
-RUN echo '{"dependencies":{"drizzle-orm":"^0.45.1","postgres":"^3.4.5"}}' > package.json && \
-    npm install --omit=dev --ignore-scripts && \
-    rm package.json
+# Copy minimal runtime dependencies for migration script
+# NOTE: We must selectively copy (not npm install) to preserve the node_modules
+# that came from .next/standalone, which includes the 'next' module
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/postgres ./node_modules/postgres
 
 # Switch to non-root user
 USER nextjs
