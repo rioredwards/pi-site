@@ -104,7 +104,7 @@ validate_env() {
 # -------------------------
 # Docker Compose
 # -------------------------
-COMPOSE_FILES="-f docker-compose.yml -f docker-compose.prod.yml"
+COMPOSE_FILES=(-f docker-compose.yml -f docker-compose.prod.yml)
 DEFAULT_BUILD_SERVICES="web system-profiler"
 
 ensure_stable_images() {
@@ -125,22 +125,22 @@ compose_up() {
 
   # Only build web and system-profiler (ai-img-validator uses cached image)
   log "Building: $DEFAULT_BUILD_SERVICES"
-  docker compose $COMPOSE_FILES build $DEFAULT_BUILD_SERVICES
+  docker compose "${COMPOSE_FILES[@]}" build $DEFAULT_BUILD_SERVICES
 
   log "Starting all services..."
-  docker compose $COMPOSE_FILES up -d
+  docker compose "${COMPOSE_FILES[@]}" up -d
 
   log "Waiting for services to be healthy..."
   sleep 5
 
   # Check if containers are running
-  if ! docker compose $COMPOSE_FILES ps | grep -q "Up"; then
+  if ! docker compose "${COMPOSE_FILES[@]}" ps | grep -q "Up"; then
     warn "Some containers may not have started correctly"
-    docker compose $COMPOSE_FILES ps
+    docker compose "${COMPOSE_FILES[@]}" ps
     exit 1
   fi
 
-  docker compose $COMPOSE_FILES ps
+  docker compose "${COMPOSE_FILES[@]}" ps
 }
 
 cleanup_images() {
@@ -165,10 +165,10 @@ main() {
   cat <<'EOM'
 
 Services running. Check status with:
-  docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
+  cd $APP_DIR && docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
 
 View logs with:
-  docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f
+  cd $APP_DIR && docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f
 
 EOM
 }
