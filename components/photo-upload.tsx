@@ -111,17 +111,23 @@ export default function PhotoUpload({ addPhoto }: Props) {
     const formData = new FormData();
     formData.append("file", resizedImg);
     const res = await uploadPhoto(formData);
+    // eslint-disable-next-line no-console
+    console.log("[client] [photo-upload.tsx.handleSubmit.114] res: ", res); // TODO: remove this
 
     const elapsedTime = Date.now() - startTime;
     const remainingTime = Math.max(0, MIN_PROCESSING_TIME - elapsedTime);
     await new Promise((resolve) => setTimeout(resolve, remainingTime));
 
     if (res.error || !res.data) {
+      // eslint-disable-next-line no-console
+      console.log("[client] [photo-upload.tsx.handleSubmit.122] res.error: ", res.error); // TODO: remove this
       devLog(res.error);
       setProcessingState("failure");
       return;
     }
 
+    // eslint-disable-next-line no-console
+    console.log("[client] [photo-upload.tsx.handleSubmit.130] res.data: ", res.data); // TODO: remove this
     addPhoto(res.data);
     setProcessingState("success");
     setShowConfetti(true);
