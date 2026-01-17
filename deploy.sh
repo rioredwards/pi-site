@@ -171,7 +171,8 @@ compose_up() {
   log "Building and starting containers..."
   "${COMPOSE_CMD[@]}" \
     --project-directory "$APP_DIR" \
-    --env-file "$ENV_FILE" \
+    -f docker-compose.yml \
+    -f docker-compose.prod.yml \
     up -d --build
 
   log "Cleaning up old Docker images..."

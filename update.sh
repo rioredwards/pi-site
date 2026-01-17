@@ -71,7 +71,8 @@ cd "$APP_DIR"
 "${COMPOSE_CMD[@]}" down
 "${COMPOSE_CMD[@]}" \
     --project-directory "$APP_DIR" \
-    --env-file "$ENV_FILE" \
+    -f docker-compose.yml \
+    -f docker-compose.prod.yml \
     up -d --build
 
 # Basic health check (works for both v1 and v2)
