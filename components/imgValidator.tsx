@@ -40,8 +40,12 @@ export default function ImgValidator() {
       formData.append("file", file);
 
       const data = await analyzeImageAction(formData);
+      // eslint-disable-next-line no-console
+      console.log("[client] [imgValidator.tsx.handleSubmit.44] data: ", data); // TODO: remove this
       setResult(data);
     } catch (err) {
+      // eslint-disable-next-line no-console
+      console.log("[client] [imgValidator.tsx.handleSubmit.48] err: ", err); // TODO: remove this
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
