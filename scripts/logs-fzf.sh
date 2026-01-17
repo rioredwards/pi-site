@@ -5,24 +5,23 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-# Map profile -> compose project name + compose file
+# Map profile -> compose files (using layered compose structure)
 pick_profile() {
   printf "dev\nstaging\nprod\n" | fzf --prompt="profile> "
 }
 
-set_profile_vars() {
+# Returns the docker compose command with appropriate files
+get_compose_cmd() {
   case "$1" in
     dev)
-      P="pi_site_dev"
-      F="docker-compose.dev.yml"
+      # override.yml is auto-loaded
+      echo "docker compose"
       ;;
     staging)
-      P="pi_site_staging"
-      F="docker-compose.staging.yml"
+      echo "docker compose -f docker-compose.yml -f docker-compose.staging.yml"
       ;;
     prod)
-      P="pi_site_prod"
-      F="docker-compose.prod.yml"
+      echo "docker compose -f docker-compose.yml -f docker-compose.prod.yml"
       ;;
     *)
       echo "Unknown profile: $1" >&2
@@ -36,22 +35,22 @@ main() {
   command -v docker >/dev/null 2>&1 || { echo "Missing dependency: docker" >&2; exit 1; }
 
   profile="$(pick_profile)" || exit 0
-  set_profile_vars "$profile"
+  compose_cmd="$(get_compose_cmd "$profile")"
 
   # Get services for that compose context
   services="$(
-    docker compose -p "$P" -f "$F" config --services \
+    $compose_cmd config --services \
     | fzf -m --prompt="services ($profile)> "
   )" || exit 0
 
   # If none selected, tail all services
   if [ -z "${services}" ]; then
-    exec docker compose -p "$P" -f "$F" logs -f --tail=200 -t
+    exec $compose_cmd logs -f --tail=200 -t
   fi
 
   # Convert newline list -> args safely
   mapfile -t svc_array <<<"$services"
- docker compose -p "$P" -f "$F" logs -f --tail=200 -t "${svc_array[@]}" \
+  $compose_cmd logs -f --tail=200 -t "${svc_array[@]}" \
 | awk '
   {
     raw = $0

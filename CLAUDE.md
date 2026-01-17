@@ -20,24 +20,35 @@ npm update              # Update all packages
 ### Development Workflow
 
 ```bash
-# 1. Start supporting services (Postgres + AI validator)
-npm run dev:services
-# OR
-docker-compose -f docker-compose.dev.yml up -d
+# Start everything (services + Next.js dev server)
+npm run dev
 
-# 2. Push database schema (first time or after schema changes)
+# Or run separately:
+docker compose up -d     # Start services only (Postgres + AI validator)
+npm run dev:next         # Start Next.js dev server (http://localhost:3000)
+
+# Push database schema (first time or after schema changes)
 npm run db:push
 
-# 3. Start Next.js dev server
-npm run dev             # Runs on http://localhost:3000 with Turbopack
-
 # Stop services
-npm run dev:services:stop
-docker-compose -f docker-compose.dev.yml down
+npm run dev:stop
 
 # View service logs
-npm run dev:services:logs
-docker-compose -f docker-compose.dev.yml logs -f
+npm run dev:logs
+```
+
+### Staging & Production
+
+```bash
+# Staging
+npm run staging          # Start staging environment
+npm run staging:stop     # Stop staging
+npm run staging:logs     # View logs
+
+# Production
+npm run prod             # Start production environment
+npm run prod:stop        # Stop production
+npm run prod:logs        # View logs
 ```
 
 ### Database Operations
@@ -49,7 +60,7 @@ npm run db:push         # Push schema directly (dev only, skips migrations)
 npm run db:studio       # Open Drizzle Studio (http://localhost:4983)
 
 # Direct Postgres access (dev)
-docker exec -it pi_site_dev-db-1 psql -U myuser -d mydatabase
+docker compose exec db psql -U myuser -d mydatabase
 ```
 
 **Migration Workflow (Production):**
@@ -92,9 +103,11 @@ app/
 ├── auth.ts               # NextAuth configuration
 └── [routes]/             # App Router pages
 
-ai-img-validator/         # FastAPI service for image validation
-docker-compose.dev.yml    # Local dev services
-docker-compose.yml        # Production services
+ai-img-validator/              # FastAPI service for image validation
+docker-compose.yml             # Base configuration (shared)
+docker-compose.override.yml    # Dev overrides (auto-loaded)
+docker-compose.staging.yml     # Staging overrides
+docker-compose.prod.yml        # Production overrides
 ```
 
 ### Database Connection
@@ -212,7 +225,7 @@ import { IconName } from "lucide-react";
 
 ### Postgres 18+ Volume Path
 
-If Postgres container fails to start, ensure `docker-compose.dev.yml` uses the correct volume path:
+If Postgres container fails to start, ensure `docker-compose.override.yml` uses the correct volume path:
 
 ```yaml
 volumes:
@@ -228,8 +241,8 @@ volumes:
 Ensure Postgres container is running and healthy before running `db:push`:
 
 ```bash
-docker-compose -f docker-compose.dev.yml ps  # Check status
-docker-compose -f docker-compose.dev.yml logs db  # Check logs
+docker compose ps          # Check status
+docker compose logs db     # Check logs
 ```
 
 ## Deployment

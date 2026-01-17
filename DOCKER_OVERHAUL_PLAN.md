@@ -19,10 +19,10 @@
 
 ---
 
-## Phase 2: Environment Separation (1 hour)
+## ✅ Phase 2: Environment Separation (1 hour)
 
 **Deliverables**:
-1.`docker-compose.override.yml` (dev - auto-loaded, bind mounts)
+1. ✅ `docker-compose.override.yml` (dev - auto-loaded, bind mounts)
 2. ✅ `docker-compose.prod.yml` (named volumes, restart: unless-stopped)
 3. ✅ `docker-compose.staging.yml` (like prod but staging-named volumes)
 4. ~~`docker-compose.test.yml` (for CI/CD)~~ Out of scope for now
@@ -32,9 +32,9 @@
 - Override file (dev) = auto-loaded, no `-f` needed
 - Each env has separate file for layering: `docker compose -f docker-compose.yml -f docker-compose.staging.yml`
 
-**Backup**: Move old `docker-compose.dev.yml` → `docker-compose.dev.yml.bak`
+**Backup**: ✅ Moved old `docker-compose.dev.yml` → `docker-compose.dev.yml.bak`
 
-**Validation**:
+**Validation**: ✅
 ```bash
 docker compose config > /dev/null  # Dev
 docker compose -f docker-compose.yml -f docker-compose.prod.yml config > /dev/null  # Prod
@@ -44,24 +44,29 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml config > /dev/nu
 
 ---
 
-## Phase 3: Simplify npm Scripts (45 minutes)
+## ✅ Phase 3: Simplify npm Scripts (45 minutes)
 
-**Updates to `package.json`**:
+**Updates to `package.json`**: ✅
 ```json
-"dev": "docker compose up -d && npm run dev:watch",
-"dev:watch": "next dev --turbopack",
+"dev": "docker compose up -d && npm run dev:next",
+"dev:next": "next dev --turbopack",
 "dev:stop": "docker compose down",
+"dev:logs": "docker compose logs -f",
 "staging": "docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d --build",
-"prod": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build"
+"staging:stop": "...",
+"staging:logs": "...",
+"prod": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build",
+"prod:stop": "...",
+"prod:logs": "..."
 ```
 
-**Update `scripts/logs-fzf.sh`** to use new compose file structure
+**Update `scripts/logs-fzf.sh`**: ✅ Updated to use new compose file structure
 
-**Update `.gitignore`**: Add `.env.local`, `.env.*.local`, `*.bak`, `.data/`
+**Update `.gitignore`**: ✅ Added `*.bak`, `!.env.local.example`
 
-**Remove from package.json**: All the `--env-file`, `-p pi_site_dev`, `-f docker-compose.dev.yml` flags (Compose handles it)
+**Remove from package.json**: ✅ Removed all `--env-file`, `-p pi_site_dev`, `-f docker-compose.dev.yml` flags
 
-**Validation**: `npm run dev && npm run staging`
+**Validation**: ✅ All compose configs valid
 
 **Commit**: `"Phase 3: Simplify scripts"`
 
