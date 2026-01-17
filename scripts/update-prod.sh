@@ -9,9 +9,8 @@ IFS=$'\n\t'
 #   ./scripts/update-prod.sh                    # Build web + system-profiler (default)
 #   ./scripts/update-prod.sh web                # Build only web
 #   ./scripts/update-prod.sh web system-profiler # Build specific services
-#   ./scripts/update-prod.sh --all              # Build all services (including ai-img-validator)
 #
-# Note: ai-img-validator uses a cached :stable image by default.
+# Note: ai-img-validator uses a cached :stable image.
 # Run ./scripts/build-stable-services.sh to rebuild it when needed.
 # -------------------------
 
@@ -48,23 +47,12 @@ cd "$APP_DIR"
 # Determine which services to build
 if [[ $# -eq 0 ]]; then
   BUILD_SERVICES="$DEFAULT_BUILD_SERVICES"
-  log "Building default services: $BUILD_SERVICES"
-elif [[ "$1" == "--all" ]]; then
-  BUILD_SERVICES=""  # Empty means build all
-  log "Building ALL services (including ai-img-validator)"
 else
   BUILD_SERVICES="$*"
-  log "Building specified services: $BUILD_SERVICES"
 fi
 
-# Build services
-if [[ -n "$BUILD_SERVICES" ]]; then
-  log "Building: $BUILD_SERVICES"
-  docker compose $COMPOSE_FILES build $BUILD_SERVICES
-else
-  log "Building all services..."
-  docker compose $COMPOSE_FILES build
-fi
+log "Building: $BUILD_SERVICES"
+docker compose $COMPOSE_FILES build $BUILD_SERVICES
 
 # Bring up all services
 log "Starting services..."
