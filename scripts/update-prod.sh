@@ -24,10 +24,10 @@ die() { printf "\nERROR: %s\n" "$*" >&2; exit 1; }
 # -------------------------
 APP_DIR="${APP_DIR:-${HOME}/pi-site}"
 BRANCH="${BRANCH:-main}"
-COMPOSE_FILES="-f docker-compose.yml -f docker-compose.prod.yml"
+COMPOSE_FILES=(-f docker-compose.yml -f docker-compose.prod.yml)
 
 # Default services to build (excludes ai-img-validator which uses cached image)
-DEFAULT_BUILD_SERVICES="web system-profiler"
+DEFAULT_BUILD_SERVICES=("web" "system-profiler")
 
 # -------------------------
 # Main
@@ -46,28 +46,28 @@ cd "$APP_DIR"
 
 # Determine which services to build
 if [[ $# -eq 0 ]]; then
-  BUILD_SERVICES="$DEFAULT_BUILD_SERVICES"
+  BUILD_SERVICES=("${DEFAULT_BUILD_SERVICES[@]}")
 else
-  BUILD_SERVICES="$*"
+  BUILD_SERVICES=("$*")
 fi
 
-log "Building: $BUILD_SERVICES"
-docker compose $COMPOSE_FILES build $BUILD_SERVICES
+log "Building: ${BUILD_SERVICES[*]}"
+docker compose "${COMPOSE_FILES[@]}" build "${BUILD_SERVICES[@]}"
 
 # Bring up all services
 log "Starting services..."
-docker compose $COMPOSE_FILES up -d
+docker compose "${COMPOSE_FILES[@]}" up -d
 
 log "Waiting for services..."
 sleep 5
 
 # Quick health check
-if ! docker compose $COMPOSE_FILES ps | grep -q "Up"; then
-  die "Containers may not have started correctly. Check: docker compose $COMPOSE_FILES logs"
+if ! docker compose "${COMPOSE_FILES[@]}" ps | grep -q "Up"; then
+  die "Containers may not have started correctly. Check: docker compose "${COMPOSE_FILES[@]}" logs"
 fi
 
 log "Cleaning up dangling images only..."
 docker image prune -f --filter "dangling=true"
 
 log "Update complete!"
-docker compose $COMPOSE_FILES ps
+docker compose "${COMPOSE_FILES[@]}" ps
