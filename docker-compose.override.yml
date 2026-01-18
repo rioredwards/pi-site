@@ -7,6 +7,9 @@ services:
     env_file:
       - .env.local
     volumes:
+      - .:/app                    # Mount source code for hot reloading
+      - /app/node_modules         # Preserve container's node_modules
+      - /app/.next               # Preserve build artifacts
       - ./.data/uploads/images:/data/uploads/images
 
   db:

@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "dev": "docker compose up -d && npm run dev:next",
+    "dev": "docker compose up --build",
     "dev:next": "next dev --turbopack",
     "dev:stop": "docker compose down",
     "dev:logs": "docker compose logs -f",

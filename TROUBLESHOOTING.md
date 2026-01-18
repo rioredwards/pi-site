@@ -16,3 +16,11 @@ echo "$(getent ahosts <domain>| grep STREAM | head -1 | awk '{print $1}') <domai
 # Retry deploy
 
 ./deploy.sh
+
+Jan 17, 2026:
+
+- **Database migration fails with "CREATE SCHEMA" error**: PostgreSQL 15+ requires superuser privileges to create schemas. Make your user a superuser:
+  ```bash
+  export POSTGRES_USER=$(grep POSTGRES_USER .env.local | cut -d '=' -f2) && \
+  docker compose exec db psql -U $POSTGRES_USER -d postgres -c "ALTER USER $POSTGRES_USER WITH SUPERUSER;"
+  ```

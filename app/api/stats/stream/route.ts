@@ -1,69 +1,80 @@
 import { devLog } from "../../../lib/utils";
 
+export const runtime = "nodejs";
 // Force dynamic - this should never be cached
 export const dynamic = "force-dynamic";
 
+const POLL_INTERVAL = 2000;
+
+function getSystemProfilerBaseUrl(): string {
+  if (!process.env.SYSTEM_PROFILER_BASE_URL) {
+    throw new Error("SYSTEM_PROFILER_BASE_URL is not set");
+  }
+  return process.env.SYSTEM_PROFILER_BASE_URL!;
+}
+
+let latestStats: any = null;
+let pollerStarted = false;
+const clients = new Set<ReadableStreamDefaultController>();
+
+async function startPoller() {
+  if (pollerStarted) return;
+  pollerStarted = true;
+  devLog("🔵 [stream/server] Starting system-stats poller");
+
+  async function poll() {
+    try {
+      const url = `${getSystemProfilerBaseUrl()}/stats`;
+      devLog("🔵 [stream/server] polling url: ", url);
+      const res = await fetch(url);
+      devLog("🔵 [stream/server] polling res: ", res);
+      if (res.ok) {
+        latestStats = await res.json();
+        devLog("🔵 [stream/server] polling latestStats: ", latestStats);
+        broadcast(latestStats);
+      }
+    } catch (err) {
+      devLog("🔴 [stream/server] polling error: ", err);
+    }
+  }
+
+  // initial + interval
+  poll();
+  setInterval(poll, POLL_INTERVAL);
+}
+
+function broadcast(data: any) {
+  const payload = `data: ${JSON.stringify(data)}\n\n`;
+  for (const controller of clients) {
+    controller.enqueue(payload);
+  }
+}
+
 export async function GET() {
-  const encoder = new TextEncoder();
+  await startPoller();
 
   const stream = new ReadableStream({
-    async start(controller) {
-      try {
-        // Fetch from the Hono streamText endpoint
-        const systemProfilerUrl = process.env.SYSTEM_PROFILER_BASE_URL || "http://localhost:8787";
-        const response = await fetch(`${systemProfilerUrl}/streamText`);
-
-        devLog("🔵 response:", response);
-
-        if (!response.body) {
-          devLog("🔴 response.body is null");
-          controller.close();
-          return;
-        }
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-
-        while (true) {
-          const { done, value } = await reader.read();
-
-          if (done) {
-            devLog("💚 done");
-            controller.close();
-            break;
-          }
-
-          devLog("🔵 value:", value);
-
-          // Decode the chunk and wrap it in SSE format
-          const text = decoder.decode(value, { stream: true });
-          // Split by newlines to handle multiple messages
-          const lines = text.split("\n").filter((line) => line.trim());
-
-          for (const line of lines) {
-            // Format as SSE: data: <content>\n\n
-            devLog("🔵 line:", line);
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify(line)}\n\n`));
-          }
-        }
-      } catch (error) {
-        devLog("🔴 Stream error:", error);
-        controller.error(error);
+    start(controller) {
+      clients.add(controller);
+      devLog("🔵 [stream/server] clients after add: ", Array.from(clients));
+      // send immediately if we already have data
+      if (latestStats) {
+        const payload = `data: ${JSON.stringify(latestStats)}\n\n`;
+        devLog("🔵 [stream/server] enqueuing payload: ", payload);
+        controller.enqueue(payload);
       }
     },
-
-    cancel() {
-      // Cleanup handled by the fetch stream
-      devLog("🔴 cancel");
+    cancel(controller) {
+      clients.delete(controller);
+      devLog("🔵 [stream/server] clients after delete: ", Array.from(clients));
     },
   });
 
   return new Response(stream, {
     headers: {
       "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache, no-transform",
+      "Cache-Control": "no-cache",
       Connection: "keep-alive",
-      "X-Accel-Buffering": "no", // Disable Nginx buffering for SSE
     },
   });
 }

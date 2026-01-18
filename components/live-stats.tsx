@@ -14,7 +14,7 @@ function StatItem({ title, value }: { title: string; value: string }) {
 }
 
 export function LiveStats() {
-  const [stats, setStats] = useState<string | null>(null);
+  const [stats, setStats] = useState<any | null>(null);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,19 +30,20 @@ export function LiveStats() {
 
     eventSource.onmessage = (event) => {
       try {
-        const data = JSON.parse(event.data) as string;
+        if (!event.data) return;
+        const data = JSON.parse(event.data);
         devLog("🔵 [stream/client] message received:", data);
         setStats(data);
       } catch (e) {
         devLog("🔴 [stream/client] Failed to parse stats:", e);
+        setError(`Failed to parse stats: ${e}`);
       }
     };
 
-    eventSource.onerror = () => {
+    eventSource.onerror = (err) => {
+      devLog("🔴 [stream/client] SSE error:", err);
       setConnected(false);
-      devLog("🔴 [stream/client] Connection lost. Reconnecting...");
-      setError("Connection lost. Reconnecting...");
-      // EventSource will automatically try to reconnect
+      setError(`Connection lost. Reconnecting... ${err}`);
     };
 
     return () => {
@@ -86,7 +87,7 @@ export function LiveStats() {
         </div>
         <div className="my-4">
           <h2 className="text-lg font-bold">Stats</h2>
-          <StatItem title="Stats" value={stats || "No stats"} />
+          <StatItem title="Stats" value={JSON.stringify(stats) || "No stats"} />
         </div>
       </div>
     </div>
