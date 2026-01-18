@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader } from "@/components/card";
+import { CombinedStats } from "@/shared/types";
 import { useEffect, useState } from "react";
 import { devLog } from "../app/lib/utils";
 
@@ -14,12 +15,13 @@ function StatItem({ title, value }: { title: string; value: string }) {
 }
 
 export function LiveStats() {
-  const [stats, setStats] = useState<any | null>(null);
+  const [stats, setStats] = useState<CombinedStats | null>(null);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
     const eventSource = new EventSource("/api/stats/stream");
     devLog("🔵 [stream/client] LiveStats eventSource:", eventSource);
 
@@ -29,23 +31,24 @@ export function LiveStats() {
       setError(null);
     };
 
-    eventSource.onmessage = (event) => {
+    eventSource.onmessage = (event: MessageEvent<string>) => {
       try {
         if (!event.data) return;
-        const data = JSON.parse(event.data);
-        devLog("🍎")
-        devLog("🔵 [stream/client] message received:", data.data);
-        setStats(data);
+
+        const parsed = JSON.parse(event.data) as CombinedStats | null;
+
+        devLog("🔵 [stream/client] message received:", parsed);
+        setStats(parsed);
       } catch (e) {
         devLog("🔴 [stream/client] Failed to parse stats:", e);
-        setError(`Failed to parse stats: ${e}`);
+        setError(`Failed to parse stats`);
       }
     };
 
     eventSource.onerror = (err) => {
       devLog("🔴 [stream/client] SSE error:", err);
       setConnected(false);
-      setError(`Connection lost. Reconnecting... ${err}`);
+      setError("Connection lost. Reconnecting...");
     };
 
     return () => {
@@ -80,19 +83,26 @@ export function LiveStats() {
       </div>
 
       <div className="flex flex-col gap-2">
-        {/* Connection */}
-
         <div className="my-4">
           <h2 className="text-lg font-bold">Connection</h2>
-          <StatItem title="Connected" value={connected ? "💚 Connected" : "🔴 Disconnected"} />
-          <StatItem title="Error" value={error ? `🔴 ${error}` : "💚 No error"} />
+          <StatItem
+            title="Connected"
+            value={connected ? "💚 Connected" : "🔴 Disconnected"}
+          />
+          <StatItem
+            title="Error"
+            value={error ? `🔴 ${error}` : "💚 No error"}
+          />
         </div>
+
         <div className="my-4">
           <h2 className="text-lg font-bold">Stats</h2>
-          <StatItem title="Stats" value={JSON.stringify(stats) || "No stats"} />
+          <StatItem
+            title="Stats"
+            value={JSON.stringify(stats)}
+          />
         </div>
       </div>
     </div>
   );
 }
-
