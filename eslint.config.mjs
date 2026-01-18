@@ -26,6 +26,7 @@ const eslintConfig = defineConfig([
     "cache-handler.mjs",
     "server.js",
     "system-profiler/**",
+    "app/tmp-3d-test/**", // Three.js code uses patterns incompatible with React Compiler
   ]),
 ]);
 
