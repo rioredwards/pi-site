@@ -21,7 +21,16 @@ services:
         limits:
           cpus: '2'
           memory: 1G
+
   system-profiler:
+    environment:
+      - SYSTEM_PROFILER_AUTH_TOKEN=${SYSTEM_PROFILER_AUTH_TOKEN}
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/host/root:ro
+      - /var/lib/docker:/host/var/lib/docker:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8787"]

@@ -19,12 +19,18 @@ services:
         condition: service_started
       system-profiler:
         condition: service_started
+    labels:
+      - "com.rioredwards.stack=pi-site"
 
   system-profiler:
     build: ./system-profiler
+    labels:
+      - "com.rioredwards.stack=pi-site"
 
   ai-img-validator:
     image: pi-site/ai-img-validator:stable
+    labels:
+      - "com.rioredwards.stack=pi-site"
 
   db:
     image: postgres:17
@@ -33,3 +39,5 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    labels:
+      - "com.rioredwards.stack=pi-site"

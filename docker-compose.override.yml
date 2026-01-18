@@ -21,9 +21,13 @@ services:
       - postgres_data_dev:/var/lib/postgresql/data
 
   system-profiler:
+    environment:
+      - MOCK_HOST_STATS=true
+      - SYSTEM_PROFILER_AUTH_TOKEN=dev-token
     volumes:
       - ./system-profiler:/app/system-profiler  # Mount code for hot-reloading
       - /app/system-profiler/node_modules       # Preserve container's node_modules
+      - /var/run/docker.sock:/var/run/docker.sock:ro  # Docker socket (works on Docker Desktop)
     ports:
       - '8787:8787'
 

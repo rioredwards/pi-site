@@ -1,54 +1,47 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { logger } from "hono/logger";
-import os from "os";
+import { config } from "./config.js";
+import { authMiddleware } from "./middleware/auth.js";
+import { routes } from "./routes/index.js";
 
 const app = new Hono();
+
+// Logging
 app.use(logger());
 
-type SystemStats = {
-  platform: string;
-  arch: string;
-  hostname: string;
-  cpuCount: number;
-  uptimeSeconds: number;
-  loadavg: [number, number, number];
-  totalMemBytes: number;
-  freeMemBytes: number;
-};
-
-function getSystemStats(): SystemStats {
-  return {
-    platform: os.platform(),
-    arch: os.arch(),
-    hostname: os.hostname(),
-    cpuCount: os.cpus().length,
-    uptimeSeconds: os.uptime(),
-    loadavg: os.loadavg() as [number, number, number],
-    totalMemBytes: os.totalmem(),
-    freeMemBytes: os.freemem(),
-  };
-}
-
+// Root endpoint (no auth required)
 app.get("/", (c) => c.text("system-profiler"));
 
-app.get("/health", (c) => c.json({ ok: true }));
-
-app.get("/stats", (c) => {
+// Health endpoint (no auth required for load balancer probes)
+app.get("/health", (c) => {
   return c.json({
-    timestamp: new Date().toISOString(),
-    stats: getSystemStats(),
+    ok: true,
+    ...(config.mockHostStats && { mockMode: true }),
   });
 });
 
-const port = process.env.PORT ? parseInt(process.env.PORT) : 8787;
+// Protected routes - apply auth middleware
+app.use("/stats/*", authMiddleware);
+app.use("/host/*", authMiddleware);
+app.use("/containers/*", authMiddleware);
+app.use("/services/*", authMiddleware);
+
+// Mount routes
+app.route("/", routes);
 
 serve(
   {
     fetch: app.fetch,
-    port,
+    port: config.port,
   },
   (info) => {
     console.log(`system-profiler listening on :${info.port}`);
+    if (config.mockHostStats) {
+      console.log("Running in mock mode (non-Linux or MOCK_HOST_STATS=true)");
+    }
+    if (!config.authToken) {
+      console.log("Warning: No PROFILER_AUTH_TOKEN set - auth disabled");
+    }
   }
 );
