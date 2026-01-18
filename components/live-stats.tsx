@@ -33,7 +33,8 @@ export function LiveStats() {
       try {
         if (!event.data) return;
         const data = JSON.parse(event.data);
-        devLog("🔵 [stream/client] message received:", data);
+        devLog("🍎")
+        devLog("🔵 [stream/client] message received:", data.data);
         setStats(data);
       } catch (e) {
         devLog("🔴 [stream/client] Failed to parse stats:", e);
@@ -94,3 +95,4 @@ export function LiveStats() {
     </div>
   );
 }
+
