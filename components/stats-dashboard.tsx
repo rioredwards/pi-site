@@ -19,8 +19,6 @@ export function StatItem({ title, value }: { title: string; value: string }) {
 }
 
 export function StatsDashboard() {
-  console.log("🔵 StatsDashboard rendering, isClient:", typeof window !== "undefined");
-
   return (
     <div className="space-y-4">
       {/* Connection status */}

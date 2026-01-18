@@ -14,13 +14,11 @@ function StatItem({ title, value }: { title: string; value: string }) {
 }
 
 export function LiveStats() {
-  console.log("🔵 LiveStats rendering, isClient:", typeof window !== "undefined");
   const [stats, setStats] = useState<any | null>(null);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-  console.log("🔵 LiveStats useEffect, isClient:", typeof window !== "undefined");
     if (typeof window === "undefined") return;
     const eventSource = new EventSource("/api/stats/stream");
     devLog("🔵 [stream/client] LiveStats eventSource:", eventSource);
