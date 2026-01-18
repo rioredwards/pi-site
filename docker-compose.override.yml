@@ -29,14 +29,25 @@ services:
       - postgres_data_dev:/var/lib/postgresql/data
 
   system-profiler:
+    build:
+      context: ./system-profiler
+      target: deps  # Stop at deps stage - no production build
     env_file:
       - .env.local
+    environment:
+      - MOCK_HOST_STATS=true  # Force mock mode in dev to use mock data
+    command: sh -c "([ ! -d node_modules ] && npm install || true) && npm run dev"
     volumes:
-      - ./system-profiler:/app/system-profiler  # Mount code for hot-reloading
-      - /app/system-profiler/node_modules       # Preserve container's node_modules
+      - ./system-profiler:/app                    # Mount source code for hot reloading
+      - ./shared:/shared                          # Mount shared package for TypeScript path resolution
+      - /app/node_modules                         # Preserve container's node_modules
       - /var/run/docker.sock:/var/run/docker.sock:ro  # Docker socket (works on Docker Desktop)
     ports:
       - '8787:8787'
+    # Override entrypoint to skip production entrypoint script
+    entrypoint: []
+    # Use root user in dev (simpler, and we're not in production)
+    user: root
 
   ai-img-validator:
     build: ./ai-img-validator  # Dev: build from source (prod uses cached image)

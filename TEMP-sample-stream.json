@@ -1,0 +1,1452 @@
+{
+  "1": {
+    "timestamp": "2026-01-18T06:55:43.042Z",
+    "host": {
+      "cpu": {
+        "usagePercent": 1.125,
+        "loadAverage": [
+          0.2,
+          0.39,
+          0.44
+        ],
+        "cores": 4
+      },
+      "memory": {
+        "totalBytes": 8454619136,
+        "usedBytes": 1659682816,
+        "freeBytes": 1451606016,
+        "availableBytes": 6794936320,
+        "usagePercent": 19.630485883545305
+      },
+      "disks": [
+        {
+          "mountPoint": "/",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176178176,
+          "freeBytes": 8617881600,
+          "usagePercent": 72.01446752169869
+        },
+        {
+          "mountPoint": "/var/lib/docker",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176178176,
+          "freeBytes": 8617881600,
+          "usagePercent": 72.01446752169869
+        }
+      ],
+      "temperature": {
+        "cpuCelsius": 43,
+        "available": true
+      },
+      "network": {
+        "interfaces": [
+          {
+            "name": "eth0",
+            "rxBytes": 34495290,
+            "txBytes": 3952245
+          }
+        ]
+      },
+      "system": {
+        "hostname": "c98a8ba472f7",
+        "platform": "linux",
+        "arch": "arm64",
+        "uptimeSeconds": 38078.27,
+        "kernelVersion": "6.12.62+rpt-rpi-2712"
+      }
+    },
+    "containers": {
+      "containers": [
+        {
+          "id": "89f8b8dd9265",
+          "name": "pi-site-web-1",
+          "image": "pi-site-web",
+          "status": "Up 36 minutes (unhealthy)",
+          "state": "running",
+          "health": "unhealthy",
+          "restartCount": 0,
+          "cpuPercent": 0.009751243781094527,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "c98a8ba472f7",
+          "name": "pi-site-system-profiler-1",
+          "image": "pi-site-system-profiler",
+          "status": "Up 36 minutes (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.03422885572139303,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "a8bb0e98d20e",
+          "name": "pi-site-db-1",
+          "image": "postgres:17",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "d7d031303e64",
+          "name": "pi-site-ai-img-validator-1",
+          "image": "pi-site/ai-img-validator:stable",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.04169576059850374,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        }
+      ],
+      "summary": {
+        "total": 4,
+        "running": 4,
+        "stopped": 0,
+        "unhealthy": 1
+      }
+    },
+    "services": {
+      "services": [
+        {
+          "name": "web",
+          "url": "http://web:3000/",
+          "healthy": true,
+          "responseTimeMs": 5,
+          "error": null
+        },
+        {
+          "name": "ai-img-validator",
+          "url": "http://ai-img-validator:8000/",
+          "healthy": true,
+          "responseTimeMs": 3,
+          "error": null
+        },
+        {
+          "name": "db",
+          "url": "tcp://db:5432",
+          "healthy": true,
+          "responseTimeMs": 5,
+          "error": null
+        }
+      ],
+      "allHealthy": true
+    }
+  },
+  "2": {
+    "timestamp": "2026-01-18T06:55:45.051Z",
+    "host": {
+      "cpu": {
+        "usagePercent": 1.877346683354193,
+        "loadAverage": [
+          0.2,
+          0.39,
+          0.44
+        ],
+        "cores": 4
+      },
+      "memory": {
+        "totalBytes": 8454619136,
+        "usedBytes": 1661452288,
+        "freeBytes": 1449836544,
+        "availableBytes": 6793166848,
+        "usagePercent": 19.651414939858032
+      },
+      "disks": [
+        {
+          "mountPoint": "/",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176182272,
+          "freeBytes": 8617877504,
+          "usagePercent": 72.01448082296534
+        },
+        {
+          "mountPoint": "/var/lib/docker",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176182272,
+          "freeBytes": 8617877504,
+          "usagePercent": 72.01448082296534
+        }
+      ],
+      "temperature": {
+        "cpuCelsius": 43,
+        "available": true
+      },
+      "network": {
+        "interfaces": [
+          {
+            "name": "eth0",
+            "rxBytes": 34526696,
+            "txBytes": 3955838
+          }
+        ]
+      },
+      "system": {
+        "hostname": "c98a8ba472f7",
+        "platform": "linux",
+        "arch": "arm64",
+        "uptimeSeconds": 38080.27,
+        "kernelVersion": "6.12.62+rpt-rpi-2712"
+      }
+    },
+    "containers": {
+      "containers": [
+        {
+          "id": "89f8b8dd9265",
+          "name": "pi-site-web-1",
+          "image": "pi-site-web",
+          "status": "Up 36 minutes (unhealthy)",
+          "state": "running",
+          "health": "unhealthy",
+          "restartCount": 0,
+          "cpuPercent": 0.01456359102244389,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "c98a8ba472f7",
+          "name": "pi-site-system-profiler-1",
+          "image": "pi-site-system-profiler",
+          "status": "Up 36 minutes (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 1.818354114713217,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "a8bb0e98d20e",
+          "name": "pi-site-db-1",
+          "image": "postgres:17",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "d7d031303e64",
+          "name": "pi-site-ai-img-validator-1",
+          "image": "pi-site/ai-img-validator:stable",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.0561,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        }
+      ],
+      "summary": {
+        "total": 4,
+        "running": 4,
+        "stopped": 0,
+        "unhealthy": 1
+      }
+    },
+    "services": {
+      "services": [
+        {
+          "name": "web",
+          "url": "http://web:3000/",
+          "healthy": true,
+          "responseTimeMs": 3,
+          "error": null
+        },
+        {
+          "name": "ai-img-validator",
+          "url": "http://ai-img-validator:8000/",
+          "healthy": true,
+          "responseTimeMs": 3,
+          "error": null
+        },
+        {
+          "name": "db",
+          "url": "tcp://db:5432",
+          "healthy": true,
+          "responseTimeMs": 4,
+          "error": null
+        }
+      ],
+      "allHealthy": true
+    }
+  },
+  "3": {
+    "timestamp": "2026-01-18T06:55:47.063Z",
+    "host": {
+      "cpu": {
+        "usagePercent": 1.7521902377972465,
+        "loadAverage": [
+          0.18,
+          0.38,
+          0.44
+        ],
+        "cores": 4
+      },
+      "memory": {
+        "totalBytes": 8454619136,
+        "usedBytes": 1659027456,
+        "freeBytes": 1452261376,
+        "availableBytes": 6795591680,
+        "usagePercent": 19.62273438120726
+      },
+      "disks": [
+        {
+          "mountPoint": "/",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176186368,
+          "freeBytes": 8617873408,
+          "usagePercent": 72.01449412423196
+        },
+        {
+          "mountPoint": "/var/lib/docker",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176186368,
+          "freeBytes": 8617873408,
+          "usagePercent": 72.01449412423196
+        }
+      ],
+      "temperature": {
+        "cpuCelsius": 43,
+        "available": true
+      },
+      "network": {
+        "interfaces": [
+          {
+            "name": "eth0",
+            "rxBytes": 34558168,
+            "txBytes": 3959427
+          }
+        ]
+      },
+      "system": {
+        "hostname": "c98a8ba472f7",
+        "platform": "linux",
+        "arch": "arm64",
+        "uptimeSeconds": 38082.27,
+        "kernelVersion": "6.12.62+rpt-rpi-2712"
+      }
+    },
+    "containers": {
+      "containers": [
+        {
+          "id": "89f8b8dd9265",
+          "name": "pi-site-web-1",
+          "image": "pi-site-web",
+          "status": "Up 36 minutes (unhealthy)",
+          "state": "running",
+          "health": "unhealthy",
+          "restartCount": 0,
+          "cpuPercent": 0.013930348258706468,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "c98a8ba472f7",
+          "name": "pi-site-system-profiler-1",
+          "image": "pi-site-system-profiler",
+          "status": "Up 36 minutes (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.49552238805970145,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "a8bb0e98d20e",
+          "name": "pi-site-db-1",
+          "image": "postgres:17",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 5.7808,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "d7d031303e64",
+          "name": "pi-site-ai-img-validator-1",
+          "image": "pi-site/ai-img-validator:stable",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.0584,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        }
+      ],
+      "summary": {
+        "total": 4,
+        "running": 4,
+        "stopped": 0,
+        "unhealthy": 1
+      }
+    },
+    "services": {
+      "services": [
+        {
+          "name": "web",
+          "url": "http://web:3000/",
+          "healthy": true,
+          "responseTimeMs": 10,
+          "error": null
+        },
+        {
+          "name": "ai-img-validator",
+          "url": "http://ai-img-validator:8000/",
+          "healthy": true,
+          "responseTimeMs": 3,
+          "error": null
+        },
+        {
+          "name": "db",
+          "url": "tcp://db:5432",
+          "healthy": true,
+          "responseTimeMs": 6,
+          "error": null
+        }
+      ],
+      "allHealthy": true
+    }
+  },
+  "4": {
+    "timestamp": "2026-01-18T06:55:49.074Z",
+    "host": {
+      "cpu": {
+        "usagePercent": 2.753441802252816,
+        "loadAverage": [
+          0.18,
+          0.38,
+          0.44
+        ],
+        "cores": 4
+      },
+      "memory": {
+        "totalBytes": 8454619136,
+        "usedBytes": 1663205376,
+        "freeBytes": 1448067072,
+        "availableBytes": 6791413760,
+        "usagePercent": 19.672150208612308
+      },
+      "disks": [
+        {
+          "mountPoint": "/",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176186368,
+          "freeBytes": 8617873408,
+          "usagePercent": 72.01449412423196
+        },
+        {
+          "mountPoint": "/var/lib/docker",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176186368,
+          "freeBytes": 8617873408,
+          "usagePercent": 72.01449412423196
+        }
+      ],
+      "temperature": {
+        "cpuCelsius": 42.45,
+        "available": true
+      },
+      "network": {
+        "interfaces": [
+          {
+            "name": "eth0",
+            "rxBytes": 34589863,
+            "txBytes": 3963092
+          }
+        ]
+      },
+      "system": {
+        "hostname": "c98a8ba472f7",
+        "platform": "linux",
+        "arch": "arm64",
+        "uptimeSeconds": 38084.27,
+        "kernelVersion": "6.12.62+rpt-rpi-2712"
+      }
+    },
+    "containers": {
+      "containers": [
+        {
+          "id": "89f8b8dd9265",
+          "name": "pi-site-web-1",
+          "image": "pi-site-web",
+          "status": "Up 36 minutes (unhealthy)",
+          "state": "running",
+          "health": "unhealthy",
+          "restartCount": 0,
+          "cpuPercent": 0.01596009975062344,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "c98a8ba472f7",
+          "name": "pi-site-system-profiler-1",
+          "image": "pi-site-system-profiler",
+          "status": "Up 36 minutes (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.10975124378109452,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "a8bb0e98d20e",
+          "name": "pi-site-db-1",
+          "image": "postgres:17",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "d7d031303e64",
+          "name": "pi-site-ai-img-validator-1",
+          "image": "pi-site/ai-img-validator:stable",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.04618453865336658,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        }
+      ],
+      "summary": {
+        "total": 4,
+        "running": 4,
+        "stopped": 0,
+        "unhealthy": 1
+      }
+    },
+    "services": {
+      "services": [
+        {
+          "name": "web",
+          "url": "http://web:3000/",
+          "healthy": true,
+          "responseTimeMs": 5,
+          "error": null
+        },
+        {
+          "name": "ai-img-validator",
+          "url": "http://ai-img-validator:8000/",
+          "healthy": true,
+          "responseTimeMs": 4,
+          "error": null
+        },
+        {
+          "name": "db",
+          "url": "tcp://db:5432",
+          "healthy": true,
+          "responseTimeMs": 7,
+          "error": null
+        }
+      ],
+      "allHealthy": true
+    }
+  },
+  "5": {
+    "timestamp": "2026-01-18T06:55:51.084Z",
+    "host": {
+      "cpu": {
+        "usagePercent": 1.256281407035176,
+        "loadAverage": [
+          0.16,
+          0.38,
+          0.44
+        ],
+        "cores": 4
+      },
+      "memory": {
+        "totalBytes": 8454619136,
+        "usedBytes": 1661550592,
+        "freeBytes": 1449721856,
+        "availableBytes": 6793068544,
+        "usagePercent": 19.65257766520874
+      },
+      "disks": [
+        {
+          "mountPoint": "/",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176190464,
+          "freeBytes": 8617869312,
+          "usagePercent": 72.0145074254986
+        },
+        {
+          "mountPoint": "/var/lib/docker",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176190464,
+          "freeBytes": 8617869312,
+          "usagePercent": 72.0145074254986
+        }
+      ],
+      "temperature": {
+        "cpuCelsius": 43.55,
+        "available": true
+      },
+      "network": {
+        "interfaces": [
+          {
+            "name": "eth0",
+            "rxBytes": 34621046,
+            "txBytes": 3966634
+          }
+        ]
+      },
+      "system": {
+        "hostname": "c98a8ba472f7",
+        "platform": "linux",
+        "arch": "arm64",
+        "uptimeSeconds": 38086.27,
+        "kernelVersion": "6.12.62+rpt-rpi-2712"
+      }
+    },
+    "containers": {
+      "containers": [
+        {
+          "id": "89f8b8dd9265",
+          "name": "pi-site-web-1",
+          "image": "pi-site-web",
+          "status": "Up 36 minutes (unhealthy)",
+          "state": "running",
+          "health": "unhealthy",
+          "restartCount": 0,
+          "cpuPercent": 1.6530348258706467,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "c98a8ba472f7",
+          "name": "pi-site-system-profiler-1",
+          "image": "pi-site-system-profiler",
+          "status": "Up 36 minutes (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.09253731343283582,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "a8bb0e98d20e",
+          "name": "pi-site-db-1",
+          "image": "postgres:17",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.3794,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "d7d031303e64",
+          "name": "pi-site-ai-img-validator-1",
+          "image": "pi-site/ai-img-validator:stable",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.06914572864321608,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        }
+      ],
+      "summary": {
+        "total": 4,
+        "running": 4,
+        "stopped": 0,
+        "unhealthy": 1
+      }
+    },
+    "services": {
+      "services": [
+        {
+          "name": "web",
+          "url": "http://web:3000/",
+          "healthy": true,
+          "responseTimeMs": 5,
+          "error": null
+        },
+        {
+          "name": "ai-img-validator",
+          "url": "http://ai-img-validator:8000/",
+          "healthy": true,
+          "responseTimeMs": 5,
+          "error": null
+        },
+        {
+          "name": "db",
+          "url": "tcp://db:5432",
+          "healthy": true,
+          "responseTimeMs": 7,
+          "error": null
+        }
+      ],
+      "allHealthy": true
+    }
+  },
+  "6": {
+    "timestamp": "2026-01-18T06:55:53.096Z",
+    "host": {
+      "cpu": {
+        "usagePercent": 2.0075282308657463,
+        "loadAverage": [
+          0.16,
+          0.38,
+          0.44
+        ],
+        "cores": 4
+      },
+      "memory": {
+        "totalBytes": 8454619136,
+        "usedBytes": 1658830848,
+        "freeBytes": 1452441600,
+        "availableBytes": 6795788288,
+        "usagePercent": 19.620408930505846
+      },
+      "disks": [
+        {
+          "mountPoint": "/",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176194560,
+          "freeBytes": 8617865216,
+          "usagePercent": 72.01452072676526
+        },
+        {
+          "mountPoint": "/var/lib/docker",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176194560,
+          "freeBytes": 8617865216,
+          "usagePercent": 72.01452072676526
+        }
+      ],
+      "temperature": {
+        "cpuCelsius": 42.45,
+        "available": true
+      },
+      "network": {
+        "interfaces": [
+          {
+            "name": "eth0",
+            "rxBytes": 34652741,
+            "txBytes": 3970309
+          }
+        ]
+      },
+      "system": {
+        "hostname": "c98a8ba472f7",
+        "platform": "linux",
+        "arch": "arm64",
+        "uptimeSeconds": 38088.27,
+        "kernelVersion": "6.12.62+rpt-rpi-2712"
+      }
+    },
+    "containers": {
+      "containers": [
+        {
+          "id": "89f8b8dd9265",
+          "name": "pi-site-web-1",
+          "image": "pi-site-web",
+          "status": "Up 36 minutes (unhealthy)",
+          "state": "running",
+          "health": "unhealthy",
+          "restartCount": 0,
+          "cpuPercent": 0.013034825870646766,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "c98a8ba472f7",
+          "name": "pi-site-system-profiler-1",
+          "image": "pi-site-system-profiler",
+          "status": "Up 36 minutes (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.04248756218905473,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "a8bb0e98d20e",
+          "name": "pi-site-db-1",
+          "image": "postgres:17",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "d7d031303e64",
+          "name": "pi-site-ai-img-validator-1",
+          "image": "pi-site/ai-img-validator:stable",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.04426799007444168,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        }
+      ],
+      "summary": {
+        "total": 4,
+        "running": 4,
+        "stopped": 0,
+        "unhealthy": 1
+      }
+    },
+    "services": {
+      "services": [
+        {
+          "name": "web",
+          "url": "http://web:3000/",
+          "healthy": true,
+          "responseTimeMs": 5,
+          "error": null
+        },
+        {
+          "name": "ai-img-validator",
+          "url": "http://ai-img-validator:8000/",
+          "healthy": true,
+          "responseTimeMs": 2,
+          "error": null
+        },
+        {
+          "name": "db",
+          "url": "tcp://db:5432",
+          "healthy": true,
+          "responseTimeMs": 6,
+          "error": null
+        }
+      ],
+      "allHealthy": true
+    }
+  },
+  "7": {
+    "timestamp": "2026-01-18T07:01:14.675Z",
+    "host": {
+      "cpu": {
+        "usagePercent": 1.6331658291457287,
+        "loadAverage": [
+          0.03,
+          0.19,
+          0.33
+        ],
+        "cores": 4
+      },
+      "memory": {
+        "totalBytes": 8454619136,
+        "usedBytes": 1669480448,
+        "freeBytes": 1441054720,
+        "availableBytes": 6785138688,
+        "usagePercent": 19.746370843499108
+      },
+      "disks": [
+        {
+          "mountPoint": "/",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176768000,
+          "freeBytes": 8617291776,
+          "usagePercent": 72.01638290409481
+        },
+        {
+          "mountPoint": "/var/lib/docker",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176768000,
+          "freeBytes": 8617291776,
+          "usagePercent": 72.01638290409481
+        }
+      ],
+      "temperature": {
+        "cpuCelsius": 43.55,
+        "available": true
+      },
+      "network": {
+        "interfaces": [
+          {
+            "name": "eth0",
+            "rxBytes": 39714840,
+            "txBytes": 4549847
+          }
+        ]
+      },
+      "system": {
+        "hostname": "c98a8ba472f7",
+        "platform": "linux",
+        "arch": "arm64",
+        "uptimeSeconds": 38410.31,
+        "kernelVersion": "6.12.62+rpt-rpi-2712"
+      }
+    },
+    "containers": {
+      "containers": [
+        {
+          "id": "89f8b8dd9265",
+          "name": "pi-site-web-1",
+          "image": "pi-site-web",
+          "status": "Up 42 minutes (unhealthy)",
+          "state": "running",
+          "health": "unhealthy",
+          "restartCount": 0,
+          "cpuPercent": 0.012935323383084577,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "c98a8ba472f7",
+          "name": "pi-site-system-profiler-1",
+          "image": "pi-site-system-profiler",
+          "status": "Up 42 minutes (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.003582089552238806,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "a8bb0e98d20e",
+          "name": "pi-site-db-1",
+          "image": "postgres:17",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.0025870646766169153,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "d7d031303e64",
+          "name": "pi-site-ai-img-validator-1",
+          "image": "pi-site/ai-img-validator:stable",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.03751243781094527,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        }
+      ],
+      "summary": {
+        "total": 4,
+        "running": 4,
+        "stopped": 0,
+        "unhealthy": 1
+      }
+    },
+    "services": {
+      "services": [
+        {
+          "name": "web",
+          "url": "http://web:3000/",
+          "healthy": true,
+          "responseTimeMs": 4,
+          "error": null
+        },
+        {
+          "name": "ai-img-validator",
+          "url": "http://ai-img-validator:8000/",
+          "healthy": true,
+          "responseTimeMs": 2,
+          "error": null
+        },
+        {
+          "name": "db",
+          "url": "tcp://db:5432",
+          "healthy": true,
+          "responseTimeMs": 5,
+          "error": null
+        }
+      ],
+      "allHealthy": true
+    }
+  },
+  "8": {
+    "timestamp": "2026-01-18T07:01:38.826Z",
+    "host": {
+      "cpu": {
+        "usagePercent": 1.875,
+        "loadAverage": [
+          0.02,
+          0.17,
+          0.32
+        ],
+        "cores": 4
+      },
+      "memory": {
+        "totalBytes": 8454619136,
+        "usedBytes": 1654226944,
+        "freeBytes": 1456226304,
+        "availableBytes": 6800392192,
+        "usagePercent": 19.565954626581064
+      },
+      "disks": [
+        {
+          "mountPoint": "/",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176813056,
+          "freeBytes": 8617246720,
+          "usagePercent": 72.01652921802784
+        },
+        {
+          "mountPoint": "/var/lib/docker",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176813056,
+          "freeBytes": 8617246720,
+          "usagePercent": 72.01652921802784
+        }
+      ],
+      "temperature": {
+        "cpuCelsius": 43,
+        "available": true
+      },
+      "network": {
+        "interfaces": [
+          {
+            "name": "eth0",
+            "rxBytes": 40092042,
+            "txBytes": 4593084
+          }
+        ]
+      },
+      "system": {
+        "hostname": "c98a8ba472f7",
+        "platform": "linux",
+        "arch": "arm64",
+        "uptimeSeconds": 38434.32,
+        "kernelVersion": "6.12.62+rpt-rpi-2712"
+      }
+    },
+    "containers": {
+      "containers": [
+        {
+          "id": "89f8b8dd9265",
+          "name": "pi-site-web-1",
+          "image": "pi-site-web",
+          "status": "Up 42 minutes (unhealthy)",
+          "state": "running",
+          "health": "unhealthy",
+          "restartCount": 0,
+          "cpuPercent": 0.017627118644067796,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "c98a8ba472f7",
+          "name": "pi-site-system-profiler-1",
+          "image": "pi-site-system-profiler",
+          "status": "Up 42 minutes (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.11573200992555832,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "a8bb0e98d20e",
+          "name": "pi-site-db-1",
+          "image": "postgres:17",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 6.004962779156328,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "d7d031303e64",
+          "name": "pi-site-ai-img-validator-1",
+          "image": "pi-site/ai-img-validator:stable",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.06471464019851117,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        }
+      ],
+      "summary": {
+        "total": 4,
+        "running": 4,
+        "stopped": 0,
+        "unhealthy": 1
+      }
+    },
+    "services": {
+      "services": [
+        {
+          "name": "web",
+          "url": "http://web:3000/",
+          "healthy": true,
+          "responseTimeMs": 4,
+          "error": null
+        },
+        {
+          "name": "ai-img-validator",
+          "url": "http://ai-img-validator:8000/",
+          "healthy": true,
+          "responseTimeMs": 4,
+          "error": null
+        },
+        {
+          "name": "db",
+          "url": "tcp://db:5432",
+          "healthy": true,
+          "responseTimeMs": 8,
+          "error": null
+        }
+      ],
+      "allHealthy": true
+    }
+  },
+  "9": {
+    "timestamp": "2026-01-18T07:01:40.835Z",
+    "host": {
+      "cpu": {
+        "usagePercent": 6.382978723404255,
+        "loadAverage": [
+          0.02,
+          0.17,
+          0.32
+        ],
+        "cores": 4
+      },
+      "memory": {
+        "totalBytes": 8454619136,
+        "usedBytes": 1661698048,
+        "freeBytes": 1448738816,
+        "availableBytes": 6792921088,
+        "usagePercent": 19.6543217532348
+      },
+      "disks": [
+        {
+          "mountPoint": "/",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176817152,
+          "freeBytes": 8617242624,
+          "usagePercent": 72.01654251929448
+        },
+        {
+          "mountPoint": "/var/lib/docker",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176817152,
+          "freeBytes": 8617242624,
+          "usagePercent": 72.01654251929448
+        }
+      ],
+      "temperature": {
+        "cpuCelsius": 43,
+        "available": true
+      },
+      "network": {
+        "interfaces": [
+          {
+            "name": "eth0",
+            "rxBytes": 40123448,
+            "txBytes": 4596694
+          }
+        ]
+      },
+      "system": {
+        "hostname": "c98a8ba472f7",
+        "platform": "linux",
+        "arch": "arm64",
+        "uptimeSeconds": 38436.32,
+        "kernelVersion": "6.12.62+rpt-rpi-2712"
+      }
+    },
+    "containers": {
+      "containers": [
+        {
+          "id": "89f8b8dd9265",
+          "name": "pi-site-web-1",
+          "image": "pi-site-web",
+          "status": "Up 42 minutes (unhealthy)",
+          "state": "running",
+          "health": "unhealthy",
+          "restartCount": 0,
+          "cpuPercent": 0.0167,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "c98a8ba472f7",
+          "name": "pi-site-system-profiler-1",
+          "image": "pi-site-system-profiler",
+          "status": "Up 42 minutes (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.0421,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "a8bb0e98d20e",
+          "name": "pi-site-db-1",
+          "image": "postgres:17",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "d7d031303e64",
+          "name": "pi-site-ai-img-validator-1",
+          "image": "pi-site/ai-img-validator:stable",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 10.506867167919799,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        }
+      ],
+      "summary": {
+        "total": 4,
+        "running": 4,
+        "stopped": 0,
+        "unhealthy": 1
+      }
+    },
+    "services": {
+      "services": [
+        {
+          "name": "web",
+          "url": "http://web:3000/",
+          "healthy": true,
+          "responseTimeMs": 5,
+          "error": null
+        },
+        {
+          "name": "ai-img-validator",
+          "url": "http://ai-img-validator:8000/",
+          "healthy": true,
+          "responseTimeMs": 3,
+          "error": null
+        },
+        {
+          "name": "db",
+          "url": "tcp://db:5432",
+          "healthy": true,
+          "responseTimeMs": 6,
+          "error": null
+        }
+      ],
+      "allHealthy": true
+    }
+  },
+  "10": {
+    "timestamp": "2026-01-18T07:01:46.860Z",
+    "host": {
+      "cpu": {
+        "usagePercent": 1.6290726817042605,
+        "loadAverage": [
+          0.01,
+          0.17,
+          0.32
+        ],
+        "cores": 4
+      },
+      "memory": {
+        "totalBytes": 8454619136,
+        "usedBytes": 1661534208,
+        "freeBytes": 1448902656,
+        "availableBytes": 6793084928,
+        "usagePercent": 19.652383877650287
+      },
+      "disks": [
+        {
+          "mountPoint": "/",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176825344,
+          "freeBytes": 8617234432,
+          "usagePercent": 72.01656912182777
+        },
+        {
+          "mountPoint": "/var/lib/docker",
+          "totalBytes": 30794059776,
+          "usedBytes": 22176825344,
+          "freeBytes": 8617234432,
+          "usagePercent": 72.01656912182777
+        }
+      ],
+      "temperature": {
+        "cpuCelsius": 44.1,
+        "available": true
+      },
+      "network": {
+        "interfaces": [
+          {
+            "name": "eth0",
+            "rxBytes": 40217864,
+            "txBytes": 4607479
+          }
+        ]
+      },
+      "system": {
+        "hostname": "c98a8ba472f7",
+        "platform": "linux",
+        "arch": "arm64",
+        "uptimeSeconds": 38442.32,
+        "kernelVersion": "6.12.62+rpt-rpi-2712"
+      }
+    },
+    "containers": {
+      "containers": [
+        {
+          "id": "89f8b8dd9265",
+          "name": "pi-site-web-1",
+          "image": "pi-site-web",
+          "status": "Up 42 minutes (unhealthy)",
+          "state": "running",
+          "health": "unhealthy",
+          "restartCount": 0,
+          "cpuPercent": 0.01588089330024814,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "c98a8ba472f7",
+          "name": "pi-site-system-profiler-1",
+          "image": "pi-site-system-profiler",
+          "status": "Up 42 minutes (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.04448877805486284,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "a8bb0e98d20e",
+          "name": "pi-site-db-1",
+          "image": "postgres:17",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        },
+        {
+          "id": "d7d031303e64",
+          "name": "pi-site-ai-img-validator-1",
+          "image": "pi-site/ai-img-validator:stable",
+          "status": "Up 2 hours (healthy)",
+          "state": "running",
+          "health": "healthy",
+          "restartCount": 0,
+          "cpuPercent": 0.04437810945273632,
+          "memoryUsageBytes": null,
+          "memoryLimitBytes": null,
+          "memoryPercent": null
+        }
+      ],
+      "summary": {
+        "total": 4,
+        "running": 4,
+        "stopped": 0,
+        "unhealthy": 1
+      }
+    },
+    "services": {
+      "services": [
+        {
+          "name": "web",
+          "url": "http://web:3000/",
+          "healthy": true,
+          "responseTimeMs": 5,
+          "error": null
+        },
+        {
+          "name": "ai-img-validator",
+          "url": "http://ai-img-validator:8000/",
+          "healthy": true,
+          "responseTimeMs": 3,
+          "error": null
+        },
+        {
+          "name": "db",
+          "url": "tcp://db:5432",
+          "healthy": true,
+          "responseTimeMs": 7,
+          "error": null
+        }
+      ],
+      "allHealthy": true
+    }
+  }
+}
