@@ -415,6 +415,66 @@ export function LiveStats() {
     [services]
   );
 
+  // Calculate domains for CPU and Memory axes
+  // Each axis scales independently based on its own data range
+  const cpuDomain = useMemo(() => {
+    // Early return: if no history data, use full 0-100% range
+    if (history.length === 0) return [0, 100];
+    
+    // Extract all CPU values from history, filtering out invalid (NaN/null) values
+    const cpuValues = history.map((h) => h.cpu).filter((v) => !Number.isNaN(v) && v != null);
+    
+    // Early return: if no valid CPU values found, use full 0-100% range
+    if (cpuValues.length === 0) return [0, 100];
+    
+    // Calculate min: take the smallest CPU value, multiply by 0.9 to add 10% padding below,
+    // then ensure it doesn't go below 0 (since percentages can't be negative)
+    const min = Math.max(0, Math.min(...cpuValues) * 0.9);
+    
+    // Calculate max: take the largest CPU value, multiply by 1.1 to add 10% padding above,
+    // then ensure it doesn't exceed 100% (the maximum possible percentage)
+    const max = Math.min(100, Math.max(...cpuValues) * 1.1);
+    
+    // Special case: if the max value is very small (< 5%), ensure a minimum visible range
+    // This prevents the axis from being too compressed when CPU usage is consistently low
+    // (e.g., if CPU is always 1-2%, we want to see it clearly, not squished at the bottom)
+    if (max < 5) {
+      return [0, Math.max(5, max)];
+    }
+    
+    // Return the calculated domain [min, max] for the CPU Y-axis
+    return [min, max];
+  }, [history]);
+
+  const memDomain = useMemo(() => {
+    // Early return: if no history data, use full 0-100% range
+    if (history.length === 0) return [0, 100];
+    
+    // Extract all Memory values from history, filtering out invalid (NaN/null) values
+    const memValues = history.map((h) => h.mem).filter((v) => !Number.isNaN(v) && v != null);
+    
+    // Early return: if no valid Memory values found, use full 0-100% range
+    if (memValues.length === 0) return [0, 100];
+    
+    // Calculate min: take the smallest Memory value, multiply by 0.9 to add 10% padding below,
+    // then ensure it doesn't go below 0 (since percentages can't be negative)
+    const min = Math.max(0, Math.min(...memValues) * 0.9);
+    
+    // Calculate max: take the largest Memory value, multiply by 1.1 to add 10% padding above,
+    // then ensure it doesn't exceed 100% (the maximum possible percentage)
+    const max = Math.min(100, Math.max(...memValues) * 1.1);
+    
+    // Special case: if the max value is very small (< 5%), ensure a minimum visible range
+    // This prevents the axis from being too compressed when Memory usage is consistently low
+    // (e.g., if Memory is always 1-2%, we want to see it clearly, not squished at the bottom)
+    if (max < 5) {
+      return [0, Math.max(5, max)];
+    }
+    
+    // Return the calculated domain [min, max] for the Memory Y-axis
+    return [min, max];
+  }, [history]);
+
   const pageBg =
     "relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900/80 p-6 shadow-2xl";
 
@@ -697,9 +757,22 @@ export function LiveStats() {
                 <CartesianGrid stroke="rgba(255,255,255,0.08)" />
                 <XAxis dataKey="label" tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }} />
                 <YAxis
-                  domain={[0, 100]}
-                  tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
+                  yAxisId="cpu"
+                  orientation="left"
+                  width={50}
+                  domain={cpuDomain}
+                  tick={{ fill: "rgba(34,197,94,0.8)", fontSize: 11 }}
                   tickFormatter={(v) => `${v}%`}
+                  allowDecimals={true}
+                />
+                <YAxis
+                  yAxisId="mem"
+                  orientation="right"
+                  width={50}
+                  domain={memDomain}
+                  tick={{ fill: "rgba(59,130,246,0.8)", fontSize: 11 }}
+                  tickFormatter={(v) => `${v}%`}
+                  allowDecimals={true}
                 />
                 <Tooltip
                   content={
@@ -712,6 +785,7 @@ export function LiveStats() {
                   wrapperStyle={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }}
                 />
                 <Line
+                  yAxisId="cpu"
                   type="monotone"
                   dataKey="cpu"
                   name="CPU %"
@@ -722,6 +796,7 @@ export function LiveStats() {
                   animationDuration={450}
                 />
                 <Line
+                  yAxisId="mem"
                   type="monotone"
                   dataKey="mem"
                   name="Mem %"
@@ -746,8 +821,24 @@ export function LiveStats() {
                 <CartesianGrid stroke="rgba(255,255,255,0.08)" />
                 <XAxis dataKey="label" tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }} />
                 <YAxis
-                  tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
+                  yAxisId="rx"
+                  orientation="left"
+                  tick={{ fill: "rgba(168,85,247,0.8)", fontSize: 11 }}
                   tickFormatter={(v) => formatBytes(Number(v))}
+                  domain={[
+                    (dataMin) => Math.max(0, dataMin * 0.9),
+                    (dataMax) => (dataMax === 0 ? 1 : dataMax * 1.1),
+                  ]}
+                />
+                <YAxis
+                  yAxisId="tx"
+                  orientation="right"
+                  tick={{ fill: "rgba(244,63,94,0.8)", fontSize: 11 }}
+                  tickFormatter={(v) => formatBytes(Number(v))}
+                  domain={[
+                    (dataMin) => Math.max(0, dataMin * 0.9),
+                    (dataMax) => (dataMax === 0 ? 1 : dataMax * 1.1),
+                  ]}
                 />
                 <Tooltip
                   content={
@@ -760,6 +851,7 @@ export function LiveStats() {
                   wrapperStyle={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }}
                 />
                 <Area
+                  yAxisId="rx"
                   type="monotone"
                   dataKey="rxRate"
                   name="RX (B/s)"
@@ -771,6 +863,7 @@ export function LiveStats() {
                   animationDuration={450}
                 />
                 <Area
+                  yAxisId="tx"
                   type="monotone"
                   dataKey="txRate"
                   name="TX (B/s)"
