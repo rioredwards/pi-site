@@ -49,7 +49,7 @@ yarn-error.log*
 .env*
 
 # keep the example files
-!.env.example
+!.env.staging.example
 !.env.local.example
 !.env.prod.example
 
