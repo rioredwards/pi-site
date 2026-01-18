@@ -13,6 +13,13 @@ function getSystemProfilerBaseUrl(): string {
   return process.env.SYSTEM_PROFILER_BASE_URL!;
 }
 
+function getSystemProfilerAuthToken(): string {
+  if (!process.env.SYSTEM_PROFILER_AUTH_TOKEN) {
+    throw new Error("SYSTEM_PROFILER_AUTH_TOKEN is not set");
+  }
+  return process.env.SYSTEM_PROFILER_AUTH_TOKEN!;
+}
+
 let latestStats: any = null;
 let pollerStarted = false;
 const clients = new Set<ReadableStreamDefaultController>();
@@ -26,7 +33,9 @@ async function startPoller() {
     try {
       const url = `${getSystemProfilerBaseUrl()}/stats`;
       devLog("🔵 [stream/server] polling url: ", url);
-      const res = await fetch(url);
+      const authToken = getSystemProfilerAuthToken(); 
+      devLog("🔵 [stream/server] polling authToken: ", authToken);
+      const res = await fetch(url, { headers: { "X-Profiler-Token": authToken } });
       devLog("🔵 [stream/server] polling res: ", res);
       if (res.ok) {
         latestStats = await res.json();
