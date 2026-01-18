@@ -145,32 +145,100 @@ export async function getHostStats(): Promise<HostStats> {
 }
 
 // Arrays of values to cycle through for varying mock data
-const mockCpuUsagePercentValues = [25.5, 26.2, 24.8, 27.1, 25.0, 26.5];
-const mockMemoryUsagePercentValues = [45.2, 46.8, 44.1, 47.5, 45.0, 46.3];
-const mockDiskUsagePercentValues = [50, 52.3, 48.7, 53.1, 49.5, 51.8];
+// Extracted from real production data in TEMP-sample-stream.json
+const mockCpuUsagePercentValues = [
+  1.125,
+  1.877346683354193,
+  1.7521902377972465,
+  2.753441802252816,
+  1.256281407035176,
+  2.0075282308657463,
+  1.6331658291457287,
+  1.875,
+  6.382978723404255,
+  1.6290726817042605,
+];
+const mockMemoryUsagePercentValues = [
+  19.630485883545305,
+  19.651414939858032,
+  19.62273438120726,
+  19.672150208612308,
+  19.65257766520874,
+  19.620408930505846,
+  19.746370843499108,
+  19.565954626581064,
+  19.6543217532348,
+  19.652383877650287,
+];
+const mockDiskUsagePercentValues = [
+  72.01446752169869,
+  72.01448082296534,
+  72.01449412423196,
+  72.01449412423196,
+  72.0145074254986,
+  72.01452072676526,
+  72.01638290409481,
+  72.01652921802784,
+  72.01654251929448,
+  72.01656912182777,
+];
+const mockTemperatureCelsiusValues = [
+  43,
+  43,
+  43,
+  42.45,
+  43.55,
+  42.45,
+  43.55,
+  43,
+  43,
+  44.1,
+];
 const mockDiskUsedBytesValues = [
-  50 * 1024 * 1024 * 1024,
-  52.3 * 1024 * 1024 * 1024,
-  48.7 * 1024 * 1024 * 1024,
-  53.1 * 1024 * 1024 * 1024,
-  49.5 * 1024 * 1024 * 1024,
-  51.8 * 1024 * 1024 * 1024,
+  22176178176,
+  22176178176,
+  22176182272,
+  22176182272,
+  22176186368,
+  22176186368,
+  22176186368,
+  22176186368,
+  22176190464,
+  22176190464,
+  22176194560,
+  22176194560,
+  22176768000,
+  22176768000,
+  22176813056,
+  22176813056,
+  22176817152,
+  22176817152,
+  22176825344,
+  22176825344,
 ];
 const mockNetworkRxBytesValues = [
-  1024 * 1024 * 100,
-  1024 * 1024 * 105,
-  1024 * 1024 * 98,
-  1024 * 1024 * 110,
-  1024 * 1024 * 102,
-  1024 * 1024 * 108,
+  34495290,
+  34526696,
+  34558168,
+  34589863,
+  34621046,
+  34652741,
+  39714840,
+  40092042,
+  40123448,
+  40217864,
 ];
 const mockNetworkTxBytesValues = [
-  1024 * 1024 * 50,
-  1024 * 1024 * 52,
-  1024 * 1024 * 48,
-  1024 * 1024 * 55,
-  1024 * 1024 * 51,
-  1024 * 1024 * 53,
+  3952245,
+  3955838,
+  3959427,
+  3963092,
+  3966634,
+  3970309,
+  4549847,
+  4593084,
+  4596694,
+  4607479,
 ];
 
 // Generator function that cycles through an array with an offset
@@ -189,6 +257,7 @@ const diskUsagePercentGenerator = createValueGenerator(mockDiskUsagePercentValue
 const diskUsedBytesGenerator = createValueGenerator(mockDiskUsedBytesValues, 2);
 const networkRxBytesGenerator = createValueGenerator(mockNetworkRxBytesValues, 0);
 const networkTxBytesGenerator = createValueGenerator(mockNetworkTxBytesValues, 1);
+const temperatureCelsiusGenerator = createValueGenerator(mockTemperatureCelsiusValues, 0);
 
 /**
  * Get mock host stats for development on non-Linux systems.
@@ -198,13 +267,15 @@ export function getMockHostStats(): HostStats {
   const memoryUsagePercent = memoryUsagePercentGenerator.next().value!;
   const diskUsagePercent = diskUsagePercentGenerator.next().value!;
   const diskUsedBytes = diskUsedBytesGenerator.next().value!;
-  const totalBytes = 100 * 1024 * 1024 * 1024;
+  // Use actual disk size from production data
+  const totalBytes = 30794059776;
   const diskFreeBytes = totalBytes - diskUsedBytes;
   const memoryTotalBytes = os.totalmem();
   const memoryUsedBytes = (memoryUsagePercent / 100) * memoryTotalBytes;
   const memoryFreeBytes = memoryTotalBytes - memoryUsedBytes;
   const networkRxBytes = networkRxBytesGenerator.next().value!;
   const networkTxBytes = networkTxBytesGenerator.next().value!;
+  const temperatureCelsius = temperatureCelsiusGenerator.next().value!;
 
   return {
     cpu: {
@@ -229,8 +300,8 @@ export function getMockHostStats(): HostStats {
       },
     ],
     temperature: {
-      cpuCelsius: null,
-      available: false,
+      cpuCelsius: temperatureCelsius,
+      available: true,
     },
     network: {
       interfaces: [

@@ -111,16 +111,159 @@ export async function getContainerStatsReal(): Promise<ContainerStats> {
 }
 
 // Arrays of values to cycle through for varying mock data
-const mockCPUPercentValues = [5.2, 5.5, 4.9, 5.8, 5.1, 5.3];
-const mockMemoryUsageBytesValues = [
-  256 * 1024 * 1024,
-  270 * 1024 * 1024,
-  245 * 1024 * 1024,
-  280 * 1024 * 1024,
-  250 * 1024 * 1024,
-  265 * 1024 * 1024,
+// Extracted from real production data in TEMP-sample-stream.json
+// Note: memoryUsageBytes and memoryPercent are null in real data, so we'll keep them null
+// Container order: web, system-profiler, db, ai-img-validator
+const mockCPUPercentValues = [
+  0.009751243781094527, // web
+  0.01456359102244389,
+  0.013930348258706468,
+  0.01596009975062344,
+  1.6530348258706467,
+  0.013034825870646766,
+  0.012935323383084577,
+  0.017627118644067796,
+  0.0167,
+  0.01588089330024814,
 ];
-const mockMemoryPercentValues = [25, 26.3, 23.9, 27.3, 24.4, 25.9];
+const mockSystemProfilerCPUPercentValues = [
+  0.03422885572139303,
+  1.818354114713217,
+  0.49552238805970145,
+  0.10975124378109452,
+  0.09253731343283582,
+  0.04248756218905473,
+  0.003582089552238806,
+  0.11573200992555832,
+  0.0421,
+  0.04448877805486284,
+];
+const mockDbCPUPercentValues = [
+  0,
+  0,
+  5.7808,
+  0,
+  0.3794,
+  0,
+  0.0025870646766169153,
+  6.004962779156328,
+  0,
+  0,
+];
+const mockValidatorCPUPercentValues = [
+  0.04169576059850374,
+  0.0561,
+  0.0584,
+  0.04618453865336658,
+  0.06914572864321608,
+  0.04426799007444168,
+  0.03751243781094527,
+  0.06471464019851117,
+  10.506867167919799,
+  0.04437810945273632,
+];
+
+// Memory values (matching dev sample with variations)
+// Container order: web, system-profiler, ai-img-validator, db
+const mockWebMemoryUsageBytesValues = [
+  1148194816,
+  1150000000,
+  1145000000,
+  1152000000,
+  1146000000,
+  1151000000,
+  1147000000,
+  1153000000,
+  1148000000,
+  1150000000,
+];
+const mockWebMemoryPercentValues = [
+  13.972643981471558,
+  14.0,
+  13.9,
+  14.1,
+  13.95,
+  14.05,
+  13.85,
+  14.15,
+  13.98,
+  14.02,
+];
+
+const mockSystemProfilerMemoryUsageBytesValues = [
+  57614336,
+  58000000,
+  57000000,
+  58500000,
+  57500000,
+  58200000,
+  57200000,
+  58800000,
+  57800000,
+  58300000,
+];
+const mockSystemProfilerMemoryPercentValues = [
+  0.7011219646169176,
+  0.71,
+  0.69,
+  0.72,
+  0.70,
+  0.71,
+  0.70,
+  0.72,
+  0.70,
+  0.71,
+];
+
+const mockValidatorMemoryUsageBytesValues = [
+  314736640,
+  315000000,
+  314000000,
+  316000000,
+  314500000,
+  315500000,
+  314200000,
+  316200000,
+  314800000,
+  315200000,
+];
+const mockValidatorMemoryPercentValues = [
+  3.8301017887931144,
+  3.84,
+  3.82,
+  3.86,
+  3.83,
+  3.85,
+  3.81,
+  3.87,
+  3.83,
+  3.85,
+];
+
+const mockDbMemoryUsageBytesValues = [
+  22470656,
+  22500000,
+  22400000,
+  22600000,
+  22450000,
+  22550000,
+  22420000,
+  22620000,
+  22480000,
+  22520000,
+];
+const mockDbMemoryPercentValues = [
+  0.2734505259411638,
+  0.28,
+  0.27,
+  0.29,
+  0.275,
+  0.285,
+  0.27,
+  0.29,
+  0.28,
+  0.285,
+];
 
 // Generator function that cycles through an array with an offset
 function* createValueGenerator<T>(values: T[], offset: number): Generator<T> {
@@ -131,27 +274,29 @@ function* createValueGenerator<T>(values: T[], offset: number): Generator<T> {
   }
 }
 
-// Create generators for each varying parameter with different offsets per container
+// Create generators for each container using their specific arrays
+// Container order in getMockContainerStats: web, system-profiler, ai-img-validator, db
 const cpuPercentGenerators = [
-  createValueGenerator(mockCPUPercentValues, 0), // web
-  createValueGenerator(mockCPUPercentValues, 1), // system-profiler
-  createValueGenerator(mockCPUPercentValues, 2), // ai-img-validator
-  createValueGenerator(mockCPUPercentValues, 3), // db
+  createValueGenerator(mockCPUPercentValues, 0), // web (index 0)
+  createValueGenerator(mockSystemProfilerCPUPercentValues, 0), // system-profiler (index 1)
+  createValueGenerator(mockValidatorCPUPercentValues, 0), // ai-img-validator (index 2)
+  createValueGenerator(mockDbCPUPercentValues, 0), // db (index 3)
 ];
 
-const memoryUsageGenerators = [
-  createValueGenerator(mockMemoryUsageBytesValues, 0), // web
-  createValueGenerator(mockMemoryUsageBytesValues, 2), // system-profiler
-  createValueGenerator(mockMemoryUsageBytesValues, 4), // ai-img-validator
-  createValueGenerator(mockMemoryUsageBytesValues, 1), // db
+const memoryUsageBytesGenerators = [
+  createValueGenerator(mockWebMemoryUsageBytesValues, 0), // web
+  createValueGenerator(mockSystemProfilerMemoryUsageBytesValues, 0), // system-profiler
+  createValueGenerator(mockValidatorMemoryUsageBytesValues, 0), // ai-img-validator
+  createValueGenerator(mockDbMemoryUsageBytesValues, 0), // db
 ];
 
 const memoryPercentGenerators = [
-  createValueGenerator(mockMemoryPercentValues, 0), // web
-  createValueGenerator(mockMemoryPercentValues, 1), // system-profiler
-  createValueGenerator(mockMemoryPercentValues, 2), // ai-img-validator
-  createValueGenerator(mockMemoryPercentValues, 3), // db
+  createValueGenerator(mockWebMemoryPercentValues, 0), // web
+  createValueGenerator(mockSystemProfilerMemoryPercentValues, 0), // system-profiler
+  createValueGenerator(mockValidatorMemoryPercentValues, 0), // ai-img-validator
+  createValueGenerator(mockDbMemoryPercentValues, 0), // db
 ];
+
 
 /**
  * Get mock container stats for development.
@@ -168,8 +313,8 @@ export function getMockContainerStats(): ContainerStats {
         health: "healthy",
         restartCount: 0,
         cpuPercent: cpuPercentGenerators[0].next().value!,
-        memoryUsageBytes: memoryUsageGenerators[0].next().value!,
-        memoryLimitBytes: 1024 * 1024 * 1024,
+        memoryUsageBytes: memoryUsageBytesGenerators[0].next().value!,
+        memoryLimitBytes: 8217448448, // Match sample data
         memoryPercent: memoryPercentGenerators[0].next().value!,
       },
       {
@@ -181,8 +326,8 @@ export function getMockContainerStats(): ContainerStats {
         health: "healthy",
         restartCount: 0,
         cpuPercent: cpuPercentGenerators[1].next().value!,
-        memoryUsageBytes: memoryUsageGenerators[1].next().value!,
-        memoryLimitBytes: 512 * 1024 * 1024,
+        memoryUsageBytes: memoryUsageBytesGenerators[1].next().value!,
+        memoryLimitBytes: 8217448448, // Match sample data
         memoryPercent: memoryPercentGenerators[1].next().value!,
       },
       {
@@ -194,8 +339,8 @@ export function getMockContainerStats(): ContainerStats {
         health: "healthy",
         restartCount: 0,
         cpuPercent: cpuPercentGenerators[2].next().value!,
-        memoryUsageBytes: memoryUsageGenerators[2].next().value!,
-        memoryLimitBytes: 2 * 1024 * 1024 * 1024,
+        memoryUsageBytes: memoryUsageBytesGenerators[2].next().value!,
+        memoryLimitBytes: 8217448448, // Match sample data
         memoryPercent: memoryPercentGenerators[2].next().value!,
       },
       {
@@ -207,8 +352,8 @@ export function getMockContainerStats(): ContainerStats {
         health: "healthy",
         restartCount: 0,
         cpuPercent: cpuPercentGenerators[3].next().value!,
-        memoryUsageBytes: memoryUsageGenerators[3].next().value!,
-        memoryLimitBytes: 512 * 1024 * 1024,
+        memoryUsageBytes: memoryUsageBytesGenerators[3].next().value!,
+        memoryLimitBytes: 8217448448, // Match sample data
         memoryPercent: memoryPercentGenerators[3].next().value!,
       },
     ],

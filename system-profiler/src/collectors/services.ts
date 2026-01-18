@@ -141,9 +141,11 @@ export async function getServiceHealthReal(): Promise<ServiceHealthStats> {
 }
 
 // Arrays of values to cycle through for varying mock data
-const mockWebResponseTimeValues = [45, 48, 42, 50, 44, 47];
-const mockValidatorResponseTimeValues = [120, 125, 115, 130, 118, 123];
-const mockDbResponseTimeValues = [5, 6, 4, 7, 5, 6];
+// Extracted from real production data in TEMP-sample-stream.json
+// Service order: web, ai-img-validator, db
+const mockWebResponseTimeValues = [5, 3, 10, 5, 5, 5, 4, 4, 5, 5];
+const mockValidatorResponseTimeValues = [3, 3, 3, 4, 5, 2, 2, 4, 3, 3];
+const mockDbResponseTimeValues = [5, 4, 6, 7, 7, 6, 5, 8, 6, 7];
 
 // Generator function that cycles through an array with an offset
 function* createValueGenerator<T>(values: T[], offset: number): Generator<T> {
