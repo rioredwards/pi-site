@@ -10,7 +10,10 @@ export function cn(...inputs: ClassValue[]) {
 export const devLog =
   process.env.NODE_ENV === "production"
     ? // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      (..._args: unknown[]) => {}
+      (...args: unknown[]) => {
+        // eslint-disable-next-line no-console
+        console.log(...args); // TODO: remove this
+      }
     : (...args: unknown[]) => {
         // eslint-disable-next-line no-console
         console.log(...args);

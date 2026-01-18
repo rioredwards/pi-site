@@ -3,6 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { LiveStats } from "./live-stats";
 
+export const dynamic = "force-dynamic";
+
 export function StatItem({ title, value }: { title: string; value: string }) {
   return (
     <Card>
@@ -17,7 +19,7 @@ export function StatItem({ title, value }: { title: string; value: string }) {
 }
 
 export function StatsDashboard() {
-
+  console.log("🔵 StatsDashboard rendering, isClient:", typeof window !== "undefined");
 
   return (
     <div className="space-y-4">

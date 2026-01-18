@@ -1,5 +1,5 @@
+import { StatsDashboardWrapper } from "@/components/stats-dashboard-wrapper";
 import { Metadata } from "next";
-import { StatsDashboard } from "../../components/stats-dashboard";
 
 export const metadata: Metadata = {
   title: "System Stats | DogTownUSA",
@@ -20,7 +20,7 @@ export default function StatsPage() {
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">System Information</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatsDashboard />
+          <StatsDashboardWrapper />
         </div>
       </div>
     </div>

@@ -46,7 +46,13 @@ async function startPoller() {
 function broadcast(data: any) {
   const payload = `data: ${JSON.stringify(data)}\n\n`;
   for (const controller of clients) {
-    controller.enqueue(payload);
+    try {
+      controller.enqueue(payload);
+    } catch (err) {
+      // Controller is already closed, remove it from clients
+      clients.delete(controller);
+      devLog("🔴 [stream/server] Removed closed controller from clients:", err);
+    }
   }
 }
 
