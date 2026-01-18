@@ -1,57 +1,13 @@
 import { Hono } from "hono";
-import os from "os";
 import { config } from "../config.js";
-import type { CombinedStats, HostStats, ContainerStats, ServiceHealthStats } from "../types.js";
+import { collectHostStats } from "../collectors/host.js";
+import type { CombinedStats, ContainerStats, ServiceHealthStats } from "../types.js";
 
 const stats = new Hono();
 
 /**
- * Get mock host stats for development on non-Linux systems.
- */
-function getMockHostStats(): HostStats {
-  return {
-    cpu: {
-      usagePercent: 25.5,
-      loadAverage: os.loadavg() as [number, number, number],
-      cores: os.cpus().length,
-    },
-    memory: {
-      totalBytes: os.totalmem(),
-      usedBytes: os.totalmem() - os.freemem(),
-      freeBytes: os.freemem(),
-      availableBytes: os.freemem(),
-      usagePercent: ((os.totalmem() - os.freemem()) / os.totalmem()) * 100,
-    },
-    disks: [
-      {
-        mountPoint: "/",
-        totalBytes: 100 * 1024 * 1024 * 1024,
-        usedBytes: 50 * 1024 * 1024 * 1024,
-        freeBytes: 50 * 1024 * 1024 * 1024,
-        usagePercent: 50,
-      },
-    ],
-    temperature: {
-      cpuCelsius: null,
-      available: false,
-    },
-    network: {
-      interfaces: [
-        { name: "eth0", rxBytes: 1024 * 1024 * 100, txBytes: 1024 * 1024 * 50 },
-      ],
-    },
-    system: {
-      hostname: os.hostname(),
-      platform: os.platform(),
-      arch: os.arch(),
-      uptimeSeconds: os.uptime(),
-      kernelVersion: null,
-    },
-  };
-}
-
-/**
  * Get mock container stats for development.
+ * TODO: Phase 3 - replace with real Docker API calls
  */
 function getMockContainerStats(): ContainerStats {
   return {
@@ -120,6 +76,7 @@ function getMockContainerStats(): ContainerStats {
 
 /**
  * Get mock service health stats for development.
+ * TODO: Phase 4 - replace with real HTTP/TCP probes
  */
 function getMockServiceHealth(): ServiceHealthStats {
   return {
@@ -151,9 +108,15 @@ function getMockServiceHealth(): ServiceHealthStats {
 }
 
 stats.get("/", async (c) => {
+  const [hostStats] = await Promise.all([
+    collectHostStats(),
+    // TODO: Phase 3 - collectContainerStats(),
+    // TODO: Phase 4 - collectServiceHealth(),
+  ]);
+
   const combined: CombinedStats = {
     timestamp: new Date().toISOString(),
-    host: getMockHostStats(),
+    host: hostStats,
     containers: getMockContainerStats(),
     services: getMockServiceHealth(),
   };
