@@ -84,7 +84,7 @@ async function pollOnce() {
   try {
     const next = await fetchStats();
     latestStats = next;
-    devLog("🔵 [stream/server] polling latestStats:", latestStats);
+    // devLog("🔵 [stream/server] polling latestStats:", latestStats);
   } catch (err) {
     devLog("🔴 [stream/server] polling exception:", err);
     latestStats = null;
