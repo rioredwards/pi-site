@@ -1,22 +1,8 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { LiveStats } from "./live-stats";
 
 export const dynamic = "force-dynamic";
-
-export function StatItem({ title, value }: { title: string; value: string }) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-      </CardContent>
-    </Card>
-  );
-}
 
 export function StatsDashboard() {
   return (

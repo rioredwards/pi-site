@@ -17,12 +17,7 @@ export default function StatsPage() {
       </div>
 
       {/* Static System Info */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">System Information</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatsDashboardWrapper />
-        </div>
-      </div>
+      <StatsDashboardWrapper />
     </div>
   );
 }
