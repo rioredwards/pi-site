@@ -21,9 +21,8 @@ services:
       - postgres_data_dev:/var/lib/postgresql/data
 
   system-profiler:
-    environment:
-      - MOCK_HOST_STATS=true
-      - SYSTEM_PROFILER_AUTH_TOKEN=dev-token
+    env_file:
+      - .env.local
     volumes:
       - ./system-profiler:/app/system-profiler  # Mount code for hot-reloading
       - /app/system-profiler/node_modules       # Preserve container's node_modules

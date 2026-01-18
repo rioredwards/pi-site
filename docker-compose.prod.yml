@@ -16,15 +16,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 1G
 
   system-profiler:
-    environment:
-      - SYSTEM_PROFILER_AUTH_TOKEN=${SYSTEM_PROFILER_AUTH_TOKEN}
+    env_file:
+      - .env.prod
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -38,11 +33,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 512M
 
   ai-img-validator:
     restart: unless-stopped
@@ -52,11 +42,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G
 
   db:
     env_file:
@@ -66,11 +51,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 512M
 
 volumes:
   postgres_data:
