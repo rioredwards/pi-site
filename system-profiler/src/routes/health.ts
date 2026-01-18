@@ -1,6 +1,6 @@
+import type { HealthResponse } from "@pi-site/shared/types.js";
 import { Hono } from "hono";
 import { config } from "../config.js";
-import type { HealthResponse } from "../types.js";
 
 const health = new Hono();
 

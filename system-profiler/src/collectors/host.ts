@@ -1,17 +1,17 @@
-import os from "os";
+import type { DiskStats, HostStats } from "@pi-site/shared/types.js";
 import fs from "fs/promises";
+import os from "os";
 import { config } from "../config.js";
-import type { HostStats, DiskStats } from "../types.js";
 import {
-  parseMeminfo,
-  parseLoadavg,
-  parseUptime,
-  parseCpuTimes,
   calculateCpuUsage,
-  parseNetDev,
-  parseCpuTemperature,
-  parseKernelVersion,
   parseCpuCount,
+  parseCpuTemperature,
+  parseCpuTimes,
+  parseKernelVersion,
+  parseLoadavg,
+  parseMeminfo,
+  parseNetDev,
+  parseUptime,
   type CpuTimes,
 } from "../utils/proc-parser.js";
 

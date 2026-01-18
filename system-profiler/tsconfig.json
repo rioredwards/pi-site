@@ -10,7 +10,12 @@
     ],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@pi-site/shared/*": ["../shared/*"],
+      "@pi-site/system-profiler/*": ["./*"]
+    }
   },
   "exclude": ["node_modules"]
 }

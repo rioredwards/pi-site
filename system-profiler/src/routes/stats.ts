@@ -1,9 +1,9 @@
+import type { CombinedStats } from "@pi-site/shared/types.js";
 import { Hono } from "hono";
-import { config } from "../config.js";
-import { collectHostStats } from "../collectors/host.js";
 import { collectContainerStats } from "../collectors/containers.js";
+import { collectHostStats } from "../collectors/host.js";
 import { collectServiceHealth } from "../collectors/services.js";
-import type { CombinedStats } from "../types.js";
+import { config } from "../config.js";
 
 const stats = new Hono();
 

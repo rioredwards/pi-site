@@ -1,7 +1,7 @@
+import type { ServiceHealth, ServiceHealthStats } from "@pi-site/shared/types.js";
 import http from "http";
 import net from "net";
 import { config } from "../config.js";
-import type { ServiceHealthStats, ServiceHealth } from "../types.js";
 
 /**
  * Perform an HTTP health check.
