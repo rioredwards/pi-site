@@ -1,78 +1,10 @@
 import { Hono } from "hono";
 import { config } from "../config.js";
 import { collectHostStats } from "../collectors/host.js";
-import type { CombinedStats, ContainerStats, ServiceHealthStats } from "../types.js";
+import { collectContainerStats } from "../collectors/containers.js";
+import type { CombinedStats, ServiceHealthStats } from "../types.js";
 
 const stats = new Hono();
-
-/**
- * Get mock container stats for development.
- * TODO: Phase 3 - replace with real Docker API calls
- */
-function getMockContainerStats(): ContainerStats {
-  return {
-    containers: [
-      {
-        id: "abc123",
-        name: "pi-site-web-1",
-        image: "pi-site-web:latest",
-        status: "Up 2 hours",
-        state: "running",
-        health: "healthy",
-        restartCount: 0,
-        cpuPercent: 5.2,
-        memoryUsageBytes: 256 * 1024 * 1024,
-        memoryLimitBytes: 1024 * 1024 * 1024,
-        memoryPercent: 25,
-      },
-      {
-        id: "def456",
-        name: "pi-site-system-profiler-1",
-        image: "pi-site-system-profiler:latest",
-        status: "Up 2 hours",
-        state: "running",
-        health: "healthy",
-        restartCount: 0,
-        cpuPercent: 1.5,
-        memoryUsageBytes: 64 * 1024 * 1024,
-        memoryLimitBytes: 512 * 1024 * 1024,
-        memoryPercent: 12.5,
-      },
-      {
-        id: "ghi789",
-        name: "pi-site-ai-img-validator-1",
-        image: "pi-site/ai-img-validator:stable",
-        status: "Up 2 hours",
-        state: "running",
-        health: "healthy",
-        restartCount: 0,
-        cpuPercent: 0.5,
-        memoryUsageBytes: 512 * 1024 * 1024,
-        memoryLimitBytes: 2 * 1024 * 1024 * 1024,
-        memoryPercent: 25,
-      },
-      {
-        id: "jkl012",
-        name: "pi-site-db-1",
-        image: "postgres:17",
-        status: "Up 2 hours",
-        state: "running",
-        health: "healthy",
-        restartCount: 0,
-        cpuPercent: 2.1,
-        memoryUsageBytes: 128 * 1024 * 1024,
-        memoryLimitBytes: 512 * 1024 * 1024,
-        memoryPercent: 25,
-      },
-    ],
-    summary: {
-      total: 4,
-      running: 4,
-      stopped: 0,
-      unhealthy: 0,
-    },
-  };
-}
 
 /**
  * Get mock service health stats for development.
@@ -108,16 +40,16 @@ function getMockServiceHealth(): ServiceHealthStats {
 }
 
 stats.get("/", async (c) => {
-  const [hostStats] = await Promise.all([
+  const [hostStats, containerStats] = await Promise.all([
     collectHostStats(),
-    // TODO: Phase 3 - collectContainerStats(),
+    collectContainerStats(),
     // TODO: Phase 4 - collectServiceHealth(),
   ]);
 
   const combined: CombinedStats = {
     timestamp: new Date().toISOString(),
     host: hostStats,
-    containers: getMockContainerStats(),
+    containers: containerStats,
     services: getMockServiceHealth(),
   };
 
