@@ -144,30 +144,88 @@ export async function getHostStats(): Promise<HostStats> {
   };
 }
 
+// Arrays of values to cycle through for varying mock data
+const mockCpuUsagePercentValues = [25.5, 26.2, 24.8, 27.1, 25.0, 26.5];
+const mockMemoryUsagePercentValues = [45.2, 46.8, 44.1, 47.5, 45.0, 46.3];
+const mockDiskUsagePercentValues = [50, 52.3, 48.7, 53.1, 49.5, 51.8];
+const mockDiskUsedBytesValues = [
+  50 * 1024 * 1024 * 1024,
+  52.3 * 1024 * 1024 * 1024,
+  48.7 * 1024 * 1024 * 1024,
+  53.1 * 1024 * 1024 * 1024,
+  49.5 * 1024 * 1024 * 1024,
+  51.8 * 1024 * 1024 * 1024,
+];
+const mockNetworkRxBytesValues = [
+  1024 * 1024 * 100,
+  1024 * 1024 * 105,
+  1024 * 1024 * 98,
+  1024 * 1024 * 110,
+  1024 * 1024 * 102,
+  1024 * 1024 * 108,
+];
+const mockNetworkTxBytesValues = [
+  1024 * 1024 * 50,
+  1024 * 1024 * 52,
+  1024 * 1024 * 48,
+  1024 * 1024 * 55,
+  1024 * 1024 * 51,
+  1024 * 1024 * 53,
+];
+
+// Generator function that cycles through an array with an offset
+function* createValueGenerator<T>(values: T[], offset: number): Generator<T> {
+  let index = offset % values.length;
+  while (true) {
+    yield values[index];
+    index = (index + 1) % values.length;
+  }
+}
+
+// Create generators for each varying parameter
+const cpuUsagePercentGenerator = createValueGenerator(mockCpuUsagePercentValues, 0);
+const memoryUsagePercentGenerator = createValueGenerator(mockMemoryUsagePercentValues, 1);
+const diskUsagePercentGenerator = createValueGenerator(mockDiskUsagePercentValues, 2);
+const diskUsedBytesGenerator = createValueGenerator(mockDiskUsedBytesValues, 2);
+const networkRxBytesGenerator = createValueGenerator(mockNetworkRxBytesValues, 0);
+const networkTxBytesGenerator = createValueGenerator(mockNetworkTxBytesValues, 1);
+
 /**
  * Get mock host stats for development on non-Linux systems.
  */
 export function getMockHostStats(): HostStats {
+  const cpuUsagePercent = cpuUsagePercentGenerator.next().value!;
+  const memoryUsagePercent = memoryUsagePercentGenerator.next().value!;
+  const diskUsagePercent = diskUsagePercentGenerator.next().value!;
+  const diskUsedBytes = diskUsedBytesGenerator.next().value!;
+  const totalBytes = 100 * 1024 * 1024 * 1024;
+  const diskFreeBytes = totalBytes - diskUsedBytes;
+  const memoryTotalBytes = os.totalmem();
+  const memoryUsedBytes = (memoryUsagePercent / 100) * memoryTotalBytes;
+  const memoryFreeBytes = memoryTotalBytes - memoryUsedBytes;
+  const networkRxBytes = networkRxBytesGenerator.next().value!;
+  const networkTxBytes = networkTxBytesGenerator.next().value!;
+
   return {
     cpu: {
-      usagePercent: 25.5,
+      usagePercent: cpuUsagePercent,
       loadAverage: os.loadavg() as [number, number, number],
       cores: os.cpus().length,
     },
     memory: {
-      totalBytes: os.totalmem(),
-      usedBytes: os.totalmem() - os.freemem(),
-      freeBytes: os.freemem(),
-      availableBytes: os.freemem(),
-      usagePercent: ((os.totalmem() - os.freemem()) / os.totalmem()) * 100,
+      totalBytes: memoryTotalBytes,
+      usedBytes: memoryUsedBytes,
+      freeBytes: memoryFreeBytes,
+      availableBytes: memoryFreeBytes,
+      usagePercent: memoryUsagePercent,
     },
     disks: [
       {
         mountPoint: "/",
-        totalBytes: 100 * 1024 * 1024 * 1024,
-        usedBytes: 50 * 1024 * 1024 * 1024,
-        freeBytes: 50 * 1024 * 1024 * 1024,
-        usagePercent: 50,
+        totalBytes,
+        usedBytes: diskUsedBytes,
+        freeBytes: diskFreeBytes,
+        usagePercent: diskUsagePercent,
       },
     ],
     temperature: {
@@ -176,7 +234,7 @@ export function getMockHostStats(): HostStats {
     },
     network: {
       interfaces: [
-        { name: "eth0", rxBytes: 1024 * 1024 * 100, txBytes: 1024 * 1024 * 50 },
+        { name: "eth0", rxBytes: networkRxBytes, txBytes: networkTxBytes },
       ],
     },
     system: {

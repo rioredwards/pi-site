@@ -110,6 +110,49 @@ export async function getContainerStatsReal(): Promise<ContainerStats> {
   };
 }
 
+// Arrays of values to cycle through for varying mock data
+const mockCPUPercentValues = [5.2, 5.5, 4.9, 5.8, 5.1, 5.3];
+const mockMemoryUsageBytesValues = [
+  256 * 1024 * 1024,
+  270 * 1024 * 1024,
+  245 * 1024 * 1024,
+  280 * 1024 * 1024,
+  250 * 1024 * 1024,
+  265 * 1024 * 1024,
+];
+const mockMemoryPercentValues = [25, 26.3, 23.9, 27.3, 24.4, 25.9];
+
+// Generator function that cycles through an array with an offset
+function* createValueGenerator<T>(values: T[], offset: number): Generator<T> {
+  let index = offset % values.length;
+  while (true) {
+    yield values[index];
+    index = (index + 1) % values.length;
+  }
+}
+
+// Create generators for each varying parameter with different offsets per container
+const cpuPercentGenerators = [
+  createValueGenerator(mockCPUPercentValues, 0), // web
+  createValueGenerator(mockCPUPercentValues, 1), // system-profiler
+  createValueGenerator(mockCPUPercentValues, 2), // ai-img-validator
+  createValueGenerator(mockCPUPercentValues, 3), // db
+];
+
+const memoryUsageGenerators = [
+  createValueGenerator(mockMemoryUsageBytesValues, 0), // web
+  createValueGenerator(mockMemoryUsageBytesValues, 2), // system-profiler
+  createValueGenerator(mockMemoryUsageBytesValues, 4), // ai-img-validator
+  createValueGenerator(mockMemoryUsageBytesValues, 1), // db
+];
+
+const memoryPercentGenerators = [
+  createValueGenerator(mockMemoryPercentValues, 0), // web
+  createValueGenerator(mockMemoryPercentValues, 1), // system-profiler
+  createValueGenerator(mockMemoryPercentValues, 2), // ai-img-validator
+  createValueGenerator(mockMemoryPercentValues, 3), // db
+];
+
 /**
  * Get mock container stats for development.
  */
@@ -124,10 +167,10 @@ export function getMockContainerStats(): ContainerStats {
         state: "running",
         health: "healthy",
         restartCount: 0,
-        cpuPercent: 5.2,
-        memoryUsageBytes: 256 * 1024 * 1024,
+        cpuPercent: cpuPercentGenerators[0].next().value!,
+        memoryUsageBytes: memoryUsageGenerators[0].next().value!,
         memoryLimitBytes: 1024 * 1024 * 1024,
-        memoryPercent: 25,
+        memoryPercent: memoryPercentGenerators[0].next().value!,
       },
       {
         id: "def456",
@@ -137,10 +180,10 @@ export function getMockContainerStats(): ContainerStats {
         state: "running",
         health: "healthy",
         restartCount: 0,
-        cpuPercent: 1.5,
-        memoryUsageBytes: 64 * 1024 * 1024,
+        cpuPercent: cpuPercentGenerators[1].next().value!,
+        memoryUsageBytes: memoryUsageGenerators[1].next().value!,
         memoryLimitBytes: 512 * 1024 * 1024,
-        memoryPercent: 12.5,
+        memoryPercent: memoryPercentGenerators[1].next().value!,
       },
       {
         id: "ghi789",
@@ -150,10 +193,10 @@ export function getMockContainerStats(): ContainerStats {
         state: "running",
         health: "healthy",
         restartCount: 0,
-        cpuPercent: 0.5,
-        memoryUsageBytes: 512 * 1024 * 1024,
+        cpuPercent: cpuPercentGenerators[2].next().value!,
+        memoryUsageBytes: memoryUsageGenerators[2].next().value!,
         memoryLimitBytes: 2 * 1024 * 1024 * 1024,
-        memoryPercent: 25,
+        memoryPercent: memoryPercentGenerators[2].next().value!,
       },
       {
         id: "jkl012",
@@ -163,10 +206,10 @@ export function getMockContainerStats(): ContainerStats {
         state: "running",
         health: "healthy",
         restartCount: 0,
-        cpuPercent: 2.1,
-        memoryUsageBytes: 128 * 1024 * 1024,
+        cpuPercent: cpuPercentGenerators[3].next().value!,
+        memoryUsageBytes: memoryUsageGenerators[3].next().value!,
         memoryLimitBytes: 512 * 1024 * 1024,
-        memoryPercent: 25,
+        memoryPercent: memoryPercentGenerators[3].next().value!,
       },
     ],
     summary: {

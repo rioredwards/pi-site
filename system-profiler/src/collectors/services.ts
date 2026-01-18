@@ -140,6 +140,28 @@ export async function getServiceHealthReal(): Promise<ServiceHealthStats> {
   };
 }
 
+// Arrays of values to cycle through for varying mock data
+const mockWebResponseTimeValues = [45, 48, 42, 50, 44, 47];
+const mockValidatorResponseTimeValues = [120, 125, 115, 130, 118, 123];
+const mockDbResponseTimeValues = [5, 6, 4, 7, 5, 6];
+
+// Generator function that cycles through an array with an offset
+function* createValueGenerator<T>(values: T[], offset: number): Generator<T> {
+  let index = offset % values.length;
+  while (true) {
+    yield values[index];
+    index = (index + 1) % values.length;
+  }
+}
+
+// Create generators for each service with different offsets
+const webResponseTimeGenerator = createValueGenerator(mockWebResponseTimeValues, 0);
+const validatorResponseTimeGenerator = createValueGenerator(
+  mockValidatorResponseTimeValues,
+  1
+);
+const dbResponseTimeGenerator = createValueGenerator(mockDbResponseTimeValues, 2);
+
 /**
  * Get mock service health stats for development.
  */
@@ -150,21 +172,21 @@ export function getMockServiceHealth(): ServiceHealthStats {
         name: "web",
         url: "http://web:3000/",
         healthy: true,
-        responseTimeMs: 45,
+        responseTimeMs: webResponseTimeGenerator.next().value!,
         error: null,
       },
       {
         name: "ai-img-validator",
         url: "http://ai-img-validator:8000/",
         healthy: true,
-        responseTimeMs: 120,
+        responseTimeMs: validatorResponseTimeGenerator.next().value!,
         error: null,
       },
       {
         name: "db",
         url: "tcp://db:5432",
         healthy: true,
-        responseTimeMs: 5,
+        responseTimeMs: dbResponseTimeGenerator.next().value!,
         error: null,
       },
     ],
