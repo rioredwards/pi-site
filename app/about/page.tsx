@@ -78,16 +78,29 @@ export default function AboutPage() {
               className="w-full rounded-lg md:w-2/4"
             />
             <p>
-              Over the holidays, I got a{" "}
+              Over the holidays, my sister gifted me a{" "}
               <PillHighlight color="red">
                 Raspberry Pi <RaspberryPi className="-mt-[2px] mr-[2px] inline w-[16px]" />
-              </PillHighlight>{" "}
-              as a gift from my sister (best gift ever!). After some tinkering and late-night coding
-              sessions, this little project came to life—my first
+              </PillHighlight>
+              . Thanks, sis! 🫶
+              <br />
+              <br />
+              If you haven&apos;t heard of them, a Raspberry Pi is a tiny computer.
+              <br />
+              <br />
+              Why would you want a tiny computer?
+              <br />
+              <br />
+              Idk... stuff. Like, whatever you want! It&apos;s your tiny computer!
+              <br />
+              <br />
+              Well, in this case, it&apos;s MY tiny computer.
+              <br />
+              <br />
+              After some tinkering and late-night coding sessions, this little project came to life—my first
               <span className="font-bold"> self-hosted website</span>!
               <br />
-              <br />
-              Naturally, the <span className="italic">theme</span> is{" "}
+              <br /> Naturally, the <span className="italic">theme</span> is{" "}
               <span className="font-bold">dog photos</span> because, my life pretty much revolves
               around these majestic furballs. 🐶
             </p>
@@ -171,16 +184,18 @@ export default function AboutPage() {
                   updates to GitHub when I&apos;m ready to deploy.
                 </li>
                 <li>
-                  <strong>Deploying:</strong> I SSH into my Raspberry Pi and run a shell script that
-                  pulls the latest code from GitHub, installs dependencies, builds the project, and
-                  starts the server. Originally, I considered setting up a CI/CD pipeline with
-                  GitHub Actions, but that required SSH-ing into my Pi over the public internet
-                  which was out of scope for this project.
+                  <strong>Deploying:</strong> The entire application runs in Docker containers on my
+                  Raspberry Pi. When I&apos;m ready to deploy, I SSH into the Pi and run a simple
+                  update script that pulls the latest code, rebuilds the containers, and runs
+                  database migrations automatically. This Docker-based approach makes deployment
+                  consistent and reliable, and keeps all services (PostgreSQL, AI validator, Next.js
+                  app) isolated and easy to manage.
                 </li>
                 <li>
                   <strong>Serving:</strong> I&apos;m using Cloudflare Tunnels to securely route
                   traffic from my domain to the Pi. This felt easier (and safer) than setting up
-                  port forwarding on my router. Since I reused the domain for my portfolio site
+                  port forwarding on my router. Nginx runs as a reverse proxy to handle static
+                  assets efficiently, and since I reused the domain for my portfolio site
                   (rioredwards.com), I also had to transfer the domain from Vercel to Cloudflare.
                 </li>
                 <li>
@@ -191,17 +206,36 @@ export default function AboutPage() {
                   it.
                 </li>
                 <li>
-                  <strong>Tech stack:</strong> I built this site using Next.js, React.js, ShadCN,
-                  Tailwind, and Node.js. I had some fun making custom components, like these
+                  <strong>Tech stack:</strong> I built this site using Next.js 15, React 19,
+                  TypeScript, Tailwind CSS v4, and ShadCN UI. The backend uses PostgreSQL with
+                  Drizzle ORM for data persistence, and a FastAPI service for AI-powered image
+                  validation. I had some fun making custom components, like these
                   <RotatingGradientBorder containerClassName="mx-1 inline-block">
                     <span className="px-2">Glowing Gradient Borders</span>
                   </RotatingGradientBorder>
                   .
                 </li>
                 <li>
-                  <strong>Persistence:</strong> No database here! Images are stored as files in a
-                  directory, and their metadata lives in JSON files. Authentication is handled via
-                  NextAuth.js with GitHub OAuth, so users can only delete their own photos.
+                  <strong>Persistence:</strong> All photo metadata is stored in a PostgreSQL
+                  database using Drizzle ORM. Images themselves are stored as files on disk, and
+                  the database tracks filenames, user ownership, and upload timestamps. Database
+                  schema changes are managed through migration files that run automatically on
+                  deployment. Authentication is handled via NextAuth.js with both GitHub and Google
+                  OAuth, and there&apos;s an admin system that allows designated users to delete any
+                  photo.
+                </li>
+                <li>
+                  <strong>AI Validation:</strong> Before any photo is uploaded, it goes through an
+                  AI-powered validation service that checks for NSFW content and verifies that the
+                  image actually contains a dog. This ensures the gallery stays on-brand and
+                  appropriate. The validation runs in a separate FastAPI service container.
+                </li>
+                <li>
+                  <strong>Live Monitoring:</strong> The site includes a real-time system stats
+                  dashboard that shows CPU, memory, disk usage, temperature, network activity, and
+                  container health. This is powered by a system-profiler service that collects
+                  metrics and streams them to the frontend via Server-Sent Events (SSE). It&apos;s a
+                  great way to see the Pi working in real-time!
                 </li>
               </ul>
             </div>
