@@ -2,13 +2,24 @@
 import { cn } from "@/app/lib/utils";
 import { AuthButton } from "@/components/auth-button";
 import LogoImage from "@/public/logo.png";
+import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { ModeToggle } from "./ui/modeToggle";
 
 export default function Header() {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -26,7 +37,8 @@ export default function Header() {
           </Link>
         </div>
 
-        <nav className="flex items-center gap-6">
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-6 md:flex">
           {navigation.map((item) => (
             <Link
               key={item.name}
@@ -40,6 +52,57 @@ export default function Header() {
           ))}
           <AuthButton />
           <ModeToggle />
+        </nav>
+
+        {/* Mobile hamburger button */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:hidden"
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+        >
+          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
+      </div>
+
+      {/* Mobile menu overlay */}
+      <div
+        className={cn(
+          "fixed inset-0 top-16 z-40 bg-background/80 backdrop-blur-sm transition-opacity md:hidden",
+          mobileMenuOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        )}
+        onClick={() => setMobileMenuOpen(false)}
+      />
+
+      {/* Mobile menu drawer */}
+      <div
+        className={cn(
+          "fixed right-0 top-16 z-50 h-[calc(100vh-4rem)] w-64 border-l bg-background p-6 shadow-lg transition-transform duration-300 ease-in-out md:hidden",
+          mobileMenuOpen ? "translate-x-0" : "translate-x-full"
+        )}
+      >
+        <nav className="flex flex-col gap-4">
+          {navigation.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className={cn(
+                "rounded-lg px-3 py-2 text-base font-medium transition-colors hover:bg-muted",
+                pathname === item.href
+                  ? "bg-muted text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              )}>
+              {item.name}
+            </Link>
+          ))}
+          <div className="my-2 border-t" />
+          <div className="px-3">
+            <AuthButton />
+          </div>
+          <div className="flex items-center justify-between px-3">
+            <span className="text-sm text-muted-foreground">Theme</span>
+            <ModeToggle />
+          </div>
         </nav>
       </div>
     </header>
