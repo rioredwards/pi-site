@@ -2,6 +2,14 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useState } from "react";
 import BounceLoader from "react-spinners/BounceLoader";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./dialog";
 
 interface Props {
   id: string;
@@ -77,27 +85,39 @@ export function ImgCard({
         onLoadStart={() => setLoading(true)}
         onLoad={() => setLoading(false)}
       />
-      {showConfirm && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="rounded-lg bg-white bg-opacity-75 p-4 shadow-lg">
-            <p>Are you sure you want to delete this dog?</p>
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                onClick={confirmDelete}
-                className="rounded-lg bg-red-500 px-4 py-2 text-white"
-              >
-                Yes
-              </button>
-              <button
-                onClick={cancelDelete}
-                className="rounded-lg bg-gray-300 px-4 py-2"
-              >
-                No
-              </button>
-            </div>
+      <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete photo?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="relative aspect-square w-full overflow-hidden rounded-lg">
+            <Image
+              src={src}
+              alt={alt}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 90vw, 400px"
+            />
           </div>
-        </div>
-      )}
+          <DialogFooter className="gap-2 sm:gap-0">
+            <button
+              onClick={cancelDelete}
+              className="rounded-lg bg-secondary px-4 py-2 text-secondary-foreground hover:bg-secondary/80"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDelete}
+              className="rounded-lg bg-destructive px-4 py-2 text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
