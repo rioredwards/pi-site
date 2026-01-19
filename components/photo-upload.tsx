@@ -10,10 +10,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { LucideDog } from "lucide-react";
+import { LucideDog, RotateCw } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import Cropper, { Area } from "react-easy-crop";
 import { uploadPhoto } from "../app/actions";
 import { reduceFileSize } from "../app/lib/imgCompress";
 import { Photo } from "../app/lib/types";
@@ -23,16 +24,89 @@ import { DogBotCard } from "./ui/dogBotCard";
 import { RotatingGradientBorder } from "./ui/RotatingGradientBorder";
 import { SignInModal } from "./ui/signInModal";
 
+// Helper to create cropped image from crop area
+async function getCroppedImg(imageSrc: string, pixelCrop: Area, rotation = 0): Promise<Blob> {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  if (!ctx) throw new Error("Could not get canvas context");
+
+  const rotRad = (rotation * Math.PI) / 180;
+
+  // Calculate bounding box of the rotated image
+  const { width: bBoxWidth, height: bBoxHeight } = rotateSize(image.width, image.height, rotation);
+
+  // Set canvas size to match the bounding box
+  canvas.width = bBoxWidth;
+  canvas.height = bBoxHeight;
+
+  // Translate and rotate
+  ctx.translate(bBoxWidth / 2, bBoxHeight / 2);
+  ctx.rotate(rotRad);
+  ctx.translate(-image.width / 2, -image.height / 2);
+
+  // Draw rotated image
+  ctx.drawImage(image, 0, 0);
+
+  // Extract the cropped area
+  const croppedCanvas = document.createElement("canvas");
+  const croppedCtx = croppedCanvas.getContext("2d");
+
+  if (!croppedCtx) throw new Error("Could not get cropped canvas context");
+
+  croppedCanvas.width = pixelCrop.width;
+  croppedCanvas.height = pixelCrop.height;
+
+  croppedCtx.drawImage(
+    canvas,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    pixelCrop.width,
+    pixelCrop.height
+  );
+
+  return new Promise((resolve, reject) => {
+    croppedCanvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("Canvas toBlob failed"));
+    }, "image/jpeg", 0.95);
+  });
+}
+
+function createImage(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new window.Image();
+    image.addEventListener("load", () => resolve(image));
+    image.addEventListener("error", (error) => reject(error));
+    image.src = url;
+  });
+}
+
+function rotateSize(width: number, height: number, rotation: number) {
+  const rotRad = (rotation * Math.PI) / 180;
+  return {
+    width: Math.abs(Math.cos(rotRad) * width) + Math.abs(Math.sin(rotRad) * height),
+    height: Math.abs(Math.sin(rotRad) * width) + Math.abs(Math.cos(rotRad) * height),
+  };
+}
+
 interface Props {
   addPhoto: (photo: Photo) => void;
 }
 
-type ProcessingState = "preSelection" | "selected" | "processing" | "success" | "failure";
+type ProcessingState = "preSelection" | "cropping" | "selected" | "processing" | "success" | "failure";
 
 function getDogModalTitle(processingState: ProcessingState): string {
   switch (processingState) {
     case "preSelection":
       return "Upload Dog";
+    case "cropping":
+      return "Crop Your Dog";
     case "selected":
       return "Nice Dog!";
     case "processing":
@@ -48,6 +122,8 @@ function getDogModalDescription(processingState: ProcessingState): string {
   switch (processingState) {
     case "preSelection":
       return "Select a dog photo to upload to the gallery.";
+    case "cropping":
+      return "Drag to reposition, pinch or scroll to zoom, and rotate if needed.";
     case "selected":
       return "Now press that upload button!";
     case "processing":
@@ -61,6 +137,7 @@ function getDogModalDescription(processingState: ProcessingState): string {
 
 export default function PhotoUpload({ addPhoto }: Props) {
   const [files, setFiles] = useState<File[]>([]);
+  const [croppedFile, setCroppedFile] = useState<File | null>(null);
   const [processingState, setProcessingState] = useState<ProcessingState>("preSelection");
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
@@ -69,10 +146,47 @@ export default function PhotoUpload({ addPhoto }: Props) {
   const { data: session, status } = useSession();
   const [showConfetti, setShowConfetti] = useState(false);
 
-  const previewUrl = useMemo(() => {
+  // Cropper state
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+
+  const originalImageUrl = useMemo(() => {
     if (!files[0]) return null;
     return URL.createObjectURL(files[0]);
   }, [files]);
+
+  const previewUrl = useMemo(() => {
+    if (croppedFile) return URL.createObjectURL(croppedFile);
+    return null;
+  }, [croppedFile]);
+
+  const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const handleCropConfirm = async () => {
+    if (!originalImageUrl || !croppedAreaPixels) return;
+
+    try {
+      const croppedBlob = await getCroppedImg(originalImageUrl, croppedAreaPixels, rotation);
+      const croppedFile = new File([croppedBlob], files[0].name, { type: "image/jpeg" });
+      setCroppedFile(croppedFile);
+      setProcessingState("selected");
+    } catch (error) {
+      devLog("Error cropping image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to crop image. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRotate = () => {
+    setRotation((prev) => (prev + 90) % 360);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -88,10 +202,10 @@ export default function PhotoUpload({ addPhoto }: Props) {
       return;
     }
 
-    if (files.length === 0) {
+    if (!croppedFile) {
       toast({
         title: "Error",
-        description: "Please select at least one photo to upload.",
+        description: "Please select and crop a photo to upload.",
         variant: "destructive",
       });
       setProcessingState("preSelection");
@@ -106,28 +220,23 @@ export default function PhotoUpload({ addPhoto }: Props) {
     const MAX_HEIGHT = 1000;
     const QUALITY = 0.9;
 
-    const file = files[0];
-    const resizedImg = await reduceFileSize(file, MAX_FILE_SIZE, MAX_WIDTH, MAX_HEIGHT, QUALITY);
+    const resizedImg = await reduceFileSize(croppedFile, MAX_FILE_SIZE, MAX_WIDTH, MAX_HEIGHT, QUALITY);
     const formData = new FormData();
     formData.append("file", resizedImg);
     const res = await uploadPhoto(formData);
-    // eslint-disable-next-line no-console
-    console.log("[client] [photo-upload.tsx.handleSubmit.114] res: ", res); // TODO: remove this
+    devLog("[photo-upload] upload response:", res);
 
     const elapsedTime = Date.now() - startTime;
     const remainingTime = Math.max(0, MIN_PROCESSING_TIME - elapsedTime);
     await new Promise((resolve) => setTimeout(resolve, remainingTime));
 
     if (res.error || !res.data) {
-      // eslint-disable-next-line no-console
-      console.log("[client] [photo-upload.tsx.handleSubmit.122] res.error: ", res.error); // TODO: remove this
-      devLog(res.error);
+      devLog("[photo-upload] upload error:", res.error);
       setProcessingState("failure");
       return;
     }
 
-    // eslint-disable-next-line no-console
-    console.log("[client] [photo-upload.tsx.handleSubmit.130] res.data: ", res.data); // TODO: remove this
+    devLog("[photo-upload] upload success:", res.data);
     addPhoto(res.data);
     setProcessingState("success");
     setShowConfetti(true);
@@ -135,6 +244,11 @@ export default function PhotoUpload({ addPhoto }: Props) {
 
   const resetFileInput = () => {
     setFiles([]);
+    setCroppedFile(null);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setRotation(0);
+    setCroppedAreaPixels(null);
     setProcessingState("preSelection");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -159,7 +273,11 @@ export default function PhotoUpload({ addPhoto }: Props) {
         return;
       }
       setFiles(selectedFiles);
-      setProcessingState("selected");
+      setCroppedFile(null);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setRotation(0);
+      setProcessingState("cropping");
     }
   };
 
@@ -254,6 +372,65 @@ export default function PhotoUpload({ addPhoto }: Props) {
                       one dog at a time
                     </div>
                   </label>
+                </div>
+              ) : processingState === "cropping" ? (
+                <div className="space-y-4">
+                  {/* Cropper */}
+                  <div className="relative overflow-hidden rounded-2xl ring-1 ring-border/60">
+                    <div className="relative aspect-square bg-black">
+                      <Cropper
+                        image={originalImageUrl!}
+                        crop={crop}
+                        zoom={zoom}
+                        rotation={rotation}
+                        aspect={1}
+                        onCropChange={setCrop}
+                        onZoomChange={setZoom}
+                        onCropComplete={onCropComplete}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Zoom slider */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Zoom</span>
+                      <span className="font-mono text-xs text-muted-foreground">{zoom.toFixed(1)}x</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={1}
+                      max={3}
+                      step={0.1}
+                      value={zoom}
+                      onChange={(e) => setZoom(parseFloat(e.target.value))}
+                      className="h-2 w-full cursor-pointer appearance-none rounded-full bg-muted accent-primary"
+                    />
+                  </div>
+
+                  {/* Crop actions */}
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      onClick={handleCancel}
+                      variant="outline"
+                      className="flex-1 rounded-xl">
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleRotate}
+                      variant="outline"
+                      className="rounded-xl px-3">
+                      <RotateCw className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleCropConfirm}
+                      className="flex-1 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                      Crop
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-4">
