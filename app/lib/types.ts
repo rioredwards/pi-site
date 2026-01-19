@@ -5,6 +5,7 @@ export type Photo = {
   imgFilename: string;
   src: string;
   alt: string;
+  ownerDisplayName?: string | null;
 };
 
 export type User = {

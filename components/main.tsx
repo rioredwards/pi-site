@@ -8,7 +8,7 @@ import { deletePhoto as deletePhotoFile, getPhotos } from "../app/actions";
 import { Photo } from "../app/lib/types";
 import { useToast } from "../hooks/use-toast";
 import { devLog } from "@/app/lib/utils";
-import { ImgCard } from "./ui/imgCard";
+import { DogFlipCard } from "./dog-flip-card";
 
 export const PhotoUpload = lazy(() => import("@/components/photo-upload"));
 
@@ -108,14 +108,15 @@ export function Main() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {photos.map((photo, index) => (
-            <ImgCard
+            <DogFlipCard
               id={photo.id}
               src={photo.src}
               alt={photo.alt}
               key={photo.id}
               userId={photo.userId}
+              ownerDisplayName={photo.ownerDisplayName}
               deletePhoto={deletePhoto}
               priority={index < 4}
             />

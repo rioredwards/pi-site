@@ -1,6 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { getUserProfile } from "@/app/db/actions";
 import { getProfilePictureUrl } from "@/app/lib/utils";
 import { User as UserType } from "@/app/lib/types";
@@ -45,32 +52,43 @@ export function AuthButton() {
     const profileUrl = session.user?.id ? `/profile/${encodeURIComponent(session.user.id)}` : "#";
 
     return (
-      <div className="flex items-center gap-2">
-        <Link href={profileUrl} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          {profilePictureUrl ? (
-            <img
-              src={profilePictureUrl}
-              alt={displayName || "User"}
-              className="h-6 w-6 rounded-full object-cover"
-            />
-          ) : (
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted">
-              <User className="h-4 w-4 text-muted-foreground" />
-            </div>
-          )}
-          <span className="hidden text-sm text-muted-foreground sm:inline">
-            {displayName}
-          </span>
-        </Link>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => signOut()}
-          className="flex items-center gap-1">
-          <LogOut className="h-4 w-4" />
-          <span className="hidden sm:inline">Sign Out</span>
-        </Button>
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            {profilePictureUrl ? (
+              <img
+                src={profilePictureUrl}
+                alt={displayName || "User"}
+                className="h-8 w-8 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                <User className="h-4 w-4 text-muted-foreground" />
+              </div>
+            )}
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <div className="px-2 py-1.5">
+            <p className="text-sm font-medium">{displayName}</p>
+          </div>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link href={profileUrl} className="cursor-pointer">
+              <User className="mr-2 h-4 w-4" />
+              Profile
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => signOut()}
+            className="cursor-pointer text-destructive focus:text-destructive"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Sign Out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 

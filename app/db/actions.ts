@@ -149,7 +149,19 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
 
 export async function getPhotos(): Promise<APIResponse<Photo[]>> {
   try {
-    const dbPhotos = await getDb().select().from(photos).orderBy(photos.order);
+    const dbPhotos = await getDb()
+      .select({
+        id: photos.id,
+        imgFilename: photos.imgFilename,
+        userId: photos.userId,
+        order: photos.order,
+        src: photos.src,
+        alt: photos.alt,
+        ownerDisplayName: users.displayName,
+      })
+      .from(photos)
+      .leftJoin(users, eq(photos.userId, users.id))
+      .orderBy(photos.order);
 
     const photoData: Photo[] = dbPhotos.map((photo) => ({
       id: photo.id,
@@ -158,6 +170,7 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
       order: photo.order,
       src: photo.src,
       alt: photo.alt,
+      ownerDisplayName: photo.ownerDisplayName,
     }));
 
     const response: APIResponse<Photo[]> = {
