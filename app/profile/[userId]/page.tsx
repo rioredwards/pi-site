@@ -1,18 +1,23 @@
-import { getServerSession } from "next-auth";
-import { Metadata } from "next";
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import { authOptions } from "@/app/auth";
 import { getUserProfile } from "@/app/db/actions";
 import { getProfilePictureUrl } from "@/app/lib/utils";
 import { Button } from "@/components/ui/button";
-import { User, Pencil } from "lucide-react";
+import { Pencil, User } from "lucide-react";
+import { Metadata } from "next";
+import { getServerSession } from "next-auth";
+import { unstable_noStore as noStore } from "next/cache";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+// Force dynamic rendering - profile data must be fetched at runtime
+export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ userId: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  noStore();
   const { userId } = await params;
   const decodedUserId = decodeURIComponent(userId);
   const result = await getUserProfile(decodedUserId);
@@ -29,6 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProfilePage({ params }: Props) {
+  noStore();
   const { userId } = await params;
   const decodedUserId = decodeURIComponent(userId);
 

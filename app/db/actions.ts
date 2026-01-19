@@ -9,7 +9,7 @@ import { getServerSession } from "next-auth";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
 import { Photo, User } from "../lib/types";
-import { db } from "./drizzle";
+import { getDb } from "./drizzle";
 import { photos, users } from "./schema";
 
 export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
@@ -107,11 +107,11 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     await writeFile(imgFilePath, buffer);
 
     // Get current photo count to determine order
-    const photoCountResult = await db.select({ count: count() }).from(photos);
+    const photoCountResult = await getDb().select({ count: count() }).from(photos);
     const photoCount = photoCountResult[0]?.count || 0;
 
     // Save metadata to database
-    const [photo] = await db
+    const [photo] = await getDb()
       .insert(photos)
       .values({
         id: imgId,
@@ -149,7 +149,7 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
 
 export async function getPhotos(): Promise<APIResponse<Photo[]>> {
   try {
-    const dbPhotos = await db.select().from(photos).orderBy(photos.order);
+    const dbPhotos = await getDb().select().from(photos).orderBy(photos.order);
 
     const photoData: Photo[] = dbPhotos.map((photo) => ({
       id: photo.id,
@@ -182,7 +182,7 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
 
   try {
     // Fetch photo from database to verify ownership and get filename
-    const [photo] = await db.select().from(photos).where(eq(photos.id, id)).limit(1);
+    const [photo] = await getDb().select().from(photos).where(eq(photos.id, id)).limit(1);
 
     if (!photo) {
       return { data: undefined, error: "Photo not found" };
@@ -194,7 +194,7 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
     }
 
     // Delete from database
-    await db.delete(photos).where(eq(photos.id, id));
+    await getDb().delete(photos).where(eq(photos.id, id));
 
     // Delete the image file from filesystem
     const imgFilePath = join(IMG_UPLOAD_DIR, photo.imgFilename);
@@ -227,7 +227,7 @@ function createDirIfNotExists(dir: string): void {
 // Get user profile by ID (creates a new profile if it doesn't exist for the current user)
 export async function getUserProfile(userId: string): Promise<APIResponse<User>> {
   try {
-    const [existingUser] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    const [existingUser] = await getDb().select().from(users).where(eq(users.id, userId)).limit(1);
 
     if (existingUser) {
       return {
@@ -245,7 +245,7 @@ export async function getUserProfile(userId: string): Promise<APIResponse<User>>
     // Only create a new profile if the requesting user is the same as the userId
     const session = await getServerSession(authOptions);
     if (session?.user?.id === userId) {
-      const [newUser] = await db
+      const [newUser] = await getDb()
         .insert(users)
         .values({ id: userId })
         .returning();
@@ -293,11 +293,11 @@ export async function updateUserProfile(data: { displayName?: string }): Promise
 
   try {
     // Ensure user exists
-    const [existingUser] = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
+    const [existingUser] = await getDb().select().from(users).where(eq(users.id, session.user.id)).limit(1);
 
     if (!existingUser) {
       // Create user if doesn't exist
-      const [newUser] = await db
+      const [newUser] = await getDb()
         .insert(users)
         .values({
           id: session.user.id,
@@ -322,7 +322,7 @@ export async function updateUserProfile(data: { displayName?: string }): Promise
     }
 
     // Update existing user
-    const [updatedUser] = await db
+    const [updatedUser] = await getDb()
       .update(users)
       .set({
         displayName: data.displayName !== undefined ? (data.displayName || null) : existingUser.displayName,
@@ -394,7 +394,7 @@ export async function uploadProfilePicture(formData: FormData): Promise<APIRespo
     const imgFilePath = join(profilePictureDir, uniqueImgFilename);
 
     // Delete old profile picture if exists
-    const [existingUser] = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
+    const [existingUser] = await getDb().select().from(users).where(eq(users.id, session.user.id)).limit(1);
     if (existingUser?.profilePicture) {
       const oldFilePath = join(profilePictureDir, existingUser.profilePicture);
       if (existsSync(oldFilePath)) {
@@ -407,12 +407,12 @@ export async function uploadProfilePicture(formData: FormData): Promise<APIRespo
 
     // Update or create user record
     if (existingUser) {
-      await db
+      await getDb()
         .update(users)
         .set({ profilePicture: uniqueImgFilename })
         .where(eq(users.id, session.user.id));
     } else {
-      await db
+      await getDb()
         .insert(users)
         .values({
           id: session.user.id,
