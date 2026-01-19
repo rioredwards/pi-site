@@ -52,64 +52,67 @@ export function DogFlipCard({
     setShowConfirm(false);
   };
 
+  // Shared image component used on both sides
+  const dogImage = (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      priority={priority}
+      className="object-cover"
+      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+    />
+  );
+
   return (
     <>
       <FlipCard
-        image={src}
-        imageAlt={alt}
-        imagePriority={priority}
-        minHeight="min-h-0"
         className="aspect-square"
-        cardClassName="shadow-md"
-        frontClassName="bg-muted"
-        backClassName="bg-card border border-border p-3"
-        contentWrapperClassName="h-full w-full"
-        transformScale={1}
-        transformZ={40}
-        frontGradient={false}
+        cardClassName="shadow-md rounded-3xl"
+        frontClassName="rounded-3xl overflow-hidden"
+        backClassName="rounded-3xl overflow-hidden"
+        cardTitle={alt}
         frontContent={
-          isOwner && (
-            <button
-              onClick={handleDelete}
-              className="absolute right-3 top-3 z-20 rounded-full bg-black/50 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70"
-              aria-label="Delete photo"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          )
+          <div className="relative h-full w-full">
+            {dogImage}
+          </div>
         }
         backContent={
-          <div className="flex h-full w-full flex-col">
-            {/* Smaller dog photo */}
-            <div className="relative flex-1 overflow-hidden rounded-2xl">
-              <Image
-                src={src}
-                alt={alt}
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
-            </div>
-            {/* Info panel */}
-            <div className="mt-3 flex items-center gap-2 rounded-xl bg-muted/80 px-3 py-2">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-background">
-                <User className="h-4 w-4 text-muted-foreground" />
+          <div className="relative h-full w-full">
+            {dogImage}
+
+            {/* Delete button - top right */}
+            {isOwner && (
+              <button
+                onClick={handleDelete}
+                className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md transition-colors hover:bg-background"
+                aria-label="Delete photo"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            )}
+
+            {/* Info panel - bottom overlay */}
+            <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center gap-3 rounded-2xl bg-background/90 px-4 py-3 shadow-md backdrop-blur-sm">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+                <User className="h-5 w-5 text-muted-foreground" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-foreground">
+                <p className="text-xs text-muted-foreground">Uploaded by</p>
+                <p className="truncate text-sm font-semibold text-foreground">
                   {ownerDisplayName || "Anonymous"}
                 </p>
               </div>
