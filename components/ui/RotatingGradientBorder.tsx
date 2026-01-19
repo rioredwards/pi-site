@@ -78,7 +78,7 @@ const RotatingGradientBorder = React.forwardRef<
 
     const sharedStyle: React.CSSProperties = {
       animation: spinAnimation
-        ? `spin ${spinAnimationSpeed}s infinite linear`
+        ? `gradient-spin ${spinAnimationSpeed}s infinite linear`
         : "none",
       position: "absolute",
       zIndex: -1,

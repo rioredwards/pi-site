@@ -11,7 +11,7 @@ body {
   syntax: "<angle>";
 }
 
-@keyframes spin {
+@keyframes gradient-spin {
   to {
     --bg-angle: 360deg;
   }
