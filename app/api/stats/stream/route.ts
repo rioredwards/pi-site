@@ -7,19 +7,19 @@ export const dynamic = "force-dynamic";
 
 const POLL_INTERVAL_MS = 2000;
 
-// --- Env helpers ---
-function requireEnv(key: string): string {
-  const value = process.env[key];
-  if (!value) throw new Error(`${key} is not set`);
-  return value;
+// --- Env helpers (don't throw - return null for graceful handling) ---
+function getSystemProfilerBaseUrl(): string | null {
+  return process.env.SYSTEM_PROFILER_BASE_URL ?? null;
 }
 
-function getSystemProfilerBaseUrl(): string {
-  return requireEnv("SYSTEM_PROFILER_BASE_URL");
+function getSystemProfilerAuthToken(): string | null {
+  return process.env.SYSTEM_PROFILER_AUTH_TOKEN ?? null;
 }
 
-function getSystemProfilerAuthToken(): string {
-  return requireEnv("SYSTEM_PROFILER_AUTH_TOKEN");
+function getConfigError(): string | null {
+  if (!getSystemProfilerBaseUrl()) return "SYSTEM_PROFILER_BASE_URL is not configured";
+  if (!getSystemProfilerAuthToken()) return "SYSTEM_PROFILER_AUTH_TOKEN is not configured";
+  return null;
 }
 
 // --- Shared poller state ---
@@ -27,7 +27,13 @@ let latestStats: CombinedStats | null = null;
 let pollerStarted = false;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
-const clients = new Set<ReadableStreamDefaultController<string>>();
+// Track clients with their closed state
+interface ClientController {
+  controller: ReadableStreamDefaultController<string>;
+  closed: boolean;
+}
+
+const clients = new Map<symbol, ClientController>();
 
 function toSseData(payload: unknown): string {
   // SSE format: "data: <json>\n\n"
@@ -37,21 +43,32 @@ function toSseData(payload: unknown): string {
 function broadcast(data: CombinedStats | null) {
   const payload = toSseData(data);
 
-  for (const controller of clients) {
+  for (const [id, client] of clients) {
+    if (client.closed) {
+      clients.delete(id);
+      continue;
+    }
     try {
-      controller.enqueue(payload);
-    } catch (err) {
-      // If a controller is closed/errored, remove it
-      clients.delete(controller);
-      devLog("🔴 [stream/server] Removed closed controller from clients:", err);
+      client.controller.enqueue(payload);
+    } catch {
+      // Controller closed unexpectedly, mark and remove
+      client.closed = true;
+      clients.delete(id);
+      devLog("🔵 [stream/server] Removed closed client");
     }
   }
 }
 
 async function fetchStats(): Promise<CombinedStats | null> {
-  const url = `${getSystemProfilerBaseUrl()}/stats`;
+  const baseUrl = getSystemProfilerBaseUrl();
   const authToken = getSystemProfilerAuthToken();
 
+  // Config missing - handled gracefully
+  if (!baseUrl || !authToken) {
+    return null;
+  }
+
+  const url = `${baseUrl}/stats`;
   devLog("🔵 [stream/server] polling url:", url);
 
   const res = await fetch(url, {
@@ -97,6 +114,12 @@ function startPoller() {
   if (pollerStarted) return;
   pollerStarted = true;
 
+  const configError = getConfigError();
+  if (configError) {
+    devLog("🔴 [stream/server] Cannot start poller:", configError);
+    return;
+  }
+
   devLog("🔵 [stream/server] Starting system-stats poller");
 
   // initial + interval
@@ -107,23 +130,29 @@ function startPoller() {
 export async function GET() {
   startPoller();
 
+  // Unique ID for this client connection
+  const clientId = Symbol("sse-client");
+
   const stream = new ReadableStream<string>({
     start(controller) {
-      clients.add(controller);
-      devLog("🔵 [stream/server] clients after add:", Array.from(clients).length);
+      clients.set(clientId, { controller, closed: false });
+      devLog("🔵 [stream/server] clients after add:", clients.size);
 
-      // Send immediately if we already have data (or even if it's null—your call).
+      // Send immediately if we already have data
       if (latestStats !== null) {
         const payload = toSseData(latestStats);
-        devLog("🔵 [stream/server] enqueuing initial payload:", payload);
+        devLog("🔵 [stream/server] enqueuing initial payload");
         controller.enqueue(payload);
       }
     },
     cancel() {
-      // NOTE: cancel doesn't provide the same controller instance here reliably to delete,
-      // so cleanup is primarily handled by enqueue try/catch.
-      // Still, we can’t identify which controller canceled from here.
-      devLog("🔵 [stream/server] stream canceled by client");
+      // Mark as closed and remove
+      const client = clients.get(clientId);
+      if (client) {
+        client.closed = true;
+        clients.delete(clientId);
+      }
+      devLog("🔵 [stream/server] stream canceled, clients remaining:", clients.size);
     },
   });
 

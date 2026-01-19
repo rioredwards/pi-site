@@ -27,6 +27,7 @@ const eslintConfig = defineConfig([
     "server.js",
     "system-profiler/**",
     "components/pi-model-3d.tsx", // Three.js code uses patterns incompatible with React Compiler
+    "components/pi-model-canvas.tsx", // Three.js Canvas wrapper
   ]),
 ]);
 
