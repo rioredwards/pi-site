@@ -69,7 +69,7 @@ async function fetchStats(): Promise<CombinedStats | null> {
   }
 
   const url = `${baseUrl}/stats`;
-  devLog("🔵 [stream/server] polling url:", url);
+  // devLog("🔵 [stream/server] polling url:", url);
 
   const res = await fetch(url, {
     headers: { "X-Profiler-Token": authToken },

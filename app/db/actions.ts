@@ -16,15 +16,9 @@ export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; 
 
 const IMG_UPLOAD_DIR = process.env.IMG_UPLOAD_DIR!;
 
-// Debug logging to understand what's happening
-devLog("IMG_UPLOAD_DIR:", IMG_UPLOAD_DIR);
-devLog("NODE_ENV:", process.env.NODE_ENV);
-devLog("cwd:", process.cwd());
-
 const IMAGE_READ_BASE_URL = "/api/assets/images/";
 
 export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
-  console.error("🔥🔥🔥=== UPLOAD PHOTO CALLED ===🔥🔥🔥");
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return {
@@ -60,8 +54,6 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
 
       const validatorUrl = `${validatorBaseUrl.replace(/\/+$/, "")}/analyze`;
 
-      devLog("validatorUrl: ", validatorUrl);
-
       const validatorFormData = new FormData();
       validatorFormData.append("file", file);
 
@@ -75,8 +67,6 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
         devLog("AI validator service unavailable, proceeding without validation");
       } else {
         const analysisResult = await response.json();
-
-        devLog("analysisResult", analysisResult);
 
         // Validate: must be SFW and must be a dog
         if (analysisResult.is_nsfw) {
@@ -93,10 +83,13 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
           };
         }
       }
-    } catch (validatorError) {
-      // If validator fails, log but don't block upload (fail open for now)
-      // In production, you might want to fail closed
-      devLog("AI validator check failed:", validatorError);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_error) {
+      // If validator fails, block upload
+      return {
+        data: undefined,
+        error: "AI validator check failed. Please try again.",
+      };
     }
 
     const bytes = await file.arrayBuffer();
@@ -219,13 +212,10 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
 // Helper function to create a directory if it doesn't exist
 function createDirIfNotExists(dir: string): void {
   try {
-    devLog(`Checking if directory exists: ${dir}`);
     if (!existsSync(dir)) {
       devLog(`Directory doesn't exist, creating: ${dir}`);
       mkdirSync(dir, { recursive: true });
       devLog(`Successfully created upload directory: ${dir}`);
-    } else {
-      devLog(`Directory already exists: ${dir}`);
     }
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : "Unknown error";

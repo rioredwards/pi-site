@@ -1,3 +1,5 @@
+import { devLog } from "./utils";
+
 function defineWindowUrlIfNotDefined() {
   if (typeof window === "undefined") return;
 
@@ -121,10 +123,7 @@ export function reduceFileSize(
         canvas.toBlob(
           function (blob) {
             if (blob) {
-              if (process.env.NODE_ENV === "development") {
-                // eslint-disable-next-line no-console
-                console.log("Resized image to " + w + "x" + h + ", " + (blob.size >> 10) + "kB");
-              }
+              devLog(`Resized image to ${w}x${h}, ${blob.size >> 10}kB`);
               resolve(blob);
             } else {
               reject(new Error("Blob creation error"));
