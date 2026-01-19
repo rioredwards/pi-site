@@ -7,3 +7,11 @@ export type Photo = {
   alt: string;
 };
 
+export type User = {
+  id: string;
+  displayName: string | null;
+  profilePicture: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+

@@ -8,9 +8,9 @@ import { writeFile } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
-import { Photo } from "../lib/types";
+import { Photo, User } from "../lib/types";
 import { db } from "./drizzle";
-import { photos } from "./schema";
+import { photos, users } from "./schema";
 
 export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
 
@@ -221,5 +221,211 @@ function createDirIfNotExists(dir: string): void {
     const errorMsg = error instanceof Error ? error.message : "Unknown error";
     devLog(`Failed to create directory "${dir}". Error:`, error);
     throw new Error(`Failed to create upload directory "${dir}": ${errorMsg}`);
+  }
+}
+
+// Get user profile by ID (creates a new profile if it doesn't exist for the current user)
+export async function getUserProfile(userId: string): Promise<APIResponse<User>> {
+  try {
+    const [existingUser] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+
+    if (existingUser) {
+      return {
+        data: {
+          id: existingUser.id,
+          displayName: existingUser.displayName,
+          profilePicture: existingUser.profilePicture,
+          createdAt: existingUser.createdAt,
+          updatedAt: existingUser.updatedAt,
+        },
+        error: undefined,
+      };
+    }
+
+    // Only create a new profile if the requesting user is the same as the userId
+    const session = await getServerSession(authOptions);
+    if (session?.user?.id === userId) {
+      const [newUser] = await db
+        .insert(users)
+        .values({ id: userId })
+        .returning();
+
+      if (!newUser) {
+        return { data: undefined, error: "Failed to create user profile." };
+      }
+
+      return {
+        data: {
+          id: newUser.id,
+          displayName: newUser.displayName,
+          profilePicture: newUser.profilePicture,
+          createdAt: newUser.createdAt,
+          updatedAt: newUser.updatedAt,
+        },
+        error: undefined,
+      };
+    }
+
+    // User not found and requester is not the owner
+    return { data: undefined, error: "User not found." };
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    return { data: undefined, error: errorMsg };
+  }
+}
+
+// Update user profile (display name)
+export async function updateUserProfile(data: { displayName?: string }): Promise<APIResponse<User>> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return {
+      data: undefined,
+      error: "You must be signed in to update your profile.",
+    };
+  }
+
+  // Validate display name
+  if (data.displayName !== undefined) {
+    if (data.displayName.length > 50) {
+      return { data: undefined, error: "Display name must be 50 characters or less." };
+    }
+  }
+
+  try {
+    // Ensure user exists
+    const [existingUser] = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
+
+    if (!existingUser) {
+      // Create user if doesn't exist
+      const [newUser] = await db
+        .insert(users)
+        .values({
+          id: session.user.id,
+          displayName: data.displayName || null,
+        })
+        .returning();
+
+      if (!newUser) {
+        return { data: undefined, error: "Failed to create user profile." };
+      }
+
+      return {
+        data: {
+          id: newUser.id,
+          displayName: newUser.displayName,
+          profilePicture: newUser.profilePicture,
+          createdAt: newUser.createdAt,
+          updatedAt: newUser.updatedAt,
+        },
+        error: undefined,
+      };
+    }
+
+    // Update existing user
+    const [updatedUser] = await db
+      .update(users)
+      .set({
+        displayName: data.displayName !== undefined ? (data.displayName || null) : existingUser.displayName,
+      })
+      .where(eq(users.id, session.user.id))
+      .returning();
+
+    if (!updatedUser) {
+      return { data: undefined, error: "Failed to update profile." };
+    }
+
+    return {
+      data: {
+        id: updatedUser.id,
+        displayName: updatedUser.displayName,
+        profilePicture: updatedUser.profilePicture,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
+      },
+      error: undefined,
+    };
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    return { data: undefined, error: errorMsg };
+  }
+}
+
+// Upload profile picture
+export async function uploadProfilePicture(formData: FormData): Promise<APIResponse<{ filename: string }>> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return {
+      data: undefined,
+      error: "You must be signed in to upload a profile picture.",
+    };
+  }
+
+  const file = formData.get("file") as File;
+  if (!file) {
+    return { data: undefined, error: "No file uploaded" };
+  }
+
+  // Validate file type
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+  if (!allowedTypes.includes(file.type)) {
+    return {
+      data: undefined,
+      error: "Invalid file type. Only JPEG, PNG, and WebP images are allowed.",
+    };
+  }
+
+  // Validate file size (max 2MB for profile pictures)
+  const maxSize = 2 * 1024 * 1024; // 2MB
+  if (file.size > maxSize) {
+    return { data: undefined, error: "File size exceeds 2MB limit." };
+  }
+
+  try {
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    const imgFilename = file.name.replaceAll(" ", "_");
+    const imgId = uuidv4();
+    const uniqueImgFilename = `${imgId}-${imgFilename}`;
+
+    // Store profile pictures in a separate directory
+    const profilePictureDir = join(IMG_UPLOAD_DIR, "profiles");
+    createDirIfNotExists(profilePictureDir);
+    const imgFilePath = join(profilePictureDir, uniqueImgFilename);
+
+    // Delete old profile picture if exists
+    const [existingUser] = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
+    if (existingUser?.profilePicture) {
+      const oldFilePath = join(profilePictureDir, existingUser.profilePicture);
+      if (existsSync(oldFilePath)) {
+        unlinkSync(oldFilePath);
+      }
+    }
+
+    // Write the image file
+    await writeFile(imgFilePath, buffer);
+
+    // Update or create user record
+    if (existingUser) {
+      await db
+        .update(users)
+        .set({ profilePicture: uniqueImgFilename })
+        .where(eq(users.id, session.user.id));
+    } else {
+      await db
+        .insert(users)
+        .values({
+          id: session.user.id,
+          profilePicture: uniqueImgFilename,
+        });
+    }
+
+    return {
+      data: { filename: uniqueImgFilename },
+      error: undefined,
+    };
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    return { data: undefined, error: errorMsg };
   }
 }

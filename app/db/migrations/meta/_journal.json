@@ -15,6 +15,13 @@
       "when": 1767854558717,
       "tag": "0001_icy_hitman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768811977497,
+      "tag": "0002_fast_dakota_north",
+      "breakpoints": true
     }
   ]
 }

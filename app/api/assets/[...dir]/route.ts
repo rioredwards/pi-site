@@ -39,6 +39,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ dir: st
     if (dirParts[0] === "images" && dirParts.length > 1) {
       const filename = dirParts.slice(1).join("/");
       filePath = join(IMG_UPLOAD_DIR, filename);
+    } else if (dirParts[0] === "profiles" && dirParts.length > 1) {
+      // Profile pictures are stored in IMG_UPLOAD_DIR/profiles/
+      const filename = dirParts.slice(1).join("/");
+      filePath = join(IMG_UPLOAD_DIR, "profiles", filename);
     } else {
       // Fallback to public directory for other assets
       filePath = join(process.cwd(), "public", dir);
