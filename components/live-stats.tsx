@@ -266,7 +266,7 @@ export function LiveStats() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const eventSource = new EventSource("/api/stats/stream");
+    const eventSource = new EventSource("/api/stats");
     devLog("🔵 [stream/client] LiveStats eventSource:", eventSource);
 
     eventSource.onopen = () => {

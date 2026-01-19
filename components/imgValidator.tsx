@@ -109,17 +109,15 @@ export default function ImgValidator() {
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-400">NSFW Score</span>
                   <span
-                    className={`font-semibold ${
-                      result.is_nsfw ? "text-red-400" : "text-green-400"
-                    }`}>
+                    className={`font-semibold ${result.is_nsfw ? "text-red-400" : "text-green-400"
+                      }`}>
                     {result.nsfw_score.toFixed(4)}
                   </span>
                 </div>
                 <div className="w-full bg-gray-700 rounded-full h-2">
                   <div
-                    className={`h-2 rounded-full transition-all ${
-                      result.is_nsfw ? "bg-red-500" : "bg-gray-600"
-                    }`}
+                    className={`h-2 rounded-full transition-all ${result.is_nsfw ? "bg-red-500" : "bg-gray-600"
+                      }`}
                     style={{ width: `${result.nsfw_score * 100}%` }}
                   />
                 </div>
@@ -141,17 +139,15 @@ export default function ImgValidator() {
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-400">Dog Probability</span>
                   <span
-                    className={`font-semibold ${
-                      result.is_dog ? "text-green-400" : "text-gray-400"
-                    }`}>
+                    className={`font-semibold ${result.is_dog ? "text-green-400" : "text-gray-400"
+                      }`}>
                     {result.dog_probability.toFixed(4)}
                   </span>
                 </div>
                 <div className="w-full bg-gray-700 rounded-full h-2">
                   <div
-                    className={`h-2 rounded-full transition-all ${
-                      result.is_dog ? "bg-green-500" : "bg-gray-600"
-                    }`}
+                    className={`h-2 rounded-full transition-all ${result.is_dog ? "bg-green-500" : "bg-gray-600"
+                      }`}
                     style={{ width: `${result.dog_probability * 100}%` }}
                   />
                 </div>
