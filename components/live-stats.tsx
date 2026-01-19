@@ -18,6 +18,7 @@ import {
   YAxis,
 } from "recharts";
 import { devLog } from "../app/lib/utils";
+import { PiModelCanvas } from "./pi-model-canvas";
 
 type HistoryPoint = {
   t: number; // epoch ms
@@ -420,28 +421,28 @@ export function LiveStats() {
   const cpuDomain = useMemo(() => {
     // Early return: if no history data, use full 0-100% range
     if (history.length === 0) return [0, 100];
-    
+
     // Extract all CPU values from history, filtering out invalid (NaN/null) values
     const cpuValues = history.map((h) => h.cpu).filter((v) => !Number.isNaN(v) && v != null);
-    
+
     // Early return: if no valid CPU values found, use full 0-100% range
     if (cpuValues.length === 0) return [0, 100];
-    
+
     // Calculate min: take the smallest CPU value, multiply by 0.9 to add 10% padding below,
     // then ensure it doesn't go below 0 (since percentages can't be negative)
     const min = Math.max(0, Math.min(...cpuValues) * 0.9);
-    
+
     // Calculate max: take the largest CPU value, multiply by 1.1 to add 10% padding above,
     // then ensure it doesn't exceed 100% (the maximum possible percentage)
     const max = Math.min(100, Math.max(...cpuValues) * 1.1);
-    
+
     // Special case: if the max value is very small (< 5%), ensure a minimum visible range
     // This prevents the axis from being too compressed when CPU usage is consistently low
     // (e.g., if CPU is always 1-2%, we want to see it clearly, not squished at the bottom)
     if (max < 5) {
       return [0, Math.max(5, max)];
     }
-    
+
     // Return the calculated domain [min, max] for the CPU Y-axis
     return [min, max];
   }, [history]);
@@ -449,28 +450,28 @@ export function LiveStats() {
   const memDomain = useMemo(() => {
     // Early return: if no history data, use full 0-100% range
     if (history.length === 0) return [0, 100];
-    
+
     // Extract all Memory values from history, filtering out invalid (NaN/null) values
     const memValues = history.map((h) => h.mem).filter((v) => !Number.isNaN(v) && v != null);
-    
+
     // Early return: if no valid Memory values found, use full 0-100% range
     if (memValues.length === 0) return [0, 100];
-    
+
     // Calculate min: take the smallest Memory value, multiply by 0.9 to add 10% padding below,
     // then ensure it doesn't go below 0 (since percentages can't be negative)
     const min = Math.max(0, Math.min(...memValues) * 0.9);
-    
+
     // Calculate max: take the largest Memory value, multiply by 1.1 to add 10% padding above,
     // then ensure it doesn't exceed 100% (the maximum possible percentage)
     const max = Math.min(100, Math.max(...memValues) * 1.1);
-    
+
     // Special case: if the max value is very small (< 5%), ensure a minimum visible range
     // This prevents the axis from being too compressed when Memory usage is consistently low
     // (e.g., if Memory is always 1-2%, we want to see it clearly, not squished at the bottom)
     if (max < 5) {
       return [0, Math.max(5, max)];
     }
-    
+
     // Return the calculated domain [min, max] for the Memory Y-axis
     return [min, max];
   }, [history]);
@@ -581,6 +582,8 @@ export function LiveStats() {
               ⚠️ {error}
             </div>
           ) : null}
+
+          <PiModelCanvas />
         </div>
 
         {/* Connection summary card */}
