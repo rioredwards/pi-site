@@ -1,7 +1,8 @@
 "use client";
 import { cn } from "@/app/lib/utils";
 import { AuthButton } from "@/components/auth-button";
-import { PawPrint } from "lucide-react";
+import LogoImage from "@/public/logo.png";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "./ui/modeToggle";
@@ -20,7 +21,7 @@ export default function Header() {
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center space-x-2">
-            <PawPrint strokeWidth={2} fill="black" className="mt-[2px] h-6 w-6" />
+            <Image src={LogoImage} alt="DogTownUSA" width={32} height={32} />
             <span className="text-xl font-bold">DogTownUSA</span>
           </Link>
         </div>
