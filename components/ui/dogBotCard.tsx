@@ -1,11 +1,11 @@
 "use client";
 import { cn } from "@/app/lib/utils";
 
-type ProcessingState = "preSelection" | "selected" | "processing" | "success" | "failure";
+type ProcessingState = "preSelection" | "cropping" | "selected" | "processing" | "success" | "failure";
 
 type DogBotUI = {
   show: boolean;
-  chip?: string;
+  statusText?: string;
   title?: string;
   subtitle?: string;
   emoji?: string;
@@ -14,14 +14,13 @@ type DogBotUI = {
 };
 
 function getDogBotUI(processingState: ProcessingState): DogBotUI {
-  // Single "card" used for processing + success + failure.
   switch (processingState) {
     case "processing":
       return {
         show: true,
-        chip: "DOG CHECK",
-        title: "Processing dog…",
-        subtitle: "Dog Verification Bot is reviewing your dog...",
+        statusText: "processing...",
+        title: "Hold up",
+        subtitle: "DogBot is processing your dog...",
         emoji: "🤖",
         tone: "neutral" as const,
         showLoader: true,
@@ -29,9 +28,9 @@ function getDogBotUI(processingState: ProcessingState): DogBotUI {
     case "success":
       return {
         show: true,
-        chip: "APPROVED",
-        title: "Confirmed: Dog",
-        subtitle: "Verification complete. Your dog is a dog.",
+        statusText: "success",
+        title: "Affirmative",
+        subtitle: "That is a dog",
         emoji: "🤖👍",
         tone: "success" as const,
         showLoader: false,
@@ -39,9 +38,9 @@ function getDogBotUI(processingState: ProcessingState): DogBotUI {
     case "failure":
       return {
         show: true,
-        chip: "REJECTED",
-        title: "Status: Not Dog",
-        subtitle: "Please submit a more dog-like dog.",
+        statusText: "error",
+        title: "Rejected",
+        subtitle: "Please submit a more dog-like dog",
         emoji: "🤖👎",
         tone: "failure" as const,
         showLoader: false,
@@ -61,71 +60,86 @@ export function DogBotCard({ processingState }: DogBotCardProps) {
   if (!dogBot.show) return null;
 
   return (
-    <div className="absolute inset-0 z-10 flex items-center justify-center p-5">
-      {/* Backdrop blur layer */}
-      <div className="absolute inset-0 bg-black/45 backdrop-blur-[2px]" />
-
+    <div className="absolute inset-0 z-10 flex flex-col">
+      {/* Color overlay */}
       <div
         className={cn(
-          "relative w-full max-w-[380px] rounded-2xl border p-5 shadow-2xl",
-          "bg-white/20 backdrop-blur-md",
-          "ring-1",
-          dogBot.tone === "success" && "border-emerald-200/20 ring-emerald-200/20",
-          dogBot.tone === "failure" && "border-rose-200/20 ring-rose-200/20",
-          dogBot.tone === "neutral" && "border-white/15 ring-white/15"
-        )}>
-        <div className="flex items-start gap-4">
-          <div
-            className={cn(
-              "flex h-14 w-18 shrink-0 items-center justify-center rounded-2xl ring-1",
-              dogBot.tone === "success" && "bg-emerald-500/10 ring-emerald-200/20",
-              dogBot.tone === "failure" && "bg-rose-500/10 ring-rose-200/20",
-              dogBot.tone === "neutral" && "bg-white/15 ring-white/20"
-            )}>
-            <span className="text-2xl tracking-widest">{dogBot.emoji}</span>
-          </div>
+          "absolute inset-0",
+          dogBot.tone === "success" && "bg-green-500/50",
+          dogBot.tone === "failure" && "bg-red-500/40",
+          dogBot.tone === "neutral" && "bg-blue-600/40"
+        )}
+      />
 
-          <div className="min-w-0 flex-1">
-            <div
+      {/* Blur layer for processing */}
+      {dogBot.tone === "neutral" && (
+        <div className="absolute inset-0 backdrop-blur-sm" />
+      )}
+
+      {/* Status pill - top right */}
+      <div className="absolute right-4 top-4 z-20">
+        <div
+          className={cn(
+            "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-lg",
+            dogBot.tone === "success" && "bg-gray-900 text-white",
+            dogBot.tone === "failure" && "bg-red-500 text-white",
+            dogBot.tone === "neutral" && "bg-blue-600 text-white"
+          )}
+        >
+          {dogBot.showLoader ? (
+            <span className="inline-block h-2.5 w-2.5 animate-pulse rounded-full bg-blue-300" />
+          ) : (
+            <span
               className={cn(
-                "mb-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ring-1",
-                dogBot.tone === "success" &&
-                  "bg-emerald-500/10 text-emerald-50/90 ring-emerald-200/20",
-                dogBot.tone === "failure" && "bg-rose-500/10 text-rose-50/90 ring-rose-200/20",
-                dogBot.tone === "neutral" && "bg-white/10 text-white/80 ring-white/15"
-              )}>
-              {dogBot.showLoader ? (
-                <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-white/70" />
-              ) : (
-                <span
-                  className={cn(
-                    "inline-block h-2 w-2 rounded-full",
-                    dogBot.tone === "success" && "bg-emerald-200/70",
-                    dogBot.tone === "failure" && "bg-rose-200/70"
-                  )}
-                />
+                "inline-block h-2.5 w-2.5 rounded-full",
+                dogBot.tone === "success" && "bg-green-400",
+                dogBot.tone === "failure" && "bg-red-200"
               )}
-              {dogBot.chip}
-            </div>
+            />
+          )}
+          {dogBot.statusText}
+        </div>
+      </div>
 
-            <div className="text-base font-semibold text-white">{dogBot.title}</div>
-            <div className="mt-1 text-sm text-white/75">{dogBot.subtitle}</div>
+      {/* Message bubble - center */}
+      <div className="relative z-20 flex flex-1 items-center justify-center px-6">
+        <div className="flex items-center gap-3 rounded-2xl bg-white px-5 py-4 shadow-xl">
+          <span className="text-3xl">{dogBot.emoji}</span>
+          <div>
+            <div className="text-base font-bold text-gray-900">{dogBot.title}</div>
+            <div className="text-sm text-gray-600">{dogBot.subtitle}</div>
+          </div>
+        </div>
+      </div>
 
-            {dogBot.showLoader ? (
-              <>
-                <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-white/10 ring-1 ring-white/10">
-                  <div className="h-full w-1/2 animate-[dogloading_1.1s_ease-in-out_infinite] rounded-full bg-white/50" />
-                </div>
-                <div className="mt-2 text-xs font-mono text-white/60">please remain calm</div>
-              </>
-            ) : (
-              <div className="mt-3 text-xs font-mono text-white/60">
-                reference id: dog-{dogBot.tone}
-              </div>
-            )}
+      {/* DogBot logo - bottom left */}
+      <div className="absolute bottom-4 left-4 z-20 flex items-center gap-2">
+        <span className="text-2xl">🤖</span>
+        <div>
+          <div className="text-sm font-bold text-white drop-shadow-md">
+            DogBot™
+          </div>
+          <div className="text-[10px] text-cyan-300 drop-shadow-md">
+            &lt;Integrated Dog Detection System&gt;
           </div>
         </div>
       </div>
     </div>
   );
+}
+
+/**
+ * Get the border color class for the modal based on processing state
+ */
+export function getDogBotBorderClass(processingState: ProcessingState): string {
+  switch (processingState) {
+    case "processing":
+      return "ring-4 ring-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.5)]";
+    case "success":
+      return "ring-4 ring-green-500 shadow-[0_0_30px_rgba(34,197,94,0.5)]";
+    case "failure":
+      return "ring-4 ring-red-500 shadow-[0_0_30px_rgba(239,68,68,0.5)]";
+    default:
+      return "ring-1 ring-border/60";
+  }
 }

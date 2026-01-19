@@ -13,14 +13,14 @@ import { useToast } from "@/hooks/use-toast";
 import { LucideDog, RotateCw } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Cropper, { Area } from "react-easy-crop";
 import { uploadPhoto } from "../app/actions";
 import { reduceFileSize } from "../app/lib/imgCompress";
 import { Photo } from "../app/lib/types";
 import Confetti from "./Confetti";
 import { GradientText } from "./funText";
-import { DogBotCard } from "./ui/dogBotCard";
+import { DogBotCard, getDogBotBorderClass } from "./ui/dogBotCard";
 import { RotatingGradientBorder } from "./ui/RotatingGradientBorder";
 import { SignInModal } from "./ui/signInModal";
 
@@ -166,6 +166,36 @@ export default function PhotoUpload({ addPhoto }: Props) {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
+  const resetFileInput = useCallback(() => {
+    setFiles([]);
+    setCroppedFile(null);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setRotation(0);
+    setCroppedAreaPixels(null);
+    setProcessingState("preSelection");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, []);
+
+  // Auto-progress through success/failure states after 5 seconds
+  useEffect(() => {
+    if (processingState === "success") {
+      const timer = setTimeout(() => {
+        setShowUploadDialog(false);
+        resetFileInput();
+        // Trigger confetti after modal closes
+        setTimeout(() => setShowConfetti(true), 100);
+      }, 5000);
+      return () => clearTimeout(timer);
+    } else if (processingState === "failure") {
+      const timer = setTimeout(() => {
+        setShowUploadDialog(false);
+        resetFileInput();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [processingState, resetFileInput]);
+
   const handleCropConfirm = async () => {
     if (!originalImageUrl || !croppedAreaPixels) return;
 
@@ -239,22 +269,9 @@ export default function PhotoUpload({ addPhoto }: Props) {
     devLog("[photo-upload] upload success:", res.data);
     addPhoto(res.data);
     setProcessingState("success");
-    setShowConfetti(true);
-  };
-
-  const resetFileInput = () => {
-    setFiles([]);
-    setCroppedFile(null);
-    setCrop({ x: 0, y: 0 });
-    setZoom(1);
-    setRotation(0);
-    setCroppedAreaPixels(null);
-    setProcessingState("preSelection");
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleCancel = () => resetFileInput();
-  const handleUploadAnother = () => resetFileInput();
 
   const handleClose = () => {
     setShowUploadDialog(false);
@@ -290,9 +307,8 @@ export default function PhotoUpload({ addPhoto }: Props) {
     setShowUploadDialog(true);
   };
 
-  const isLocked = processingState === "processing";
-  const showActions =
-    processingState === "selected" ||
+  const isDogBotMode =
+    processingState === "processing" ||
     processingState === "success" ||
     processingState === "failure";
 
@@ -331,20 +347,42 @@ export default function PhotoUpload({ addPhoto }: Props) {
         onOpenChange={(open) => {
           if (!open) handleClose();
         }}>
-        <DialogContent className="sm:max-w-[560px] rounded-3xl border border-border/60 bg-background/90 p-0 shadow-2xl backdrop-blur">
-          <div className="px-6 pt-6">
-            <DialogHeader className="space-y-1">
-              <DialogTitle className="text-xl tracking-tight">
-                {getDogModalTitle(processingState)}
-              </DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">
-                {getDogModalDescription(processingState)}
-              </DialogDescription>
-            </DialogHeader>
-          </div>
+        <DialogContent
+          className={cn(
+            "sm:max-w-[560px] rounded-3xl p-0",
+            isDogBotMode
+              ? cn("border-0 bg-transparent overflow-hidden transition-all duration-300", getDogBotBorderClass(processingState))
+              : "border border-border/60 bg-background/90 backdrop-blur shadow-2xl"
+          )}
+          hideCloseButton={isDogBotMode}
+        >
+          {/* DogBot mode - just the image with overlay */}
+          {isDogBotMode ? (
+            <div className="relative aspect-square overflow-hidden rounded-3xl">
+              <Image
+                src={previewUrl!}
+                alt="Dog photo"
+                fill={true}
+                className="object-cover scale-[1.01]"
+              />
+              <DogBotCard processingState={processingState} />
+            </div>
+          ) : (
+            <>
+              {/* Regular form mode */}
+              <div className="px-6 pt-6">
+                <DialogHeader className="space-y-1">
+                  <DialogTitle className="text-xl tracking-tight">
+                    {getDogModalTitle(processingState)}
+                  </DialogTitle>
+                  <DialogDescription className="text-sm text-muted-foreground">
+                    {getDogModalDescription(processingState)}
+                  </DialogDescription>
+                </DialogHeader>
+              </div>
 
-          <div className="px-6 pb-6 pt-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="px-6 pb-6 pt-4">
+                <form onSubmit={handleSubmit} className="space-y-4">
               {!files.length ? (
                 <div className="rounded-2xl border border-dashed border-border/80 bg-muted/30 p-3">
                   <label
@@ -432,80 +470,37 @@ export default function PhotoUpload({ addPhoto }: Props) {
                     </Button>
                   </div>
                 </div>
-              ) : (
+              ) : processingState === "selected" ? (
                 <div className="space-y-4">
-                  {/* Image stage */}
+                  {/* Image preview */}
                   <div className="relative overflow-hidden rounded-2xl ring-1 ring-border/60">
                     <div className="relative aspect-square">
                       <Image
                         src={previewUrl!}
                         alt="Dog photo"
                         fill={true}
-                        className={cn(
-                          "object-cover transition duration-500",
-                          processingState === "processing" ||
-                            processingState === "success" ||
-                            processingState === "failure"
-                            ? "scale-[1.01] saturate-[0.9]"
-                            : ""
-                        )}
+                        className="object-cover"
                       />
-
-                      {/* Subtle vignette when card is shown (processing/success/failure) */}
-                      {(processingState === "processing" ||
-                        processingState === "success" ||
-                        processingState === "failure") && (
-                        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/55 via-black/10 to-black/20" />
-                      )}
-
-                      {/* Persistent Dog Bot card overlay (processing/success/failure) */}
-                      <DogBotCard processingState={processingState} />
                     </div>
                   </div>
 
                   {/* Actions */}
-                  {showActions && (
-                    <div className="flex gap-2">
-                      {processingState === "selected" ? (
-                        <>
-                          <Button
-                            type="button"
-                            onClick={handleCancel}
-                            variant="outline"
-                            className="flex-1 rounded-xl"
-                            disabled={isLocked}>
-                            Cancel
-                          </Button>
-                          <Button
-                            type="submit"
-                            className="flex-1 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                            disabled={isLocked}>
-                            Upload
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button
-                            type="button"
-                            onClick={handleUploadAnother}
-                            variant="outline"
-                            className="flex-1 rounded-xl"
-                            disabled={isLocked}>
-                            Upload Another
-                          </Button>
-                          <Button
-                            type="button"
-                            onClick={handleClose}
-                            className="flex-1 rounded-xl"
-                            disabled={isLocked}>
-                            Close
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      onClick={handleCancel}
+                      variant="outline"
+                      className="flex-1 rounded-xl">
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="flex-1 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                      Upload
+                    </Button>
+                  </div>
                 </div>
-              )}
+              ) : null}
 
               <Input
                 id="photo"
@@ -517,6 +512,8 @@ export default function PhotoUpload({ addPhoto }: Props) {
               />
             </form>
           </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
 

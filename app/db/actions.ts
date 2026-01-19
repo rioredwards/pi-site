@@ -127,6 +127,9 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
       return { data: undefined, error: "Failed to save photo to database." };
     }
 
+    // Fetch user info to include display name and profile picture
+    const [user] = await getDb().select().from(users).where(eq(users.id, session.user.id)).limit(1);
+
     const metadata: Photo = {
       id: photo.id,
       imgFilename: photo.imgFilename,
@@ -134,6 +137,8 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
       order: photo.order,
       src: photo.src,
       alt: photo.alt,
+      ownerDisplayName: user?.displayName ?? null,
+      ownerProfilePicture: user?.profilePicture ?? null,
     };
 
     const response: APIResponse<Photo> = {
@@ -158,6 +163,7 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
         src: photos.src,
         alt: photos.alt,
         ownerDisplayName: users.displayName,
+        ownerProfilePicture: users.profilePicture,
       })
       .from(photos)
       .leftJoin(users, eq(photos.userId, users.id))
@@ -171,6 +177,7 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
       src: photo.src,
       alt: photo.alt,
       ownerDisplayName: photo.ownerDisplayName,
+      ownerProfilePicture: photo.ownerProfilePicture,
     }));
 
     const response: APIResponse<Photo[]> = {

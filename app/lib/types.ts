@@ -6,6 +6,7 @@ export type Photo = {
   src: string;
   alt: string;
   ownerDisplayName?: string | null;
+  ownerProfilePicture?: string | null;
 };
 
 export type User = {

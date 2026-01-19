@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import Image from "next/image";
 import { User } from "lucide-react";
+import { getProfilePictureUrl } from "@/app/lib/utils";
 import { FlipCard } from "./flip-card";
 import {
   Dialog,
@@ -20,6 +21,7 @@ interface DogFlipCardProps {
   alt: string;
   userId: string;
   ownerDisplayName?: string | null;
+  ownerProfilePicture?: string | null;
   deletePhoto: (id: string) => void;
   priority?: boolean;
 }
@@ -30,6 +32,7 @@ export function DogFlipCard({
   alt,
   userId,
   ownerDisplayName,
+  ownerProfilePicture,
   deletePhoto,
   priority = false,
 }: DogFlipCardProps) {
@@ -107,8 +110,18 @@ export function DogFlipCard({
 
             {/* Info panel - bottom overlay */}
             <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center gap-3 rounded-2xl bg-background/90 px-4 py-3 shadow-md backdrop-blur-sm">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
-                <User className="h-5 w-5 text-muted-foreground" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
+                {ownerProfilePicture ? (
+                  <Image
+                    src={getProfilePictureUrl(ownerProfilePicture)!}
+                    alt={ownerDisplayName || "User"}
+                    width={40}
+                    height={40}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <User className="h-5 w-5 text-muted-foreground" />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-muted-foreground">Uploaded by</p>

@@ -117,6 +117,7 @@ export function Main() {
               key={photo.id}
               userId={photo.userId}
               ownerDisplayName={photo.ownerDisplayName}
+              ownerProfilePicture={photo.ownerProfilePicture}
               deletePhoto={deletePhoto}
               priority={index < 4}
             />
