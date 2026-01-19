@@ -10,8 +10,44 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "DogTownUSA",
-  description: "Welcome to DogTownUSA",
+  title: {
+    default: "DogTownUSA",
+    template: "%s | DogTownUSA",
+  },
+  description: "A community gallery for sharing photos of our favorite dogs. Upload, browse, and celebrate the goodest boys and girls.",
+  keywords: ["dogs", "dog photos", "pet gallery", "dog community"],
+  authors: [{ name: "Rio Edwards" }],
+  creator: "Rio Edwards",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "DogTownUSA",
+    title: "DogTownUSA",
+    description: "A community gallery for sharing photos of our favorite dogs.",
+    images: [
+      {
+        url: "/logo.png",
+        width: 512,
+        height: 512,
+        alt: "DogTownUSA Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "DogTownUSA",
+    description: "A community gallery for sharing photos of our favorite dogs.",
+    images: ["/logo.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/logo.png",
+  },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

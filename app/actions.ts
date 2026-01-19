@@ -12,8 +12,6 @@ export { deletePhoto, getPhotos, uploadPhoto };
  * Expects a FormData with a `file` entry containing the image.
  */
 export async function analyzeImageAction(formData: FormData): Promise<AnalysisResult> {
-  // eslint-disable-next-line no-console
-  console.log("[server] [analyzeImageAction.15] formData: ", formData); // TODO: remove this
   const file = formData.get("file");
 
   if (!file || !(file instanceof File)) {
@@ -24,10 +22,7 @@ export async function analyzeImageAction(formData: FormData): Promise<AnalysisRe
   const validatorBaseUrl = process.env.PUBLIC_IMG_VALIDATOR_BASE_URL!;
   
   const validatorUrl = `${validatorBaseUrl.replace(/\/+$/, "")}/analyze`;
-  // eslint-disable-next-line no-console
-  console.log("[server] [analyzeImageAction.25] validatorUrl: ", validatorUrl); // TODO: remove this
-
-  devLog("validatorUrl: ", validatorUrl);
+  devLog("[analyzeImageAction] validatorUrl:", validatorUrl);
 
   const outbound = new FormData();
   outbound.append("file", file);
@@ -36,15 +31,11 @@ export async function analyzeImageAction(formData: FormData): Promise<AnalysisRe
     method: "POST",
     body: outbound,
   });
-  // eslint-disable-next-line no-console
-  console.log("[server] [analyzeImageAction.39] response: ", response); // TODO: remove this
 
   if (!response.ok) {
     let detail = response.statusText || "Analysis failed";
     try {
       const errorData = await response.json();
-      // eslint-disable-next-line no-console
-      console.log("[server] [analyzeImageAction.47] errorData: ", errorData); // TODO: remove this
       if (typeof errorData?.detail === "string") {
         detail = errorData.detail;
       }
@@ -55,9 +46,6 @@ export async function analyzeImageAction(formData: FormData): Promise<AnalysisRe
   }
 
   const data = (await response.json()) as AnalysisResult;
-
-  // eslint-disable-next-line no-console
-  console.log("[server] [analyzeImageAction.60] data: ", data); // TODO: remove this
 
   return {
     filename: data.filename,

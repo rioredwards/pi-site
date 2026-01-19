@@ -39,7 +39,7 @@ export const PiModelCanvas = memo(function PiModelCanvas(props: PiModelCanvasPro
   return (
     <div
       style={{ aspectRatio: `${width}/${height}` }}
-      className="w-full overflow-hidden"
+      className="w-full overflow-hidden pointer-events-none"
     >
       <Canvas
         dpr={[1, 2]}
