@@ -17,11 +17,11 @@ interface Controls {
 }
 
 const DEFAULT_CONTROLS: Controls = {
-  displacement: 0.32,
+  displacement: 0.12,
   invertDepth: false,
   rotationX: 0.25,
   rotationY: 0.35,
-  lerpSpeed: 0.08,
+  lerpSpeed: 0.10,
 };
 
 export default function Page() {
