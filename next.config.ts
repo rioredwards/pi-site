@@ -1,6 +1,8 @@
+import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
 // import path from 'path';
 
+/** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
   // Recommended: this will reduce output
   // Docker image size by 80%+
@@ -39,6 +41,13 @@ const nextConfig: NextConfig = {
       fullUrl: true, // Log full URLs for fetch requests
     },
   },
+  // Configure `pageExtensions` to include MDX files
+  pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
 };
 
-export default nextConfig;
+const withMDX = createMDX({
+  // Add markdown plugins here, as desired
+})
+
+// Merge MDX config with Next.js config
+export default withMDX(nextConfig)
