@@ -114,7 +114,6 @@ docker-compose.prod.yml        # Production overrides
 
 The app uses environment-based connection strings:
 
-- **`DATABASE_URL_EXTERNAL`**: Used when running outside Docker (local dev)
 - **`DATABASE_URL`**: Used when running inside Docker (points to `db` service)
 
 Schema is defined in `app/db/schema.ts` using Drizzle ORM. The main table is `photos` with UUID primary keys.
@@ -176,7 +175,6 @@ POSTGRES_USER=myuser
 POSTGRES_PASSWORD=mypassword
 POSTGRES_DB=mydatabase
 DATABASE_URL=postgres://myuser:mypassword@localhost:5432/mydatabase
-DATABASE_URL_EXTERNAL=postgres://myuser:mypassword@localhost:5432/mydatabase
 
 # NextAuth
 NEXTAUTH_URL=http://localhost:3000
