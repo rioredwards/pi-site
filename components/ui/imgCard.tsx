@@ -44,8 +44,7 @@ export function ImgCard({
       {isOwner && (
         <button
           onClick={handleDelete}
-          className="absolute right-2 top-2 z-10 hidden rounded-full bg-gray-400 p-1 text-white opacity-50 group-focus-within:block group-hover:block"
-          tabIndex={-1}
+          className="absolute right-2 top-2 z-10 rounded-full bg-black/40 p-1 text-white opacity-60 transition-opacity hover:opacity-100"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
