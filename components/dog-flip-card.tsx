@@ -62,9 +62,10 @@ export function DogFlipCard({
         className="aspect-square"
         cardClassName="shadow-md"
         frontClassName="bg-muted"
-        backClassName="bg-card border border-border"
-        transformScale={0.85}
-        transformZ={50}
+        backClassName="bg-card border border-border p-3"
+        contentWrapperClassName="h-full w-full"
+        transformScale={1}
+        transformZ={40}
         frontGradient={false}
         frontContent={
           isOwner && (
@@ -91,17 +92,27 @@ export function DogFlipCard({
           )
         }
         backContent={
-          <div className="flex flex-col items-center justify-center gap-3 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-              <User className="h-6 w-6 text-muted-foreground" />
+          <div className="flex h-full w-full flex-col">
+            {/* Smaller dog photo */}
+            <div className="relative flex-1 overflow-hidden rounded-2xl">
+              <Image
+                src={src}
+                alt={alt}
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
             </div>
-            <div>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                Uploaded by
-              </p>
-              <p className="mt-1 text-lg font-semibold text-foreground">
-                {ownerDisplayName || "Anonymous"}
-              </p>
+            {/* Info panel */}
+            <div className="mt-3 flex items-center gap-2 rounded-xl bg-muted/80 px-3 py-2">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-background">
+                <User className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-foreground">
+                  {ownerDisplayName || "Anonymous"}
+                </p>
+              </div>
             </div>
           </div>
         }
