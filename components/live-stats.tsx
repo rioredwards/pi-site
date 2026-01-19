@@ -29,7 +29,7 @@ type HistoryPoint = {
   txRate: number | null; // bytes/sec
 };
 
-const HISTORY_MAX = 90;
+const HISTORY_MAX = 42;
 
 function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));

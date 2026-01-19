@@ -17,7 +17,7 @@ interface Controls {
 }
 
 const DEFAULT_CONTROLS: Controls = {
-  displacement: 0.12,
+  displacement: 0.32,
   invertDepth: false,
   rotationX: 0.25,
   rotationY: 0.35,

@@ -2,12 +2,50 @@ import cv2
 import torch
 import numpy as np
 
-# ---- config ----
-INPUT_PATH = "input.png"
-OUTPUT_PATH_16 = "depth_16.png"   # best for editing
-OUTPUT_PATH_8  = "depth_8.png"    # convenient preview
+# ============================================================================
+# CONFIGURATION - Adjust these values to tweak depth map generation
+# ============================================================================
 
-MODEL_TYPE = "DPT_Large"  # try: "DPT_Large", "DPT_Hybrid", "MiDaS_small"
+# ---- File Paths ----
+INPUT_PATH = "input.png"
+OUTPUT_PATH_16 = "depth_16.png"   # 16-bit depth map (best for editing, more precision)
+OUTPUT_PATH_8  = "depth_8.png"    # 8-bit depth map (convenient preview, smaller file)
+
+# ---- Model Selection ----
+# Options: "DPT_Large" (best quality, slowest), "DPT_Hybrid" (balanced), "MiDaS_small" (fastest, lower quality)
+# DPT_Large: Highest accuracy, best for detailed images, requires more VRAM
+# DPT_Hybrid: Good balance of speed and quality
+# MiDaS_small: Fastest, lower accuracy, good for quick iterations
+MODEL_TYPE = "DPT_Large"
+
+# ---- Normalization Settings ----
+# These percentiles control how depth values are normalized to 0-1 range
+# Lower values (e.g., 1, 99) = more aggressive normalization, higher contrast, may lose detail
+# Higher values (e.g., 5, 95) = gentler normalization, preserves more depth range
+# Typical range: 1-10 for low percentile, 90-99 for high percentile
+NORMALIZE_LOW_PERCENTILE = 10   # Bottom percentile to clip (removes outliers that are too close)
+NORMALIZE_HIGH_PERCENTILE = 100  # Top percentile to clip (removes outliers that are too far)
+
+# ---- Interpolation Settings ----
+# How to resize the model's prediction to match input image size
+# Options: "bicubic" (smooth, best quality), "bilinear" (faster, slightly less smooth), "nearest" (fastest, blocky)
+INTERPOLATION_MODE = "bicubic"  # "bicubic", "bilinear", or "nearest"
+INTERPOLATION_ALIGN_CORNERS = False  # Whether to align corners during interpolation (usually False for better results)
+
+# ---- Alpha Channel Handling ----
+# If your input image has transparency (alpha channel), how to handle it in depth map
+USE_ALPHA_MASK = True  # If True, transparent areas will be set to 0 depth (far away)
+# When True: Transparent pixels → depth = 0 (background appears far)
+# When False: Alpha channel is ignored, depth calculated for all pixels
+
+# ---- Normalization Safety ----
+# Small epsilon value to prevent division by zero during normalization
+# Increase if you get warnings, decrease if you want more precise normalization
+# Typical range: 1e-10 to 1e-6
+NORMALIZATION_EPSILON = 1e-8
+
+# ---- Device Selection ----
+# Automatically uses GPU if available, falls back to CPU
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # ---- load model ----
@@ -40,20 +78,20 @@ with torch.no_grad():
     prediction = torch.nn.functional.interpolate(
         prediction.unsqueeze(1),
         size=img_rgb.shape[:2],
-        mode="bicubic",
-        align_corners=False,
+        mode=INTERPOLATION_MODE,
+        align_corners=INTERPOLATION_ALIGN_CORNERS,
     ).squeeze()
 
 depth = prediction.cpu().numpy()
 
 # ---- normalize to 0..1 (robust) ----
 # Robust percentiles reduce outliers that ruin contrast
-lo, hi = np.percentile(depth, (5, 95))
-depth_n = (depth - lo) / (hi - lo + 1e-8)
+lo, hi = np.percentile(depth, (NORMALIZE_LOW_PERCENTILE, NORMALIZE_HIGH_PERCENTILE))
+depth_n = (depth - lo) / (hi - lo + NORMALIZATION_EPSILON)
 depth_n = np.clip(depth_n, 0, 1)
 
-# OPTIONAL: if you want background to be far when using transparent PNG
-if alpha is not None:
+# Apply alpha mask if enabled and alpha channel exists
+if USE_ALPHA_MASK and alpha is not None:
     mask = (alpha > 0).astype(np.float32)
     # push transparent background to 0 depth (far)
     depth_n = depth_n * mask
