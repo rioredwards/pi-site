@@ -20,7 +20,7 @@ import { reduceFileSize } from "../app/lib/imgCompress";
 import { Photo } from "../app/lib/types";
 import Confetti from "./Confetti";
 import { GradientText } from "./funText";
-import { DogBotCard, getDogBotBorderClass } from "./ui/dogBotCard";
+import { DogBotCard, getDogBotBorderColors } from "./ui/dogBotCard";
 import { RotatingGradientBorder } from "./ui/RotatingGradientBorder";
 import { SignInModal } from "./ui/signInModal";
 
@@ -349,24 +349,32 @@ export default function PhotoUpload({ addPhoto }: Props) {
         }}>
         <DialogContent
           className={cn(
-            "sm:max-w-[560px] rounded-3xl p-0",
+            "sm:max-w-[560px] sm:rounded-3xl rounded-3xl p-0",
             isDogBotMode
-              ? cn("border-0 bg-transparent overflow-hidden transition-all duration-300", getDogBotBorderClass(processingState))
+              ? cn("border-0 bg-transparent transition-all duration-300")
               : "border border-border/60 bg-background/90 backdrop-blur shadow-2xl"
           )}
           hideCloseButton={isDogBotMode}
         >
           {/* DogBot mode - just the image with overlay */}
           {isDogBotMode ? (
-            <div className="relative aspect-square overflow-hidden rounded-3xl">
-              <Image
-                src={previewUrl!}
-                alt="Dog photo"
-                fill={true}
-                className="object-cover scale-[1.01]"
-              />
-              <DogBotCard processingState={processingState} />
-            </div>
+            <RotatingGradientBorder
+              borderCover={90}
+              borderSkew={10}
+              borderWidth={3}
+              shadowWidth={8}
+              shadowSkew={90}
+              borderRadius="26px" containerClassName="relative inset-0 h-full w-full" borderColors={getDogBotBorderColors(processingState)}>
+              <div className={cn("relative aspect-square overflow-hidden rounded-3xl")}>
+                <Image
+                  src={previewUrl!}
+                  alt="Dog photo"
+                  fill={true}
+                  className="object-cover scale-[1.01]"
+                />
+                <DogBotCard processingState={processingState} />
+              </div>
+            </RotatingGradientBorder>
           ) : (
             <>
               {/* Regular form mode */}
@@ -383,135 +391,135 @@ export default function PhotoUpload({ addPhoto }: Props) {
 
               <div className="px-6 pb-6 pt-4">
                 <form onSubmit={handleSubmit} className="space-y-4">
-              {!files.length ? (
-                <div className="rounded-2xl border border-dashed border-border/80 bg-muted/30 p-3">
-                  <label
-                    htmlFor="photo"
-                    className={cn(
-                      "group relative flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl p-10",
-                      "transition",
-                      "hover:bg-muted/40 hover:border-border",
-                      "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background"
-                    )}>
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-background shadow-sm ring-1 ring-border/60 transition group-hover:shadow-md">
-                      <LucideDog className="h-7 w-7 text-muted-foreground" />
-                    </div>
+                  {!files.length ? (
+                    <div className="rounded-2xl border border-dashed border-border/80 bg-muted/30 p-3">
+                      <label
+                        htmlFor="photo"
+                        className={cn(
+                          "group relative flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl p-10",
+                          "transition",
+                          "hover:bg-muted/40 hover:border-border",
+                          "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background"
+                        )}>
+                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-background shadow-sm ring-1 ring-border/60 transition group-hover:shadow-md">
+                          <LucideDog className="h-7 w-7 text-muted-foreground" />
+                        </div>
 
-                    <div className="text-center">
-                      <div className="text-sm font-medium text-foreground">
-                        Click to select a dog photo
+                        <div className="text-center">
+                          <div className="text-sm font-medium text-foreground">
+                            Click to select a dog photo
+                          </div>
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            JPEG, PNG, or WebP • max 5MB
+                          </div>
+                        </div>
+
+                        <div className="mt-2 inline-flex items-center rounded-full bg-background/70 px-3 py-1 text-[11px] text-muted-foreground ring-1 ring-border/60">
+                          one dog at a time
+                        </div>
+                      </label>
+                    </div>
+                  ) : processingState === "cropping" ? (
+                    <div className="space-y-4">
+                      {/* Cropper */}
+                      <div className="relative overflow-hidden rounded-2xl ring-1 ring-border/60">
+                        <div className="relative aspect-square bg-black">
+                          <Cropper
+                            image={originalImageUrl!}
+                            crop={crop}
+                            zoom={zoom}
+                            rotation={rotation}
+                            aspect={1}
+                            onCropChange={setCrop}
+                            onZoomChange={setZoom}
+                            onCropComplete={onCropComplete}
+                          />
+                        </div>
                       </div>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        JPEG, PNG, or WebP • max 5MB
+
+                      {/* Zoom slider */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Zoom</span>
+                          <span className="font-mono text-xs text-muted-foreground">{zoom.toFixed(1)}x</span>
+                        </div>
+                        <input
+                          type="range"
+                          min={1}
+                          max={3}
+                          step={0.1}
+                          value={zoom}
+                          onChange={(e) => setZoom(parseFloat(e.target.value))}
+                          className="h-2 w-full cursor-pointer appearance-none rounded-full bg-muted accent-primary"
+                        />
+                      </div>
+
+                      {/* Crop actions */}
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          onClick={handleCancel}
+                          variant="outline"
+                          className="flex-1 rounded-xl">
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={handleRotate}
+                          variant="outline"
+                          className="rounded-xl px-3">
+                          <RotateCw className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={handleCropConfirm}
+                          className="flex-1 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                          Crop
+                        </Button>
                       </div>
                     </div>
+                  ) : processingState === "selected" ? (
+                    <div className="space-y-4">
+                      {/* Image preview */}
+                      <div className="relative overflow-hidden rounded-2xl ring-1 ring-border/60">
+                        <div className="relative aspect-square">
+                          <Image
+                            src={previewUrl!}
+                            alt="Dog photo"
+                            fill={true}
+                            className="object-cover"
+                          />
+                        </div>
+                      </div>
 
-                    <div className="mt-2 inline-flex items-center rounded-full bg-background/70 px-3 py-1 text-[11px] text-muted-foreground ring-1 ring-border/60">
-                      one dog at a time
+                      {/* Actions */}
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          onClick={handleCancel}
+                          variant="outline"
+                          className="flex-1 rounded-xl">
+                          Cancel
+                        </Button>
+                        <Button
+                          type="submit"
+                          className="flex-1 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                          Upload
+                        </Button>
+                      </div>
                     </div>
-                  </label>
-                </div>
-              ) : processingState === "cropping" ? (
-                <div className="space-y-4">
-                  {/* Cropper */}
-                  <div className="relative overflow-hidden rounded-2xl ring-1 ring-border/60">
-                    <div className="relative aspect-square bg-black">
-                      <Cropper
-                        image={originalImageUrl!}
-                        crop={crop}
-                        zoom={zoom}
-                        rotation={rotation}
-                        aspect={1}
-                        onCropChange={setCrop}
-                        onZoomChange={setZoom}
-                        onCropComplete={onCropComplete}
-                      />
-                    </div>
-                  </div>
+                  ) : null}
 
-                  {/* Zoom slider */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Zoom</span>
-                      <span className="font-mono text-xs text-muted-foreground">{zoom.toFixed(1)}x</span>
-                    </div>
-                    <input
-                      type="range"
-                      min={1}
-                      max={3}
-                      step={0.1}
-                      value={zoom}
-                      onChange={(e) => setZoom(parseFloat(e.target.value))}
-                      className="h-2 w-full cursor-pointer appearance-none rounded-full bg-muted accent-primary"
-                    />
-                  </div>
-
-                  {/* Crop actions */}
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      onClick={handleCancel}
-                      variant="outline"
-                      className="flex-1 rounded-xl">
-                      Cancel
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={handleRotate}
-                      variant="outline"
-                      className="rounded-xl px-3">
-                      <RotateCw className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={handleCropConfirm}
-                      className="flex-1 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
-                      Crop
-                    </Button>
-                  </div>
-                </div>
-              ) : processingState === "selected" ? (
-                <div className="space-y-4">
-                  {/* Image preview */}
-                  <div className="relative overflow-hidden rounded-2xl ring-1 ring-border/60">
-                    <div className="relative aspect-square">
-                      <Image
-                        src={previewUrl!}
-                        alt="Dog photo"
-                        fill={true}
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      onClick={handleCancel}
-                      variant="outline"
-                      className="flex-1 rounded-xl">
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      className="flex-1 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
-                      Upload
-                    </Button>
-                  </div>
-                </div>
-              ) : null}
-
-              <Input
-                id="photo"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="hidden"
-                ref={fileInputRef}
-              />
-            </form>
-          </div>
+                  <Input
+                    id="photo"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    ref={fileInputRef}
+                  />
+                </form>
+              </div>
             </>
           )}
         </DialogContent>

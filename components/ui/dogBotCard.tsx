@@ -1,5 +1,7 @@
 "use client";
 import { cn } from "@/app/lib/utils";
+import Link from "next/link";
+import { RotatingGradientBorder } from "./RotatingGradientBorder";
 
 type ProcessingState = "preSelection" | "cropping" | "selected" | "processing" | "success" | "failure";
 
@@ -102,8 +104,8 @@ export function DogBotCard({ processingState }: DogBotCardProps) {
       </div>
 
       {/* Message bubble - center */}
-      <div className="relative z-20 flex flex-1 items-center justify-center px-6">
-        <div className="flex items-center gap-3 rounded-2xl bg-white px-5 py-4 shadow-xl">
+      <div className="relative z-20 flex flex-1 items-center justify-center px-6 min-w-[70%]">
+        <div className="flex items-center gap-3 rounded-2xl bg-white px-5 py-4 shadow-xl w-full">
           <span className="text-3xl">{dogBot.emoji}</span>
           <div>
             <div className="text-base font-bold text-gray-900">{dogBot.title}</div>
@@ -113,33 +115,51 @@ export function DogBotCard({ processingState }: DogBotCardProps) {
       </div>
 
       {/* DogBot logo - bottom left */}
-      <div className="absolute bottom-4 left-4 z-20 flex items-center gap-2">
-        <span className="text-2xl">🤖</span>
-        <div>
-          <div className="text-sm font-bold text-white drop-shadow-md">
-            DogBot™
-          </div>
-          <div className="text-[10px] text-cyan-300 drop-shadow-md">
-            &lt;Integrated Dog Detection System&gt;
-          </div>
-        </div>
+      <div className="absolute bottom-4 left-4 z-20">
+        <RotatingGradientBorder borderRadius="9999px" borderColors={getDogBotBorderColors(processingState)}>
+          <Link href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1" target="_blank">
+            <div className="flex items-center gap-2 bg-white rounded-full py-2 px-4 shadow-xl">
+              <span className="text-2xl">🤖</span>
+              <div>
+                <div className="text-sm font-bold drop-shadow-md leading-tight">
+                  DogBot™
+                </div>
+                <div className="text-[10px] drop-shadow-md leading-tight">
+                  Integrated Dog Detection System
+                </div>
+              </div>
+            </div>
+          </Link>
+        </RotatingGradientBorder>
       </div>
     </div>
   );
 }
 
+{/* <div className="absolute bottom-4 left-4 z-20 flex items-center gap-2">
+<span className="text-2xl">🤖</span>
+<div>
+  <div className="text-sm font-bold text-white drop-shadow-md">
+    DogBot™
+  </div>
+  <div className="text-[10px] text-cyan-300 drop-shadow-md">
+    &lt;Integrated Dog Detection System&gt;
+  </div>
+</div> */}
+
+
 /**
- * Get the border color class for the modal based on processing state
+ * Get the border colors for the modal based on processing state (passed into borderColors prop of RotatingGradientBorder)
  */
-export function getDogBotBorderClass(processingState: ProcessingState): string {
+export function getDogBotBorderColors(processingState: ProcessingState): string[] {
   switch (processingState) {
     case "processing":
-      return "ring-4 ring-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.5)]";
+      return ["blue", "cyan", "pink", "blue", "purple", "green"];
     case "success":
-      return "ring-4 ring-green-500 shadow-[0_0_30px_rgba(34,197,94,0.5)]";
+      return ["green", "lime", "green", "lime"];
     case "failure":
-      return "ring-4 ring-red-500 shadow-[0_0_30px_rgba(239,68,68,0.5)]";
+      return ["red", "pink", "red", "pink"];
     default:
-      return "ring-1 ring-border/60";
+      return [];
   }
 }
