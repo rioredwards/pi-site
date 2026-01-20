@@ -105,7 +105,7 @@ export function DogBotCard({ processingState }: DogBotCardProps) {
 
       {/* Message bubble - center */}
       <div className="relative z-20 flex flex-1 items-center justify-center px-6 min-w-[70%]">
-        <div className="flex items-center gap-3 rounded-2xl bg-white px-5 py-4 shadow-xl w-full">
+        <div className="flex items-center gap-3 rounded-2xl bg-white/70 backdrop-blur-sm px-5 py-4 shadow-xl w-full">
           <span className="text-3xl">{dogBot.emoji}</span>
           <div>
             <div className="text-base font-bold text-gray-900">{dogBot.title}</div>
@@ -118,7 +118,7 @@ export function DogBotCard({ processingState }: DogBotCardProps) {
       <div className="absolute bottom-4 left-4 z-20">
         <RotatingGradientBorder borderRadius="9999px" borderColors={getDogBotBorderColors(processingState)}>
           <Link href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1" target="_blank" className="cursor-pointer">
-            <div className="flex items-center gap-2 bg-white rounded-full py-2 px-4 shadow-xl">
+            <div className="flex items-center gap-2 bg-background backdrop-blur-sm rounded-full py-2 px-4 shadow-lg">
               <span className="text-2xl">🤖</span>
               <div>
                 <div className="text-sm font-bold drop-shadow-md leading-tight">
