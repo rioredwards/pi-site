@@ -127,7 +127,35 @@ function startPoller() {
   pollTimer = setInterval(() => void pollOnce(), POLL_INTERVAL_MS);
 }
 
-export async function GET() {
+function stopPoller() {
+  if (!pollerStarted) return;
+
+  devLog("🔵 [stream/server] Stopping system-stats poller (no clients)");
+
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
+  pollerStarted = false;
+  latestStats = null;
+}
+
+function removeClient(clientId: symbol) {
+  const client = clients.get(clientId);
+  if (client) {
+    client.closed = true;
+    clients.delete(clientId);
+  }
+
+  devLog("🔵 [stream/server] client removed, clients remaining:", clients.size);
+
+  // Stop polling if no clients remain
+  if (clients.size === 0) {
+    stopPoller();
+  }
+}
+
+export async function GET(request: Request) {
   startPoller();
 
   // Unique ID for this client connection
@@ -144,15 +172,20 @@ export async function GET() {
         devLog("🔵 [stream/server] enqueuing initial payload");
         controller.enqueue(payload);
       }
+
+      // Listen for client disconnect via abort signal - this is the reliable way
+      // to detect when an SSE client disconnects (cancel() is not always triggered)
+      request.signal.addEventListener("abort", () => {
+        removeClient(clientId);
+        try {
+          controller.close();
+        } catch {
+          // Already closed
+        }
+      });
     },
     cancel() {
-      // Mark as closed and remove
-      const client = clients.get(clientId);
-      if (client) {
-        client.closed = true;
-        clients.delete(clientId);
-      }
-      devLog("🔵 [stream/server] stream canceled, clients remaining:", clients.size);
+      removeClient(clientId);
     },
   });
 
