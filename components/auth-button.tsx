@@ -1,5 +1,8 @@
 "use client";
 
+import { getUserProfile } from "@/app/db/actions";
+import { User as UserType } from "@/app/lib/types";
+import { getProfilePictureUrl } from "@/app/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,11 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getUserProfile } from "@/app/db/actions";
-import { getProfilePictureUrl } from "@/app/lib/utils";
-import { User as UserType } from "@/app/lib/types";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { Login01Icon, Logout01Icon, UserIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";

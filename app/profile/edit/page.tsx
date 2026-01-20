@@ -1,14 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import Cropper, { Area } from "react-easy-crop";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { UserIcon, RotateClockwiseIcon, Camera01Icon, Loading01Icon } from "@hugeicons/core-free-icons";
+import {
+  getUserProfile,
+  updateUserProfile,
+  uploadProfilePicture,
+} from "@/app/db/actions";
+import { reduceFileSize } from "@/app/lib/imgCompress";
+import { User as UserType } from "@/app/lib/types";
+import { cn, devLog, getProfilePictureUrl } from "@/app/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -16,16 +16,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
-import { cn, devLog, getProfilePictureUrl } from "@/app/lib/utils";
-import { reduceFileSize } from "@/app/lib/imgCompress";
-import {
-  getUserProfile,
-  updateUserProfile,
-  uploadProfilePicture,
-} from "@/app/db/actions";
-import { User as UserType } from "@/app/lib/types";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { SignInModal } from "@/components/ui/signInModal";
+import { useToast } from "@/hooks/use-toast";
+import { Camera01Icon, Loading01Icon, RotateClockwiseIcon, UserIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Cropper, { Area } from "react-easy-crop";
 
 // Helper to create cropped image from crop area
 async function getCroppedImg(imageSrc: string, pixelCrop: Area, rotation = 0): Promise<Blob> {

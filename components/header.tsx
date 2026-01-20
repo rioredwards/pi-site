@@ -2,8 +2,8 @@
 import { cn } from "@/app/lib/utils";
 import { AuthButton } from "@/components/auth-button";
 import LogoImage from "@/public/logo.png";
+import { Cancel01Icon, Menu01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Menu01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
