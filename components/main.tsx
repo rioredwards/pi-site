@@ -1,5 +1,6 @@
 "use client";
 
+import { devLog } from "@/app/lib/utils";
 import shuffle from "lodash.shuffle";
 import { useSession } from "next-auth/react";
 import { lazy, Suspense, useEffect, useState } from "react";
@@ -7,8 +8,7 @@ import BounceLoader from "react-spinners/BounceLoader";
 import { deletePhoto as deletePhotoFile, getPhotos } from "../app/actions";
 import { Photo } from "../app/lib/types";
 import { useToast } from "../hooks/use-toast";
-import { devLog } from "@/app/lib/utils";
-import { DogFlipCard } from "./dog-flip-card";
+import { DogCard } from "./dog-card/dog-card";
 
 export const PhotoUpload = lazy(() => import("@/components/photo-upload"));
 
@@ -110,7 +110,7 @@ export function Main() {
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {photos.map((photo, index) => (
-            <DogFlipCard
+            <DogCard
               id={photo.id}
               src={photo.src}
               alt={photo.alt}

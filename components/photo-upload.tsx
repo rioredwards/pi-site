@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { LucideDog } from "lucide-react";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { RotateClockwiseIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { LucideDog } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -331,7 +331,6 @@ export default function PhotoUpload({ addPhoto }: Props) {
               "text-primary",
               "bg-background hover:bg-background",
               "shadow-sm transition-shadow hover:shadow-md pointer-coarse:shadow-md",
-              "pointer-coarse:animate-pulse"
             )}>
             <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-primary transition-all group-hover:text-transparent pointer-coarse:text-transparent">
               <LucideDog
