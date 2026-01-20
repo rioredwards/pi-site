@@ -52,7 +52,7 @@ export function ImgCard({
       {isOwner && (
         <button
           onClick={handleDelete}
-          className="absolute right-2 top-2 z-10 rounded-full bg-black/40 p-1 text-white opacity-60 transition-opacity hover:opacity-100"
+          className="absolute right-2 top-2 z-10 cursor-pointer rounded-full bg-black/40 p-1 text-white opacity-60 transition-opacity hover:opacity-100"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -105,13 +105,13 @@ export function ImgCard({
           <DialogFooter className="gap-2 sm:gap-0">
             <button
               onClick={cancelDelete}
-              className="rounded-lg bg-secondary px-4 py-2 text-secondary-foreground hover:bg-secondary/80"
+              className="cursor-pointer rounded-lg bg-secondary px-4 py-2 text-secondary-foreground hover:bg-secondary/80"
             >
               Cancel
             </button>
             <button
               onClick={confirmDelete}
-              className="rounded-lg bg-destructive px-4 py-2 text-destructive-foreground hover:bg-destructive/90"
+              className="cursor-pointer rounded-lg bg-destructive px-4 py-2 text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
             </button>

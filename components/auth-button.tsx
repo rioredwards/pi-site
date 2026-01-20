@@ -11,7 +11,8 @@ import {
 import { getUserProfile } from "@/app/db/actions";
 import { getProfilePictureUrl } from "@/app/lib/utils";
 import { User as UserType } from "@/app/lib/types";
-import { LogIn, LogOut, User } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Login01Icon, Logout01Icon, UserIcon } from "@hugeicons/core-free-icons";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -54,7 +55,7 @@ export function AuthButton() {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          <button className="flex cursor-pointer items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
             {profilePictureUrl ? (
               <img
                 src={profilePictureUrl}
@@ -63,7 +64,7 @@ export function AuthButton() {
               />
             ) : (
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                <User className="h-4 w-4 text-muted-foreground" />
+                <HugeiconsIcon icon={UserIcon} size={16} className="text-muted-foreground" />
               </div>
             )}
           </button>
@@ -75,7 +76,7 @@ export function AuthButton() {
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link href={profileUrl} className="cursor-pointer">
-              <User className="mr-2 h-4 w-4" />
+              <HugeiconsIcon icon={UserIcon} size={16} className="mr-2" />
               Profile
             </Link>
           </DropdownMenuItem>
@@ -84,7 +85,7 @@ export function AuthButton() {
             onClick={() => signOut()}
             className="cursor-pointer text-destructive focus:text-destructive"
           >
-            <LogOut className="mr-2 h-4 w-4" />
+            <HugeiconsIcon icon={Logout01Icon} size={16} className="mr-2" />
             Sign Out
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -99,7 +100,7 @@ export function AuthButton() {
         size="sm"
         onClick={() => setShowSignInModal(true)}
         className="flex items-center gap-1">
-        <LogIn className="h-4 w-4" />
+        <HugeiconsIcon icon={Login01Icon} size={16} />
         <span>Sign In</span>
       </Button>
       <SignInModal showSignInModal={showSignInModal} setShowSignInModal={setShowSignInModal} />

@@ -2,7 +2,8 @@ import { authOptions } from "@/app/auth";
 import { getUserProfile } from "@/app/db/actions";
 import { getProfilePictureUrl } from "@/app/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Pencil, User } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PencilEdit01Icon, UserIcon } from "@hugeicons/core-free-icons";
 import { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { unstable_noStore as noStore } from "next/cache";
@@ -66,7 +67,7 @@ export default async function ProfilePage({ params }: Props) {
               />
             ) : (
               <div className="flex h-32 w-32 items-center justify-center rounded-full bg-muted ring-4 ring-background shadow-lg">
-                <User className="h-16 w-16 text-muted-foreground" />
+                <HugeiconsIcon icon={UserIcon} size={64} className="text-muted-foreground" />
               </div>
             )}
           </div>
@@ -87,7 +88,7 @@ export default async function ProfilePage({ params }: Props) {
             {isOwner && (
               <Link href="/profile/edit" className="mt-4 inline-block">
                 <Button variant="outline" size="sm" className="gap-2">
-                  <Pencil className="h-4 w-4" />
+                  <HugeiconsIcon icon={PencilEdit01Icon} size={16} />
                   Edit Profile
                 </Button>
               </Link>

@@ -1,10 +1,11 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useState } from "react";
-import Image from "next/image";
-import { User } from "lucide-react";
 import { getProfilePictureUrl } from "@/app/lib/utils";
+import { Trash2, UserIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { useState } from "react";
 import { FlipCard } from "./flip-card";
 import {
   Dialog,
@@ -88,23 +89,10 @@ export function DogFlipCard({
             {isOwner && (
               <button
                 onClick={handleDelete}
-                className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md transition-colors hover:bg-background"
+                className="group/delete absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md transition-colors hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
                 aria-label="Delete photo"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2.5}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <HugeiconsIcon icon={Trash2} size={20} className="text-foreground group-hover/delete:text-destructive-foreground transition-colors" />
               </button>
             )}
 
@@ -120,7 +108,7 @@ export function DogFlipCard({
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <User className="h-5 w-5 text-muted-foreground" />
+                  <HugeiconsIcon icon={UserIcon} size={20} className="text-muted-foreground" />
                 )}
               </div>
               <div className="min-w-0 flex-1">
@@ -154,13 +142,13 @@ export function DogFlipCard({
           <DialogFooter className="gap-2 sm:gap-0">
             <button
               onClick={cancelDelete}
-              className="rounded-lg bg-secondary px-4 py-2 text-secondary-foreground hover:bg-secondary/80"
+              className="cursor-pointer rounded-lg bg-secondary px-4 py-2 text-secondary-foreground hover:bg-secondary/80"
             >
               Cancel
             </button>
             <button
               onClick={confirmDelete}
-              className="rounded-lg bg-destructive px-4 py-2 text-destructive-foreground hover:bg-destructive/90"
+              className="cursor-pointer rounded-lg bg-destructive px-4 py-2 text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
             </button>

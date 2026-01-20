@@ -1,7 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { AlertCircleIcon } from "@hugeicons/core-free-icons";
 import { useEffect } from "react";
 
 export default function Error({
@@ -19,7 +20,7 @@ export default function Error({
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
       <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
-        <AlertTriangle className="h-10 w-10 text-destructive" />
+        <HugeiconsIcon icon={AlertCircleIcon} size={40} className="text-destructive" />
       </div>
       <h1 className="mb-2 text-2xl font-bold">Something went wrong</h1>
       <p className="mb-6 max-w-md text-muted-foreground">

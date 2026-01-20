@@ -10,7 +10,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { LucideDog, RotateCw } from "lucide-react";
+import { LucideDog } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { RotateClockwiseIcon } from "@hugeicons/core-free-icons";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -468,7 +470,7 @@ export default function PhotoUpload({ addPhoto }: Props) {
                           onClick={handleRotate}
                           variant="outline"
                           className="rounded-xl px-3">
-                          <RotateCw className="h-4 w-4" />
+                          <HugeiconsIcon icon={RotateClockwiseIcon} size={16} />
                         </Button>
                         <Button
                           type="button"

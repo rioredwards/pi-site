@@ -2,7 +2,8 @@
 import { cn } from "@/app/lib/utils";
 import { AuthButton } from "@/components/auth-button";
 import LogoImage from "@/public/logo.png";
-import { Menu, X } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Menu01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -56,17 +57,17 @@ export default function Header() {
         {/* Mobile hamburger button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:hidden"
+          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:hidden"
           aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
         >
-          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {mobileMenuOpen ? <HugeiconsIcon icon={Cancel01Icon} size={24} /> : <HugeiconsIcon icon={Menu01Icon} size={24} />}
         </button>
       </div>
 
       {/* Mobile menu overlay */}
       <div
         className={cn(
-          "fixed inset-0 top-16 z-40 bg-background/80 backdrop-blur-sm transition-opacity md:hidden",
+          "fixed inset-0 top-16 z-40 cursor-pointer bg-background/80 backdrop-blur-sm transition-opacity md:hidden",
           mobileMenuOpen ? "opacity-100" : "pointer-events-none opacity-0"
         )}
         onClick={() => setMobileMenuOpen(false)}

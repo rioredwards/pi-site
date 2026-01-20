@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Cropper, { Area } from "react-easy-crop";
-import { User, RotateCw, Camera, Loader2 } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { UserIcon, RotateClockwiseIcon, Camera01Icon, Loading01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -275,7 +276,7 @@ export default function EditProfilePage() {
     return (
       <div className="container mx-auto py-8 px-4">
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <HugeiconsIcon icon={Loading01Icon} size={32} className="animate-spin text-muted-foreground" />
         </div>
       </div>
     );
@@ -318,15 +319,15 @@ export default function EditProfilePage() {
                 />
               ) : (
                 <div className="flex h-32 w-32 items-center justify-center rounded-full bg-muted ring-4 ring-background shadow-lg">
-                  <User className="h-16 w-16 text-muted-foreground" />
+                  <HugeiconsIcon icon={UserIcon} size={64} className="text-muted-foreground" />
                 </div>
               )}
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md hover:bg-primary/90 transition-colors"
+                className="absolute bottom-0 right-0 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md hover:bg-primary/90 transition-colors"
               >
-                <Camera className="h-5 w-5" />
+                <HugeiconsIcon icon={Camera01Icon} size={20} />
               </button>
             </div>
             <input
@@ -375,7 +376,7 @@ export default function EditProfilePage() {
             >
               {isSaving ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <HugeiconsIcon icon={Loading01Icon} size={16} className="mr-2 animate-spin" />
                   Saving...
                 </>
               ) : (
@@ -455,7 +456,7 @@ export default function EditProfilePage() {
                 className="rounded-xl px-3"
                 disabled={isUploadingPicture}
               >
-                <RotateCw className="h-4 w-4" />
+                <HugeiconsIcon icon={RotateClockwiseIcon} size={16} />
               </Button>
               <Button
                 type="button"
@@ -468,7 +469,7 @@ export default function EditProfilePage() {
               >
                 {isUploadingPicture ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <HugeiconsIcon icon={Loading01Icon} size={16} className="mr-2 animate-spin" />
                     Uploading...
                   </>
                 ) : (

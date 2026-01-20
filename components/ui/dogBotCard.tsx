@@ -117,7 +117,7 @@ export function DogBotCard({ processingState }: DogBotCardProps) {
       {/* DogBot logo - bottom left */}
       <div className="absolute bottom-4 left-4 z-20">
         <RotatingGradientBorder borderRadius="9999px" borderColors={getDogBotBorderColors(processingState)}>
-          <Link href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1" target="_blank">
+          <Link href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1" target="_blank" className="cursor-pointer">
             <div className="flex items-center gap-2 bg-white rounded-full py-2 px-4 shadow-xl">
               <span className="text-2xl">🤖</span>
               <div>
