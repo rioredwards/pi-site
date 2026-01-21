@@ -332,7 +332,7 @@ export default function PhotoUpload({ addPhoto }: Props) {
     processingState === "failure";
 
   return (
-    <section className="container">
+    <section className="container pb-12">
       {showConfetti && <Confetti setShowConfetti={setShowConfetti} />}
 
       <div className="flex justify-center">
