@@ -369,7 +369,7 @@ export default function PhotoUpload({ addPhoto }: Props) {
           className={cn(
             "sm:max-w-[560px] sm:rounded-3xl rounded-3xl p-0",
             isDogBotMode
-              ? cn("border-0 bg-transparent transition-all duration-300")
+              ? cn("w-[calc(100vw-4rem)] md:w-full border-0 bg-transparent transition-all duration-300")
               : "border border-border/60 bg-background/90 backdrop-blur shadow-2xl"
           )}
           hideCloseButton={isDogBotMode}
