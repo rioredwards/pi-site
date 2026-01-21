@@ -18,7 +18,7 @@ export default function Header() {
   ];
 
   return (
-    <header className="pointer-events-auto z-99">
+    <header className="pointer-events-auto">
       <nav
         className={cn(
           "fixed bottom-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-sm border-t border-border px-2 md:py-2",
