@@ -1,7 +1,7 @@
 "use client";
 
+import { Moon02Icon, Sun01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Moon01Icon, Sun01Icon } from "@hugeicons/core-free-icons";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
@@ -19,11 +19,11 @@ export function ModeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
-          <span className="scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90">
+          <span className="dark:opacity-0 dark:hidden block opacity-100">
             <HugeiconsIcon icon={Sun01Icon} size={19} />
           </span>
-          <span className="absolute scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0">
-            <HugeiconsIcon icon={Moon01Icon} size={19} />
+          <span className="opacity-0 hidden dark:block dark:opacity-100">
+            <HugeiconsIcon icon={Moon02Icon} size={19} />
           </span>
           <span className="sr-only">Toggle theme</span>
         </Button>

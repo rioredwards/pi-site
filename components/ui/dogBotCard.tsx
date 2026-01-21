@@ -21,7 +21,7 @@ function getDogBotUI(processingState: ProcessingState): DogBotUI {
       return {
         show: true,
         statusText: "processing...",
-        title: "Hold up",
+        title: "Hang tight",
         subtitle: "DogBot is processing your dog...",
         emoji: "🤖",
         tone: "neutral" as const,
