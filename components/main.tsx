@@ -97,7 +97,7 @@ export function Main() {
     <div className="container mx-auto min-h-dvh px-4 md:pl-24 py-8">
       <Suspense
         fallback={
-          <div className="mt-8 flex items-center justify-center">
+          <div className="py-16 flex items-center justify-center">
             <BounceLoader
               color={"oklch(0.75 0.15 55)"}
               loading={true}
@@ -106,7 +106,11 @@ export function Main() {
           </div>
         }
       >
-        {typeof window !== "undefined" && <PhotoUpload addPhoto={addPhoto} />}
+        {typeof window !== "undefined" && (
+          <div className="py-8">
+            <PhotoUpload addPhoto={addPhoto} />
+          </div>
+        )}
       </Suspense>
       {isLoading ? (
         <PhotoGridSkeleton />
