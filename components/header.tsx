@@ -6,7 +6,7 @@ import { BarChart3, Home, Info } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ModeToggle } from "./ui/modeToggle";
+import { Fragment } from "react";
 
 export default function Header() {
   const pathname = usePathname();
@@ -18,10 +18,10 @@ export default function Header() {
   ];
 
   return (
-    <header className="pointer-events-auto">
+    <header className="pointer-events-auto z-99">
       <nav
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border px-2 py-2",
+          "fixed bottom-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-sm border-t border-border px-2 md:py-2",
           "md:top-0 md:left-0 md:bottom-0 md:right-auto md:border-t-0 md:border-r md:w-24 md:h-screen md:flex md:flex-col md:py-6"
         )}
       >
@@ -39,97 +39,98 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Mobile: single bottom row with all items */}
-        <div className="flex items-center justify-around md:hidden">
-          {navigation.map(({ name, href, icon: Icon }) => {
+        {/* Mobile navigation */}
+        <div className="md:hidden flex flex-1 items-center justify-between">
+          {navigation.map(({ name, href, icon: Icon }, idx) => {
             const isActive =
-              pathname === href ||
-              (href !== "/" && pathname?.startsWith(href));
+              pathname === href || (href !== "/" && pathname?.startsWith(href));
 
             return (
-              <Link
-                key={name}
-                href={href}
-                className={cn(
-                  "flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:scale-105",
-                  isActive
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <div
+              <Fragment key={name}>
+                <Link
+                  href={href}
                   className={cn(
-                    "flex h-12 w-12 items-center justify-center rounded-xl transition-colors duration-200 shadow-sm",
-                    isActive && "bg-primary/20 shadow-md",
-                    !isActive && "hover:bg-muted/60"
+                    "flex h-full group items-center justify-center gap-1 w-full",
+                    idx > 0 && "pr-2"
                   )}
-                >
-                  <Icon className="h-6 w-6" />
-                </div>
-                <span className="text-[10px] font-medium leading-tight">
-                  {name}
-                </span>
-              </Link>
+                ><div className={cn(
+                  "flex flex-col w-24 h-full group items-center justify-center gap-1 p-2 rounded-xl transition-colors duration-200",
+                  "group-hover:bg-primary/20"
+                )}>
+                    <Icon className={cn(
+                      "h-6 w-6 transition-colors duration-200",
+                      isActive && "text-primary",
+                      !isActive && "text-muted-foreground group-hover:text-primary"
+                    )} />
+                    <span className={cn(
+                      "text-xs font-medium transition-colors duration-200",
+                      isActive && "text-primary",
+                      !isActive && "text-muted-foreground group-hover:text-primary"
+                    )}>{name}</span>
+                  </div>
+                </Link>
+                <div className="w-px h-10 bg-border/60" />
+                {idx === navigation.length - 1 && (
+                  <AuthButton iconVariant={{ size: "sm" }} className="gap-0 rounded-xl px-2 py-2 group w-full" isActive={pathname?.startsWith("/profile")}>
+                    <span className={cn(
+                      "text-xs font-medium transition-colors duration-200",
+                      isActive && "text-primary",
+                      !isActive && "text-muted-foreground group-hover:text-primary"
+                    )}>Profile</span>
+                  </AuthButton>
+                )}
+              </Fragment>
             );
           })}
-          <div className="flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:scale-105">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted/60 shadow-sm">
-              <AuthButton />
-            </div>
-            <span className="text-[10px] font-medium leading-tight">
-              Profile
-            </span>
-          </div>
-          <div className="flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:scale-105">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted/60 shadow-sm">
-              <ModeToggle />
-            </div>
-            <span className="text-[10px] font-medium leading-tight">
-              Theme
-            </span>
-          </div>
         </div>
 
         {/* Desktop: vertical nav */}
-        <div className="hidden md:flex md:flex-col md:items-center md:gap-4">
-          {navigation.map(({ name, href, icon: Icon }) => {
+        <div className="hidden md:flex md:flex-col md:items-center">
+          {navigation.map(({ name, href, icon: Icon }, idx) => {
             const isActive =
-              pathname === href ||
-              (href !== "/" && pathname?.startsWith(href));
+              pathname === href || (href !== "/" && pathname?.startsWith(href));
 
             return (
-              <Link
-                key={name}
-                href={href}
-                className={cn(
-                  "flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:scale-105",
-                  isActive
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <div
+              <Fragment key={name}>
+                <Link
+                  href={href}
                   className={cn(
-                    "p-2 rounded-xl transition-colors duration-200 shadow-sm",
-                    isActive && "bg-primary/20 shadow-md",
-                    !isActive && "hover:bg-muted/60"
+                    "flex flex-col w-full group items-center gap-1",
+                    idx > 0 && "pt-2"
                   )}
-                >
-                  <Icon className="h-6 w-6" />
-                </div>
-                <span className="text-xs font-medium">
-                  {name}
-                </span>
-              </Link>
+                ><div className={cn(
+                  "flex flex-col w-full group items-center gap-1 p-2 rounded-xl transition-colors duration-200",
+                  "group-hover:bg-primary/20"
+                )}>
+                    <Icon className={cn(
+                      "h-6 w-6 transition-colors duration-200",
+                      isActive && "text-primary",
+                      !isActive && "text-muted-foreground group-hover:text-primary"
+                    )} />
+                    <span className={cn(
+                      "text-xs font-medium transition-colors duration-200",
+                      isActive && "text-primary",
+                      !isActive && "text-muted-foreground group-hover:text-primary"
+                    )}>{name}</span>
+                  </div>
+                  {idx < navigation.length - 1 && (
+                    <div className="mx-auto mt-1 h-px w-10 bg-border/60" />
+                  )}
+                </Link>
+
+              </Fragment>
             );
           })}
         </div>
 
-        {/* Desktop: auth + theme controls at bottom */}
-        <div className="hidden md:mt-auto md:flex md:flex-col md:items-center md:gap-4">
-          <AuthButton />
-          <ModeToggle />
-        </div>
+        {/* Desktop: auth at bottom */}
+        <AuthButton iconVariant={{ size: "sm" }} className="hidden md:block mt-auto gap-0 rounded-xl py-2 group w-full" isActive={pathname?.startsWith("/profile")}>
+          <span className={cn(
+            "text-xs font-medium transition-colors duration-200",
+            // isActive && "text-primary",
+            // !isActive && "text-muted-foreground group-hover:text-primary"
+          )}>Profile</span>
+        </AuthButton>
       </nav>
     </header>
   );

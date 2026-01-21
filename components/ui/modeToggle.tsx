@@ -12,19 +12,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function ModeToggle() {
+export function ModeToggle({ className, children }: { className?: string, children?: React.ReactNode }) {
   const { setTheme } = useTheme();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button variant="outline" size="icon" className={className}>
           <span className="dark:opacity-0 dark:hidden block opacity-100">
             <HugeiconsIcon icon={Sun01Icon} size={19} />
           </span>
           <span className="opacity-0 hidden dark:block dark:opacity-100">
             <HugeiconsIcon icon={Moon02Icon} size={19} />
           </span>
+          {children && children}
           <span className="sr-only">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>

@@ -4,10 +4,13 @@ import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+// import { Inter } from "next/font/google";
+import { Geist_Mono, Nunito } from 'next/font/google';
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const _nunito = Nunito({ subsets: ["latin"] });
+const _geistMono = Geist_Mono({ subsets: ["latin"] });
+// const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
@@ -54,7 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
-      <body className={`${inter.className} flex min-h-screen flex-col`}>
+      <body className={`font-sans antialiased flex min-h-screen flex-col`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

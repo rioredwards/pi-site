@@ -2,8 +2,7 @@
 
 import { getUserProfile } from "@/app/db/actions";
 import { User as UserType } from "@/app/lib/types";
-import { getProfilePictureUrl } from "@/app/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn, getProfilePictureUrl } from "@/app/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,13 +12,28 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Login01Icon, Logout01Icon, UserIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { cva, VariantProps } from "class-variance-authority";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import BounceLoader from "react-spinners/BounceLoader";
+import { ModeToggle } from "./ui/modeToggle";
 import { SignInModal } from "./ui/signInModal";
 
-export function AuthButton() {
+const iconSizeVariants = cva("transition-colors duration-200", {
+  variants: {
+    size: {
+      sm: "h-6 w-6",
+      lg: "h-8 w-8",
+    },
+    defaultVariants: {
+      size: "lg",
+    },
+  },
+});
+
+
+export function AuthButton({ className, children, isActive, iconVariant = { size: "lg" } }: { className?: string, children?: React.ReactNode, isActive?: boolean, iconVariant?: VariantProps<typeof iconSizeVariants> }) {
   const { data: session, status } = useSession();
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [profile, setProfile] = useState<UserType | null>(null);
@@ -37,13 +51,13 @@ export function AuthButton() {
     loadProfile();
   }, [session?.user?.id]);
 
-  if (status === "loading") {
-    return (
-      <Button variant="ghost" size="sm" disabled>
-        <BounceLoader color={"oklch(0.75 0.15 55)"} loading={true} size={25} />
-      </Button>
-    );
-  }
+  // if (status === "loading") {
+  //   return (
+  //     <Button variant="ghost" size="sm" disabled>
+  //       <BounceLoader color={"oklch(0.75 0.15 55)"} loading={true} size={25} />
+  //     </Button>
+  //   );
+  // }
 
   if (session) {
     // Use custom profile data if available, otherwise fallback to OAuth data
@@ -56,30 +70,48 @@ export function AuthButton() {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex cursor-pointer items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-            {profilePictureUrl ? (
-              <img
-                src={profilePictureUrl}
-                alt={displayName || "User"}
-                className="h-8 w-8 rounded-full object-cover"
-              />
-            ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                <HugeiconsIcon icon={UserIcon} size={16} className="text-muted-foreground" />
-              </div>
-            )}
+          <button className={cn("flex flex-col cursor-pointer items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", className)}>
+            <div className={cn(
+              "flex w-full flex-col h-full group items-center justify-center gap-1 p-2 rounded-xl transition-colors duration-200",
+              "group-hover:bg-primary/20"
+            )}>
+              {profilePictureUrl ? (
+                <img
+                  src={profilePictureUrl}
+                  alt={displayName || "User"}
+                  className={cn(
+                    "h-8 w-8 rounded-full object-cover",
+                    iconSizeVariants(iconVariant)
+                  )}
+                />
+              ) : (
+                <HugeiconsIcon icon={UserIcon} className={cn(
+                  iconSizeVariants(iconVariant),
+                  isActive && "text-primary",
+                  !isActive && "text-muted-foreground group-hover:text-primary"
+                )} />
+              )}
+              {children && children}
+            </div>
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
           <div className="px-2 py-1.5">
-            <p className="text-sm font-medium">{displayName}</p>
+            <p className="font-medium">{displayName}</p>
           </div>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link href={profileUrl} className="cursor-pointer">
-              <HugeiconsIcon icon={UserIcon} size={16} className="mr-2" />
+              <HugeiconsIcon icon={UserIcon} className={cn(iconSizeVariants(iconVariant), "mr-2")} />
               Profile
             </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="cursor-pointer p-0"
+          >
+            <ModeToggle className="w-full h-full border-none py-2 px-3 hover:bg-transparent bg-transparent gap-4 justify-start shadow-none">
+              <span className="text-foreground text-base">Theme</span>
+            </ModeToggle>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -99,9 +131,22 @@ export function AuthButton() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex cursor-pointer items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-              <HugeiconsIcon icon={UserIcon} size={16} className="text-muted-foreground" />
+          <button className={cn("flex flex-col cursor-pointer items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", className)}>
+            <div className={cn(
+              "flex flex-col h-full group items-center justify-center gap-1 p-2 rounded-xl transition-colors duration-200",
+              "group-hover:bg-primary/20"
+            )}>
+              {status === "loading" && <BounceLoader color={"oklch(0.75 0.15 55)"} loading={true} size={25} />}
+              {status !== "loading" && (
+                <>
+                  <HugeiconsIcon icon={UserIcon} className={cn(
+                    iconSizeVariants(iconVariant),
+                    "h-6 w-6 transition-colors duration-200",
+                    isActive && "text-primary",
+                    !isActive && "text-muted-foreground group-hover:text-primary"
+                  )} />
+                  {children && children}
+                </>)}
             </div>
           </button>
         </DropdownMenuTrigger>
@@ -110,8 +155,15 @@ export function AuthButton() {
             onClick={() => setShowSignInModal(true)}
             className="cursor-pointer"
           >
-            <HugeiconsIcon icon={Login01Icon} size={16} className="mr-2" />
+            <HugeiconsIcon icon={Login01Icon} className={cn(iconSizeVariants(iconVariant), "mr-2")} />
             Sign In
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="cursor-pointer p-0"
+          >
+            <ModeToggle className="w-full h-full border-none py-2 px-3 hover:bg-transparent bg-transparent gap-4 justify-start shadow-none">
+              <span className="text-foreground text-base">Theme</span>
+            </ModeToggle>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
