@@ -2,8 +2,11 @@
   "folders": [
     {
       "name": "pi-site",
-      "path": "."
-    }
+      "path": ".",
+    },
+    {
+      "path": "../samples/dogtown-components",
+    },
   ],
-  "settings": {}
+  "settings": {},
 }
