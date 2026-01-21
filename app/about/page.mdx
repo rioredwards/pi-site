@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Flashcard } from "@/components/ui/flashcard";
 import BlueSky from "@/components/svg/Bluesky";
 import GitHub from "@/components/svg/GitHub";
 import LinkedIn from "@/components/svg/LinkedIn";
@@ -12,21 +11,18 @@ export const metadata = {
   description: "Learn about Rio, this site, and the Raspberry Pi powering it all.",
 };
 
-<div className="container mx-auto max-w-3xl px-4 py-12">
+<article className="prose container mx-auto max-w-2xl px-4 py-12">
 
-<div className="mb-12 flex flex-col items-center text-center">
+<div className="not-prose mb-12 flex flex-col items-center text-center">
   <Image
     src="/myImages/Rio-With-Pups.jpg"
     alt="Rio with dogs"
-    width={280}
-    height={280}
-    className="mb-6 rounded-full"
+    width={240}
+    height={240}
+    className="mb-6 rounded-full shadow-lg"
   />
-
-# Hey, I'm Rio 👋
-
-Software developer and dog enthusiast based in Portland, OR.
-
+  <h1 className="text-3xl font-bold tracking-tight">Hey, I'm Rio 👋</h1>
+  <p className="mt-2 text-muted-foreground">Software developer and dog enthusiast based in Portland, OR.</p>
 </div>
 
 ---
@@ -36,9 +32,9 @@ Software developer and dog enthusiast based in Portland, OR.
 <Image
   src="/myImages/My-Pi.jpeg"
   alt="A Raspberry Pi"
-  width={400}
-  height={300}
-  className="float-right mb-4 ml-6 w-48 rounded-lg md:w-64"
+  width={300}
+  height={225}
+  className="float-right mb-4 ml-6 w-40 md:w-52"
 />
 
 Over the holidays, my sister gifted me a **Raspberry Pi** <RaspberryPi className="inline w-4 -mt-1" />. Thanks, sis! 🫶
@@ -74,7 +70,7 @@ _For the techy people_
   alt="My Raspberry Pi setup"
   width={600}
   height={400}
-  className="my-6 w-full rounded-lg"
+  className="w-full"
 />
 
 ### Development & Deployment
@@ -111,31 +107,19 @@ My laptop connects via Raspberry Pi Connect and SSH. I also hooked the Pi up to 
 
 Feel free to reach out with any comments, questions, or concerns!
 
-<div className="mt-4 flex gap-4">
-  <Link
-    href="https://www.linkedin.com/in/rio-edwards/"
-    target="_blank"
-    rel="noreferrer"
-    aria-label="LinkedIn">
-    <LinkedIn className="w-8 transition-opacity hover:opacity-70" />
+<div className="not-prose mt-6 flex gap-4">
+  <Link href="https://www.linkedin.com/in/rio-edwards/" aria-label="LinkedIn">
+    <LinkedIn className="w-8 text-foreground/70 transition-colors hover:text-foreground" />
   </Link>
-  <Link
-    href="https://bsky.app/profile/rioredwards.bsky.social"
-    target="_blank"
-    rel="noreferrer"
-    aria-label="Bluesky">
-    <BlueSky className="w-8 transition-opacity hover:opacity-70" />
+  <Link href="https://bsky.app/profile/rioredwards.bsky.social" aria-label="Bluesky">
+    <BlueSky className="w-8 text-foreground/70 transition-colors hover:text-foreground" />
   </Link>
-  <Link
-    href="https://www.youtube.com/channel/UCZdVYjS_Os_4e7DZAZSRxBQ"
-    target="_blank"
-    rel="noreferrer"
-    aria-label="YouTube">
-    <YouTube className="w-8 transition-opacity hover:opacity-70" />
+  <Link href="https://www.youtube.com/channel/UCZdVYjS_Os_4e7DZAZSRxBQ" aria-label="YouTube">
+    <YouTube className="w-8 text-foreground/70 transition-colors hover:text-foreground" />
   </Link>
-  <Link href="https://github.com/rioredwards/" target="_blank" rel="noreferrer" aria-label="GitHub">
-    <GitHub className="w-8 transition-opacity hover:opacity-70" />
+  <Link href="https://github.com/rioredwards/" aria-label="GitHub">
+    <GitHub className="w-8 text-foreground/70 transition-colors hover:text-foreground" />
   </Link>
 </div>
 
-</div>
+</article>

@@ -173,3 +173,173 @@
     background-image: linear-gradient(var(--border), var(--border) 1px, transparent 1px);
   }
 }
+
+/* ===== MDX Prose Styling ===== */
+
+/* Syntax highlighting colors (sugar-high) */
+:root {
+  --sh-class: #2d5e9d;
+  --sh-identifier: #354150;
+  --sh-sign: #8996a3;
+  --sh-string: #007f7a;
+  --sh-keyword: #e02518;
+  --sh-comment: #a19595;
+  --sh-jsxliterals: #6266d1;
+  --sh-property: #e25a1c;
+  --sh-entity: #e25a1c;
+}
+
+.dark {
+  --sh-class: #4c97f8;
+  --sh-identifier: #e0e0e0;
+  --sh-keyword: #f47067;
+  --sh-string: #0fa295;
+}
+
+/* Selection color */
+::selection {
+  background-color: oklch(0.67 0.16 58 / 40%);
+  color: inherit;
+}
+
+/* Prose anchor links */
+.prose .anchor {
+  @apply absolute invisible no-underline;
+  margin-left: -1em;
+  padding-right: 0.5em;
+  width: 80%;
+  max-width: 700px;
+  cursor: pointer;
+}
+
+.prose .anchor:hover {
+  @apply visible;
+}
+
+.prose .anchor:after {
+  @apply text-muted-foreground/50;
+  content: '#';
+}
+
+.prose *:hover > .anchor {
+  @apply visible;
+}
+
+/* Prose headings */
+.prose h1 {
+  @apply text-4xl font-semibold tracking-tight mt-8 mb-4 text-foreground;
+}
+
+.prose h2 {
+  @apply text-2xl font-semibold tracking-tight mt-8 mb-3 text-foreground;
+}
+
+.prose h3 {
+  @apply text-xl font-semibold tracking-tight mt-6 mb-2 text-foreground;
+}
+
+.prose h4 {
+  @apply text-lg font-medium tracking-tight mt-6 mb-2 text-foreground;
+}
+
+/* Prose paragraphs and text */
+.prose p {
+  @apply my-4 text-foreground/90 leading-relaxed;
+}
+
+.prose strong {
+  @apply font-semibold text-foreground;
+}
+
+.prose em {
+  @apply italic;
+}
+
+/* Prose links */
+.prose a:not(.anchor) {
+  @apply underline decoration-primary/50 underline-offset-2 transition-colors hover:decoration-primary;
+}
+
+/* Prose lists */
+.prose ul {
+  @apply list-disc pl-6 my-4 space-y-2;
+}
+
+.prose ol {
+  @apply list-decimal pl-6 my-4 space-y-2;
+}
+
+.prose li {
+  @apply text-foreground/90;
+}
+
+/* Prose code blocks */
+.prose pre {
+  @apply bg-muted rounded-lg overflow-x-auto border border-border py-3 px-4 text-sm my-6;
+}
+
+.prose code {
+  @apply px-1.5 py-0.5 rounded-md bg-muted text-sm font-mono;
+}
+
+.prose pre code {
+  @apply p-0 bg-transparent;
+  line-height: 1.6;
+}
+
+.prose code span {
+  @apply font-medium;
+}
+
+/* Hide scrollbar on pre */
+.prose pre::-webkit-scrollbar {
+  display: none;
+}
+
+.prose pre {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Prose images */
+.prose img {
+  @apply my-6 rounded-lg;
+}
+
+/* Prose tables */
+.prose table {
+  @apply w-full my-6 text-sm;
+  display: block;
+  overflow-x: auto;
+}
+
+.prose thead {
+  @apply border-b border-border;
+}
+
+.prose th {
+  @apply text-left font-semibold py-2 px-3 text-foreground;
+}
+
+.prose td {
+  @apply py-2 px-3 border-b border-border/50 text-foreground/90;
+}
+
+.prose tr:last-child td {
+  @apply border-b-0;
+}
+
+/* Prose blockquotes */
+.prose blockquote {
+  @apply border-l-4 border-primary/30 pl-4 my-6 italic text-foreground/80;
+}
+
+/* Prose horizontal rules */
+.prose hr {
+  @apply my-8 border-border;
+}
+
+/* First child spacing fix */
+.prose > :first-child {
+  margin-top: 0 !important;
+}
