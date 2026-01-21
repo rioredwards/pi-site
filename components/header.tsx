@@ -39,8 +39,8 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Primary navigation */}
-        <div className="flex items-center justify-around md:flex-col md:gap-4">
+        {/* Mobile: single bottom row with all items */}
+        <div className="flex items-center justify-around md:hidden">
           {navigation.map(({ name, href, icon: Icon }) => {
             const isActive =
               pathname === href ||
@@ -51,7 +51,7 @@ export default function Header() {
                 key={name}
                 href={href}
                 className={cn(
-                  "flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200",
+                  "flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:scale-105",
                   isActive
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
@@ -59,13 +59,65 @@ export default function Header() {
               >
                 <div
                   className={cn(
-                    "p-2 rounded-xl transition-colors duration-200",
-                    isActive && "bg-primary/20"
+                    "flex h-12 w-12 items-center justify-center rounded-xl transition-colors duration-200 shadow-sm",
+                    isActive && "bg-primary/20 shadow-md",
+                    !isActive && "hover:bg-muted/60"
                   )}
                 >
                   <Icon className="h-6 w-6" />
                 </div>
-                <span className="text-xs font-medium hidden md:block">
+                <span className="text-[10px] font-medium leading-tight">
+                  {name}
+                </span>
+              </Link>
+            );
+          })}
+          <div className="flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:scale-105">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted/60 shadow-sm">
+              <AuthButton />
+            </div>
+            <span className="text-[10px] font-medium leading-tight">
+              Profile
+            </span>
+          </div>
+          <div className="flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:scale-105">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted/60 shadow-sm">
+              <ModeToggle />
+            </div>
+            <span className="text-[10px] font-medium leading-tight">
+              Theme
+            </span>
+          </div>
+        </div>
+
+        {/* Desktop: vertical nav */}
+        <div className="hidden md:flex md:flex-col md:items-center md:gap-4">
+          {navigation.map(({ name, href, icon: Icon }) => {
+            const isActive =
+              pathname === href ||
+              (href !== "/" && pathname?.startsWith(href));
+
+            return (
+              <Link
+                key={name}
+                href={href}
+                className={cn(
+                  "flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:scale-105",
+                  isActive
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <div
+                  className={cn(
+                    "p-2 rounded-xl transition-colors duration-200 shadow-sm",
+                    isActive && "bg-primary/20 shadow-md",
+                    !isActive && "hover:bg-muted/60"
+                  )}
+                >
+                  <Icon className="h-6 w-6" />
+                </div>
+                <span className="text-xs font-medium">
                   {name}
                 </span>
               </Link>
@@ -73,8 +125,8 @@ export default function Header() {
           })}
         </div>
 
-        {/* Auth + theme controls */}
-        <div className="mt-1 flex items-center justify-around gap-4 border-t border-border pt-2 md:mt-auto md:flex-col md:gap-4 md:border-t-0 md:pt-0">
+        {/* Desktop: auth + theme controls at bottom */}
+        <div className="hidden md:mt-auto md:flex md:flex-col md:items-center md:gap-4">
           <AuthButton />
           <ModeToggle />
         </div>

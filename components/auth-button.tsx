@@ -95,15 +95,28 @@ export function AuthButton() {
 
   return (
     <>
-      <Button
-        variant="default"
-        size="sm"
-        onClick={() => setShowSignInModal(true)}
-        className="flex items-center gap-1">
-        <HugeiconsIcon icon={Login01Icon} size={16} />
-        <span>Sign In</span>
-      </Button>
-      <SignInModal showSignInModal={showSignInModal} setShowSignInModal={setShowSignInModal} />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex cursor-pointer items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+              <HugeiconsIcon icon={UserIcon} size={16} className="text-muted-foreground" />
+            </div>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-40">
+          <DropdownMenuItem
+            onClick={() => setShowSignInModal(true)}
+            className="cursor-pointer"
+          >
+            <HugeiconsIcon icon={Login01Icon} size={16} className="mr-2" />
+            Sign In
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <SignInModal
+        showSignInModal={showSignInModal}
+        setShowSignInModal={setShowSignInModal}
+      />
     </>
   );
 }
