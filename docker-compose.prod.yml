@@ -7,9 +7,18 @@ services:
       - .env.prod
     environment:
       NODE_ENV: production
+      HOSTNAME: "0.0.0.0"
     volumes:
       - uploads_data:/data/uploads/images
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 768M
+        reservations:
+          cpus: '0.5'
+          memory: 384M
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
       interval: 30s
@@ -27,6 +36,14 @@ services:
       - /:/host/root:ro
       - /var/lib/docker:/host/var/lib/docker:ro
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8787"]
       interval: 30s
@@ -36,6 +53,14 @@ services:
 
   ai-img-validator:
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1536M
+        reservations:
+          cpus: '0.5'
+          memory: 768M
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000')"]
       interval: 30s
@@ -51,6 +76,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 
 volumes:
   postgres_data:
