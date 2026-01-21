@@ -62,7 +62,7 @@ export function DogBotCard({ processingState }: DogBotCardProps) {
   if (!dogBot.show) return null;
 
   return (
-    <div className="absolute inset-0 z-10 flex flex-col">
+    <div className="absolute inset-4 md:inset-0 z-10 flex flex-col">
       {/* Color overlay */}
       <div
         className={cn(

@@ -107,7 +107,7 @@ export function Main() {
         }
       >
         {typeof window !== "undefined" && (
-          <div className="py-8">
+          <div className="pt-4 pb-16">
             <PhotoUpload addPhoto={addPhoto} />
           </div>
         )}

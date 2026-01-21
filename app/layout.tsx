@@ -62,7 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           disableTransitionOnChange>
           <Providers>
             <Header />
-            <main className="container mx-auto max-w-7xl flex-1">{children}</main>
+            <main className="container mx-auto max-w-7xl flex-1 pt-8">{children}</main>
             <Toaster />
             <Footer />
           </Providers>
