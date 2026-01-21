@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { RotateClockwiseIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { CropIcon, UploadCircle02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from '@hugeicons/react';
 import { LucideDog } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -25,6 +25,7 @@ import { GradientText } from "./funText";
 import { DogBotCard, getDogBotBorderColors } from "./ui/dogBotCard";
 import { RotatingGradientBorder } from "./ui/RotatingGradientBorder";
 import { SignInModal } from "./ui/signInModal";
+
 
 // Helper to create cropped image from crop area
 async function getCroppedImg(imageSrc: string, pixelCrop: Area, rotation = 0): Promise<Blob> {
@@ -138,7 +139,7 @@ function getDogModalDescription(processingState: ProcessingState): string {
 }
 
 export default function PhotoUpload({ addPhoto }: Props) {
-  const [files, setFiles] = useState<File[]>([]);
+  const [file, setFile] = useState<File | null>(null);
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
   const [processingState, setProcessingState] = useState<ProcessingState>("preSelection");
   const [showSignInModal, setShowSignInModal] = useState(false);
@@ -147,6 +148,7 @@ export default function PhotoUpload({ addPhoto }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: session, status } = useSession();
   const [showConfetti, setShowConfetti] = useState(false);
+  const [isDragging, setIsDragging] = useState(false)
 
   // Cropper state
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -154,10 +156,42 @@ export default function PhotoUpload({ addPhoto }: Props) {
   const [rotation, setRotation] = useState(0);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setIsDragging(true)
+    } else if (e.type === "dragleave") {
+      setIsDragging(false)
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+
+    const file = e.dataTransfer.files[0]
+    if (file && file) {
+      handleFile(file)
+    }
+  }
+
+  const handleFile = (file: File) => {
+    if (file && file.type.startsWith("image/")) {
+      setFile(file);
+      setCroppedFile(null);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setRotation(0);
+      setProcessingState("cropping");
+    }
+  }
+
   const originalImageUrl = useMemo(() => {
-    if (!files[0]) return null;
-    return URL.createObjectURL(files[0]);
-  }, [files]);
+    if (!file) return null;
+    return URL.createObjectURL(file);
+  }, [file]);
 
   const previewUrl = useMemo(() => {
     if (croppedFile) return URL.createObjectURL(croppedFile);
@@ -169,7 +203,7 @@ export default function PhotoUpload({ addPhoto }: Props) {
   }, []);
 
   const resetFileInput = useCallback(() => {
-    setFiles([]);
+    setFile(null);
     setCroppedFile(null);
     setCrop({ x: 0, y: 0 });
     setZoom(1);
@@ -203,7 +237,7 @@ export default function PhotoUpload({ addPhoto }: Props) {
 
     try {
       const croppedBlob = await getCroppedImg(originalImageUrl, croppedAreaPixels, rotation);
-      const croppedFile = new File([croppedBlob], files[0].name, { type: "image/jpeg" });
+      const croppedFile = new File([croppedBlob], file?.name || "cropped.jpg", { type: "image/jpeg" });
       setCroppedFile(croppedFile);
       setProcessingState("selected");
     } catch (error) {
@@ -281,22 +315,9 @@ export default function PhotoUpload({ addPhoto }: Props) {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const selectedFiles = Array.from(e.target.files);
-      if (selectedFiles.length > 1) {
-        toast({
-          title: "Error",
-          description: "You can only upload 1 photo at a time.",
-          variant: "destructive",
-        });
-        return;
-      }
-      setFiles(selectedFiles);
-      setCroppedFile(null);
-      setCrop({ x: 0, y: 0 });
-      setZoom(1);
-      setRotation(0);
-      setProcessingState("cropping");
+    const file = e.target.files?.[0]
+    if (file && file) {
+      handleFile(file)
     }
   };
 
@@ -392,34 +413,34 @@ export default function PhotoUpload({ addPhoto }: Props) {
 
               <div className="px-6 pb-6 pt-4">
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  {!files.length ? (
-                    <div className="rounded-2xl border border-dashed border-border/80 bg-muted/30 p-3">
-                      <label
-                        htmlFor="photo"
+                  {!file ? (
+                    <label
+                      htmlFor="photo"
+                      onDragEnter={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDragOver={handleDrag}
+                      onDrop={handleDrop}
+                      className={cn(
+                        "hover:bg-muted/40 pointer-coarse:bg-muted/40 transition-all duration-300 group flex cursor-pointer flex-col items-center justify-center rounded-xl p-3",
+                        isDragging && "bg-primary/10 scale-105"
+                      )}>
+                      <div
                         className={cn(
-                          "group relative flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl p-10",
-                          "transition",
-                          "hover:bg-muted/40 hover:border-border",
-                          "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background"
+                          "w-full h-full group-hover:bg-muted/40 pointer-coarse:bg-muted/40 group-hover:border-border pointer-coarse:border-border focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background relative flex flex-col items-center justify-center px-8 py-24 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-300 gap-2",
+                          isDragging
+                            ? "border-primary bg-primary/10 scale-105"
+                            : "border-border group-hover:border-primary group-hover:bg-secondary/50 pointer-coarse:border-primary pointer-coarse:bg-secondary/50",
+                        )}
+                      >
+                        <div className={cn("flex h-14 w-14 items-center justify-center rounded-2xl bg-background shadow-sm ring-1 ring-border/60 transition group-hover:shadow-md pointer-coarse:shadow-md",
+                          isDragging ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
                         )}>
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-background shadow-sm ring-1 ring-border/60 transition group-hover:shadow-md">
-                          <LucideDog className="h-7 w-7 text-muted-foreground" />
+                          <LucideDog className="h-7 w-7 text-foreground transition-all duration-300 group-hover:text-primary pointer-coarse:text-primary" />
                         </div>
-
-                        <div className="text-center">
-                          <div className="text-sm font-medium text-foreground">
-                            Click to select a dog photo
-                          </div>
-                          <div className="mt-1 text-xs text-muted-foreground">
-                            JPEG, PNG, or WebP • max 5MB
-                          </div>
-                        </div>
-
-                        <div className="mt-2 inline-flex items-center rounded-full bg-background/70 px-3 py-1 text-[11px] text-muted-foreground ring-1 ring-border/60">
-                          one dog at a time
-                        </div>
-                      </label>
-                    </div>
+                        <p className="font-bold text-card-foreground mb-1 transition-all duration-300 group-hover:text-primary pointer-coarse:text-primary">Upload a dog photo</p>
+                        <p className="text-sm text-muted-foreground">Drag & drop or click to browse</p>
+                      </div>
+                    </label>
                   ) : processingState === "cropping" ? (
                     <div className="space-y-4">
                       {/* Cropper */}
@@ -466,15 +487,9 @@ export default function PhotoUpload({ addPhoto }: Props) {
                         </Button>
                         <Button
                           type="button"
-                          onClick={handleRotate}
-                          variant="outline"
-                          className="rounded-xl px-3">
-                          <HugeiconsIcon icon={RotateClockwiseIcon} size={16} />
-                        </Button>
-                        <Button
-                          type="button"
                           onClick={handleCropConfirm}
-                          className="flex-1 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                          className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90">
+                          <HugeiconsIcon icon={CropIcon} size={16} />
                           Crop
                         </Button>
                       </div>
@@ -504,7 +519,8 @@ export default function PhotoUpload({ addPhoto }: Props) {
                         </Button>
                         <Button
                           type="submit"
-                          className="flex-1 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                          className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90">
+                          <HugeiconsIcon icon={UploadCircle02Icon} size={16} />
                           Upload
                         </Button>
                       </div>
