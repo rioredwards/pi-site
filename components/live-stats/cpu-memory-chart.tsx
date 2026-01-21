@@ -48,7 +48,7 @@ export function CpuMemoryChart({ history }: { history: HistoryPoint[] }) {
         </span>
       }
     >
-      <div className="h-[220px]">
+      <div className="h-[220px] min-h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={history}>
             <CartesianGrid stroke="rgba(255,255,255,0.08)" />

@@ -38,27 +38,27 @@ export function HeaderSection({
           />
         </div>
 
-        <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-zinc-400">
-          <span className="inline-flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-white/30" />
-            Host: <span className="font-semibold text-zinc-200">{sys?.hostname ?? "—"}</span>
+        <div className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-xs text-zinc-400 sm:grid-cols-2 xl:grid-cols-4">
+          <span className="inline-flex items-center gap-2 whitespace-nowrap">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white/30" />
+            Host: <span className="font-semibold text-zinc-200">Raspberry Pi 5 Model B Rev 1.0</span>
           </span>
 
-          <span className="inline-flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-white/30" />
-            Kernel: <span className="font-semibold text-zinc-200">{sys?.kernelVersion ?? "—"}</span>
+          <span className="inline-flex items-center gap-2 whitespace-nowrap">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white/30" />
+            CPU: <span className="font-semibold text-zinc-200">Cortex-A76 / 4 Cores / 2400MHz</span>
           </span>
 
-          <span className="inline-flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-white/30" />
+          <span className="inline-flex items-center gap-2 whitespace-nowrap">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white/30" />
             Uptime:{" "}
             <span className="font-semibold text-zinc-200">
               {formatUptime(sys?.uptimeSeconds)}
             </span>
           </span>
 
-          <span className="inline-flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-white/30" />
+          <span className="inline-flex items-center gap-2 whitespace-nowrap min-w-[180px]">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white/30" />
             Last update:{" "}
             <span className="font-semibold text-zinc-200">
               {lastUpdatedMs ? new Date(lastUpdatedMs).toLocaleTimeString([], { hour12: false }) : "—"}

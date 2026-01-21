@@ -64,18 +64,14 @@ export function LiveStats() {
   const allHealthy = (effective as any)?.services?.allHealthy ?? null;
 
   const pageBg =
-    "relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900/80 p-6 shadow-2xl";
+    "relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900/80 p-6 shadow-2xl before:pointer-events-none before:absolute before:inset-0 before:opacity-[0.18] before:content-[''] before:[background-image:linear-gradient(to_right,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.08)_1px,transparent_1px)] before:[background-size:48px_48px]";
 
   const glow =
     "pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.18),rgba(168,85,247,0.10),rgba(0,0,0,0))] blur-3xl";
 
-  const gridGlow =
-    "pointer-events-none absolute inset-0 opacity-[0.18] [background-image:linear-gradient(to_right,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:48px_48px]";
-
   return (
     <div className={pageBg}>
       <div className={glow} />
-      <div className={gridGlow} />
 
       {/* Header */}
       <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -104,7 +100,7 @@ export function LiveStats() {
       </div>
 
       {/* Lower grid */}
-      <div className="relative mt-6 grid gap-4 lg:grid-cols-3">
+      <div className="relative mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <DiskChart disks={disks} />
         <ContainersChart containers={containers} containerSummary={containerSummary} />
         <ServicesChart services={services} allHealthy={allHealthy} />

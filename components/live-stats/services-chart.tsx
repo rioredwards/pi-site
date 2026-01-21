@@ -37,7 +37,7 @@ export function ServicesChart({
         />
       }
     >
-      <div className="h-[260px]">
+      <div className="h-[260px] min-h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={servicesChart}>
             <CartesianGrid stroke="rgba(255,255,255,0.08)" />
@@ -83,9 +83,6 @@ export function ServicesChart({
               <div className="min-w-0">
                 <div className="truncate text-xs font-semibold text-zinc-100">
                   {s?.name ?? "—"}
-                </div>
-                <div className="truncate text-[11px] text-zinc-500">
-                  {s?.url ?? ""}
                 </div>
               </div>
               <div className="flex items-center gap-3">

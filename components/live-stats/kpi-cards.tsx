@@ -121,7 +121,7 @@ export function KpiCards({
             labelRight={temp?.available ? `${Number(temp?.cpuCelsius ?? 0).toFixed(1)}°C` : "—"}
           />
           <div className="text-[11px] text-zinc-500">
-            Hint: this can spike under build/deploy, so it&apos;s a great &quot;realtime flex&quot;.
+            Throttles at 85°C
           </div>
         </CardContent>
       </Card>

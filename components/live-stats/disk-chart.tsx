@@ -1,65 +1,78 @@
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import { ChartWrap } from "./chart-wrap";
-import { TooltipBox } from "./tooltip-box";
-import { pct } from "./utils";
+import { formatBytes, pct } from "./utils";
 
 export function DiskChart({ disks }: { disks: any[] }) {
-  const disksChart = disks.map((d) => ({
-    name: d?.mountPoint ?? "—",
-    used: pct(d?.usagePercent) ?? 0,
-    free: 100 - (pct(d?.usagePercent) ?? 0),
-  }));
+  const primaryDisk = disks[0];
+  const usagePercent = pct(primaryDisk?.usagePercent) ?? 0;
+  const freeBytes = primaryDisk?.freeBytes ?? 0;
+
+  // Calculate total and used bytes from free bytes and usage percent
+  // total = freeBytes / (1 - usagePercent/100)
+  const totalBytes =
+    usagePercent < 100 && freeBytes > 0
+      ? freeBytes / (1 - usagePercent / 100)
+      : freeBytes;
+  const usedBytes = totalBytes - freeBytes;
+
+  const tone =
+    usagePercent < 70 ? "good" : usagePercent < 88 ? "warn" : "bad";
+  const barColor =
+    tone === "good"
+      ? "bg-emerald-500"
+      : tone === "warn"
+        ? "bg-amber-500"
+        : "bg-rose-500";
 
   return (
     <ChartWrap
-      title="Disk usage by mount"
-      subtitle="A quick way to show the system is real"
+      title="Disk Usage"
+      subtitle={primaryDisk?.mountPoint ?? "Primary mount"}
     >
-      <div className="h-[260px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={disksChart} layout="vertical" margin={{ left: 8 }}>
-            <CartesianGrid stroke="rgba(255,255,255,0.08)" />
-            <XAxis
-              type="number"
-              domain={[0, 100]}
-              tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
-              tickFormatter={(v) => `${v}%`}
+      <div className="flex h-[260px] min-h-[200px] flex-col justify-center gap-6 px-2">
+        {/* Main percentage display */}
+        <div className="text-center">
+          <div className="text-4xl font-bold text-zinc-100">
+            {usagePercent.toFixed(1)}%
+          </div>
+          <div className="mt-1 text-sm text-zinc-400">used</div>
+        </div>
+
+        {/* Horizontal bar */}
+        <div className="space-y-2">
+          <div className="h-6 w-full overflow-hidden rounded-full bg-white/10">
+            <div
+              className={`h-full ${barColor} transition-all duration-500`}
+              style={{ width: `${usagePercent}%` }}
             />
-            <YAxis
-              type="category"
-              dataKey="name"
-              width={90}
-              tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 11 }}
-            />
-            <Tooltip
-              content={
-                <TooltipBox
-                  formatter={(p) => `${Number(p.value).toFixed(1)}%`}
-                />
-              }
-            />
-            <Legend
-              wrapperStyle={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }}
-            />
-            <Bar
-              dataKey="used"
-              name="Used %"
-              fill="rgba(245,158,11,0.75)"
-              radius={[8, 8, 8, 8]}
-              isAnimationActive={true}
-              animationDuration={450}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+          </div>
+
+          {/* Labels */}
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2">
+              <span className={`h-2.5 w-2.5 rounded-full ${barColor}`} />
+              <span className="text-zinc-400">
+                Used:{" "}
+                <span className="font-semibold text-zinc-200">
+                  {formatBytes(usedBytes)}
+                </span>
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
+              <span className="text-zinc-400">
+                Free:{" "}
+                <span className="font-semibold text-zinc-200">
+                  {formatBytes(freeBytes)}
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Total capacity */}
+        <div className="text-center text-xs text-zinc-500">
+          Total capacity: {formatBytes(totalBytes)}
+        </div>
       </div>
     </ChartWrap>
   );

@@ -46,7 +46,7 @@ export function ContainersChart({
         />
       }
     >
-      <div className="h-[260px]">
+      <div className="h-[260px] min-h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={containersByCpu} margin={{ left: 12, right: 8 }}>
             <CartesianGrid stroke="rgba(255,255,255,0.08)" />
@@ -54,9 +54,9 @@ export function ContainersChart({
               dataKey="name"
               tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 10 }}
               interval={0}
-              angle={-18}
+              angle={-12}
               textAnchor="end"
-              height={65}
+              height={55}
             />
             <YAxis
               tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
@@ -83,16 +83,20 @@ export function ContainersChart({
 
       <div className="mt-4 space-y-2">
         {containersByCpu.slice(0, 4).map((c) => {
-          const tone: Tone =
-            c.health === "healthy"
-              ? "good"
-              : c.health === "starting"
-                ? "warn"
-                : c.health === "unhealthy"
-                  ? "bad"
-                  : c.state === "running"
-                    ? "neutral"
-                    : "bad";
+          // Containers without Docker healthcheck return "none" - treat as healthy if running
+          const isHealthyOrRunning =
+            c.health === "healthy" || (c.health === "none" && c.state === "running");
+          const tone: Tone = isHealthyOrRunning
+            ? "good"
+            : c.health === "starting"
+              ? "warn"
+              : c.health === "unhealthy"
+                ? "bad"
+                : "neutral";
+
+          // Show "running" instead of "none" for containers without healthcheck
+          const healthLabel =
+            c.health === "none" && c.state === "running" ? "running" : c.health;
 
           return (
             <div
@@ -104,7 +108,7 @@ export function ContainersChart({
                   {c.name}
                 </div>
                 <div className="truncate text-[11px] text-zinc-500">
-                  {c.image} • restarts: {c.restart}
+                  restarts: {c.restart}
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -112,7 +116,7 @@ export function ContainersChart({
                   {c.cpu.toFixed(2)}%
                 </div>
                 <StatusPill
-                  label={String(c.health)}
+                  label={healthLabel}
                   tone={tone}
                 />
               </div>

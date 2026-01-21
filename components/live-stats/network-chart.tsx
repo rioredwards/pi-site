@@ -16,10 +16,10 @@ import { formatBps, formatBytes } from "./utils";
 export function NetworkChart({ history }: { history: HistoryPoint[] }) {
   return (
     <ChartWrap
-      title="Network — bursty is beautiful"
+      title="Network"
       subtitle="Derived from interface byte counters (rate computed client-side)"
     >
-      <div className="h-[220px]">
+      <div className="h-[220px] min-h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={history}>
             <CartesianGrid stroke="rgba(255,255,255,0.08)" />
