@@ -250,10 +250,6 @@ export default function PhotoUpload({ addPhoto }: Props) {
     }
   };
 
-  const handleRotate = () => {
-    setRotation((prev) => (prev + 90) % 360);
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setProcessingState("processing");

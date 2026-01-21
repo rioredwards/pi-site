@@ -12,6 +12,7 @@ export default function Confetti({ setShowConfetti }: Props) {
 
   return (
     <ReactConfetti
+      style={{ zIndex: 9999, pointerEvents: "none" }}
       onConfettiComplete={() => setShowConfetti(false)}
       width={width}
       height={height}
