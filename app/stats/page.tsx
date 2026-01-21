@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { StatsDashboard } from "../../components/stats-dashboard";
 
 export const metadata: Metadata = {
-  title: "System Stats | DogTownUSA",
+  title: "System Stats | DogTown",
   description: "Live system statistics from the Raspberry Pi server",
 };
 

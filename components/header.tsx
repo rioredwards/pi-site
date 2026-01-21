@@ -2,7 +2,7 @@
 import { cn } from "@/app/lib/utils";
 import { AuthButton } from "@/components/auth-button";
 import LogoImage from "@/public/logo.png";
-import { Home, Info, BarChart3 } from "lucide-react";
+import { BarChart3, Home, Info } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -30,12 +30,12 @@ export default function Header() {
           <Link href="/" className="flex flex-col items-center gap-2">
             <Image
               src={LogoImage}
-              alt="DogTownUSA"
+              alt="DogTown"
               width={40}
               height={40}
               className="rounded-lg"
             />
-            <span className="text-sm font-semibold">DogTownUSA</span>
+            <span className="text-sm font-semibold">DogTown</span>
           </Link>
         </div>
 

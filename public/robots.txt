@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://dogtownusa.com/sitemap.xml
+Sitemap: https://DogTown.com/sitemap.xml
 
 # Disallow admin/API routes
 Disallow: /api/

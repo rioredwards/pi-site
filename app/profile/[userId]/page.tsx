@@ -2,8 +2,8 @@ import { authOptions } from "@/app/auth";
 import { getUserProfile } from "@/app/db/actions";
 import { getProfilePictureUrl } from "@/app/lib/utils";
 import { Button } from "@/components/ui/button";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { PencilEdit01Icon, UserIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { unstable_noStore as noStore } from "next/cache";
@@ -24,13 +24,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const result = await getUserProfile(decodedUserId);
 
   if (result.error || !result.data) {
-    return { title: "User Not Found | DogTownUSA" };
+    return { title: "User Not Found | DogTown" };
   }
 
   const displayName = result.data.displayName || "Anonymous User";
   return {
-    title: `${displayName}'s Profile | DogTownUSA`,
-    description: `View ${displayName}'s profile on DogTownUSA`,
+    title: `${displayName}'s Profile | DogTown`,
+    description: `View ${displayName}'s profile on DogTown`,
   };
 }
 

@@ -1,6 +1,6 @@
 {
-  "name": "DogTownUSA",
-  "short_name": "DogTownUSA",
+  "name": "DogTown",
+  "short_name": "DogTown",
   "description": "A community gallery for sharing photos of our favorite dogs",
   "start_url": "/",
   "display": "standalone",

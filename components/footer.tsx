@@ -13,7 +13,7 @@ export default function Footer() {
           <div className="col-span-2 sm:col-span-3 md:col-span-1 lg:col-span-2">
             <Link href="/" className="mb-4 flex items-center gap-2">
               <PawPrint className="h-6 w-6" />
-              <span className="text-lg font-bold">DogTownUSA</span>
+              <span className="text-lg font-bold">DogTown</span>
             </Link>
             <p className="max-w-xs text-sm text-muted-foreground">
               Dog dog dog dog dog dog dog dog dog dog dog dog dog dog dog
@@ -129,7 +129,7 @@ export default function Footer() {
 
         <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t px-4 pt-8 sm:flex-row">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} DogTownUSA. All rights reserved.
+            © {new Date().getFullYear()} DogTown. All rights reserved.
           </p>
           <div className="flex gap-4">
             <Link

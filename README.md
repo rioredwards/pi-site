@@ -1,4 +1,4 @@
-# DogTownUSA - Dog Photo Gallery
+# DogTown - Dog Photo Gallery
 
 A Next.js 15 portfolio website for showcasing dog photos with AI-powered validation. Built for self-hosting on a Raspberry Pi using Docker, PostgreSQL, and Cloudflare Tunnel.
 
@@ -60,17 +60,20 @@ npm run dev:services:stop
 ### Initial Setup
 
 1. **Create your production env file locally**:
+
    ```bash
    cp .env.example .env.prod
    # Edit .env.prod with production values
    ```
 
 2. **Sync env file to your server**:
+
    ```bash
    rsync -avz .env.prod pi@your-server:~/pi-site/.env.prod
    ```
 
 3. **SSH into your server and deploy**:
+
    ```bash
    ssh your-server
    git clone https://github.com/rioredwards/pi-site.git ~/pi-site
@@ -152,11 +155,11 @@ NEXT_PUBLIC_SAFE_KEY=your-public-key
 
 ### Development vs Production
 
-| Variable | Development | Production |
-|----------|-------------|------------|
-| `DATABASE_URL` | `...@localhost:5432/...` | `...@db:5432/...` |
-| `PUBLIC_IMG_VALIDATOR_BASE_URL` | `http://localhost:8000` | `http://ai-img-validator:8000` |
-| `IMG_UPLOAD_DIR` | `./.data/uploads/images` | `/data/uploads/images` |
+| Variable                        | Development              | Production                     |
+| ------------------------------- | ------------------------ | ------------------------------ |
+| `DATABASE_URL`                  | `...@localhost:5432/...` | `...@db:5432/...`              |
+| `PUBLIC_IMG_VALIDATOR_BASE_URL` | `http://localhost:8000`  | `http://ai-img-validator:8000` |
+| `IMG_UPLOAD_DIR`                | `./.data/uploads/images` | `/data/uploads/images`         |
 
 ### Optional
 
@@ -297,6 +300,7 @@ Admins can delete any photo; regular users can only delete their own.
 ### Docker IPv6 Issues
 
 If Docker can't pull images due to IPv6 issues:
+
 ```bash
 # Disable IPv6 for Docker
 sudo tee /etc/docker/daemon.json > /dev/null <<'EOF'
@@ -311,6 +315,7 @@ sudo systemctl restart docker
 ### Disk Space (Old Docker Images)
 
 The deploy script automatically prunes old images. For manual cleanup:
+
 ```bash
 docker image prune -f           # Remove unused images
 docker system prune -af         # Remove everything unused (careful!)

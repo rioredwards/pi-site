@@ -11,8 +11,8 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "DogTownUSA",
-    template: "%s | DogTownUSA",
+    default: "DogTown",
+    template: "%s | DogTown",
   },
   description: "A community gallery for sharing photos of our favorite dogs. Upload, browse, and celebrate the goodest boys and girls.",
   keywords: ["dogs", "dog photos", "pet gallery", "dog community"],
@@ -21,21 +21,21 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "DogTownUSA",
-    title: "DogTownUSA",
+    siteName: "DogTown",
+    title: "DogTown",
     description: "A community gallery for sharing photos of our favorite dogs.",
     images: [
       {
         url: "/logo.png",
         width: 512,
         height: 512,
-        alt: "DogTownUSA Logo",
+        alt: "DogTown Logo",
       },
     ],
   },
   twitter: {
     card: "summary",
-    title: "DogTownUSA",
+    title: "DogTown",
     description: "A community gallery for sharing photos of our favorite dogs.",
     images: ["/logo.png"],
   },
