@@ -8,7 +8,7 @@ import BounceLoader from "react-spinners/BounceLoader";
 import { deletePhoto as deletePhotoFile, getPhotos } from "../app/actions";
 import { Photo } from "../app/lib/types";
 import { useToast } from "../hooks/use-toast";
-import { DogCard } from "./dog-card/dog-card";
+import { PhotoGrid } from "./photo-grid";
 
 export const PhotoUpload = lazy(() => import("@/components/photo-upload"));
 
@@ -108,21 +108,11 @@ export function Main() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {photos.map((photo, index) => (
-            <DogCard
-              id={photo.id}
-              src={photo.src}
-              alt={photo.alt}
-              key={photo.id}
-              userId={photo.userId}
-              ownerDisplayName={photo.ownerDisplayName}
-              ownerProfilePicture={photo.ownerProfilePicture}
-              deletePhoto={deletePhoto}
-              priority={index < 4}
-            />
-          ))}
-        </div>
+        <PhotoGrid
+          photos={photos.map((photo) => ({
+            ...photo,
+            deletePhoto: () => deletePhoto(photo.id),
+          }))} />
       )}
     </div>
   );
