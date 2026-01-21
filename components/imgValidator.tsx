@@ -1,9 +1,10 @@
-"use client";
+\"use client\";
 
-import Image from "next/image";
-import { useState } from "react";
-import { analyzeImageAction } from "../app/actions";
-import type { AnalysisResult } from "../app/lib/imgValidatorTypes";
+import Image from \"next/image\";
+import { useState } from \"react\";
+import BounceLoader from \"react-spinners/BounceLoader\";
+import { analyzeImageAction } from \"../app/actions\";
+import type { AnalysisResult } from \"../app/lib/imgValidatorTypes\";
 
 export default function ImgValidator() {
   const [file, setFile] = useState<File | null>(null);
@@ -68,8 +69,16 @@ export default function ImgValidator() {
             <button
               type="submit"
               disabled={!file || loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition">
-              {loading ? "Analyzing..." : "Analyze Image"}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-3">
+                  <BounceLoader color={"#ffffff"} loading={true} size={20} />
+                  <span>Analyzing...</span>
+                </span>
+              ) : (
+                "Analyze Image"
+              )}
             </button>
           </div>
         </form>

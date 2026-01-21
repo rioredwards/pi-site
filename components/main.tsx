@@ -12,6 +12,21 @@ import { PhotoGrid } from "./photo-grid";
 
 export const PhotoUpload = lazy(() => import("@/components/photo-upload"));
 
+function PhotoGridSkeleton() {
+  return (
+    <div className="mt-24 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={i}
+          className="aspect-square overflow-hidden rounded-2xl border border-border/60 bg-muted/40"
+        >
+          <div className="h-full w-full animate-pulse bg-gradient-to-br from-muted/80 via-muted/40 to-muted/80" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function Main() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -80,11 +95,21 @@ export function Main() {
 
   return (
     <div className="container mx-auto min-h-dvh px-4 py-8">
-      <Suspense>{typeof window !== "undefined" && <PhotoUpload addPhoto={addPhoto} />}</Suspense>
+      <Suspense
+        fallback={
+          <div className="mt-8 flex items-center justify-center">
+            <BounceLoader
+              color={"oklch(0.75 0.15 55)"}
+              loading={true}
+              size={25}
+            />
+          </div>
+        }
+      >
+        {typeof window !== "undefined" && <PhotoUpload addPhoto={addPhoto} />}
+      </Suspense>
       {isLoading ? (
-        <div className="mt-24 flex items-center justify-center">
-          <BounceLoader color={"oklch(0.75 0.15 55)"} loading={true} size={25} />
-        </div>
+        <PhotoGridSkeleton />
       ) : !photos.length ? (
         <div className="mt-16 flex flex-col items-center justify-center text-center">
           <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-muted">

@@ -22,6 +22,7 @@ import { SignInModal } from "@/components/ui/signInModal";
 import { useToast } from "@/hooks/use-toast";
 import { Camera01Icon, Loading01Icon, RotateClockwiseIcon, UserIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import BounceLoader from "react-spinners/BounceLoader";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -276,7 +277,7 @@ export default function EditProfilePage() {
     return (
       <div className="container mx-auto py-8 px-4">
         <div className="flex items-center justify-center py-16">
-          <HugeiconsIcon icon={Loading01Icon} size={32} className="animate-spin text-muted-foreground" />
+          <BounceLoader color={"oklch(0.75 0.15 55)"} loading={true} size={40} />
         </div>
       </div>
     );
