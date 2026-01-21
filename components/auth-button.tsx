@@ -16,6 +16,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import BounceLoader from "react-spinners/BounceLoader";
 import { SignInModal } from "./ui/signInModal";
 
 export function AuthButton() {
@@ -39,7 +40,7 @@ export function AuthButton() {
   if (status === "loading") {
     return (
       <Button variant="ghost" size="sm" disabled>
-        Loading...
+        <BounceLoader color={"oklch(0.75 0.15 55)"} loading={true} size={25} />
       </Button>
     );
   }
@@ -83,6 +84,7 @@ export function AuthButton() {
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => signOut()}
+            variant="destructive"
             className="cursor-pointer text-destructive focus:text-destructive"
           >
             <HugeiconsIcon icon={Logout01Icon} size={16} className="mr-2" />

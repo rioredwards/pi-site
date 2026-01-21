@@ -79,11 +79,11 @@ export function Main() {
   }
 
   return (
-    <div className="container mx-auto min-h-96 px-4 py-8">
+    <div className="container mx-auto min-h-dvh px-4 py-8">
       <Suspense>{typeof window !== "undefined" && <PhotoUpload addPhoto={addPhoto} />}</Suspense>
       {isLoading ? (
         <div className="mt-24 flex items-center justify-center">
-          <BounceLoader color={"rgb(15, 220, 220)"} loading={true} size={25} />
+          <BounceLoader color={"oklch(0.75 0.15 55)"} loading={true} size={25} />
         </div>
       ) : !photos.length ? (
         <div className="mt-16 flex flex-col items-center justify-center text-center">

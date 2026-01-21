@@ -73,7 +73,7 @@ export function DogCard({
         )}>
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <BounceLoader color={"rgb(15, 220, 220)"} loading={true} size={25} />
+              <BounceLoader color={"oklch(0.75 0.15 55)"} loading={true} size={25} />
             </div>
           )}
           <Image
