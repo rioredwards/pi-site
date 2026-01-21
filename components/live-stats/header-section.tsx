@@ -21,7 +21,7 @@ export function HeaderSection({
       <div className="min-w-0">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
-            Raspberry Pi Server
+            Status Dashboard
           </h1>
 
           <StatusPill

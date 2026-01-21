@@ -12,7 +12,10 @@ export default function StatsPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">System Stats</h1>
         <p className="text-muted-foreground mt-2">
-          Live statistics from the Raspberry Pi server powering this site
+          This site is running on a Raspberry Pi in my bedroom 👾
+        </p>
+        <p className="text-muted-foreground mt-2">
+          Reach out if you want to learn more about it. I&apos;m happy to share!
         </p>
       </div>
 
