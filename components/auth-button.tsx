@@ -70,7 +70,7 @@ export function AuthButton({ className, children, isActive, iconVariant = { size
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className={cn("flex flex-col cursor-pointer items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", className)}>
+          <button className={cn("outline-none ring-0 flex flex-col cursor-pointer items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none", className)}>
             <div className={cn(
               "flex w-full flex-col h-full group items-center justify-center gap-1 p-2 rounded-xl transition-colors duration-200",
               "group-hover:bg-primary/20"
@@ -131,7 +131,7 @@ export function AuthButton({ className, children, isActive, iconVariant = { size
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className={cn("flex flex-col cursor-pointer items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", className)}>
+          <button className={cn("outline-none ring-0 flex flex-col cursor-pointer items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none", className)}>
             <div className={cn(
               "flex flex-col h-full group items-center justify-center gap-1 p-2 rounded-xl transition-colors duration-200",
               "group-hover:bg-primary/20"

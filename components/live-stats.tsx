@@ -74,7 +74,7 @@ export function LiveStats() {
       <div className={glow} />
 
       {/* Header */}
-      <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <div className="relative flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <HeaderSection
           sys={sys}
           lastUpdatedMs={lastUpdatedMs}
@@ -109,8 +109,8 @@ export function LiveStats() {
       {/* Footer hint */}
       <div className="relative mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-zinc-400">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="font-semibold text-zinc-200">Pro-tip:</span>
-          Try reloading the page, restarting a container, or running a build — the charts will visibly react.
+          <span className="font-semibold text-zinc-200">Note:</span>
+          These stats are updated every 2 seconds.
         </div>
         <div className="text-zinc-500">
           {connected ? "Streaming" : "Not connected"} • {history.length} samples buffered

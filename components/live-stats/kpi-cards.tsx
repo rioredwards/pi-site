@@ -17,7 +17,7 @@ export function KpiCards({
     <div className="relative mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card className="border-white/10 bg-white/5 backdrop-blur">
         <CardHeader className="pb-3">
-          <div className="text-xs font-medium text-zinc-400">CPU</div>
+          <div className="text-xs font-medium text-zinc-400 mr-2">CPU</div>
           <div className="mt-1 flex items-baseline gap-2">
             <div className="text-2xl font-semibold text-zinc-100">
               {formatPercent(cpu?.usagePercent)}
@@ -42,7 +42,7 @@ export function KpiCards({
 
       <Card className="border-white/10 bg-white/5 backdrop-blur">
         <CardHeader className="pb-3">
-          <div className="text-xs font-medium text-zinc-400">Memory</div>
+          <div className="text-xs font-medium text-zinc-400 mr-2">Memory</div>
           <div className="mt-1 flex items-baseline gap-2">
             <div className="text-2xl font-semibold text-zinc-100">
               {formatPercent(memory?.usagePercent)}
@@ -69,7 +69,7 @@ export function KpiCards({
 
       <Card className="border-white/10 bg-white/5 backdrop-blur">
         <CardHeader className="pb-3">
-          <div className="text-xs font-medium text-zinc-400">Disk</div>
+          <div className="text-xs font-medium text-zinc-400 mr-2">Disk</div>
           <div className="mt-1 text-2xl font-semibold text-zinc-100">
             {disks.length ? formatPercent(disks[0]?.usagePercent) : "—"}
           </div>
@@ -91,7 +91,7 @@ export function KpiCards({
 
       <Card className="border-white/10 bg-white/5 backdrop-blur">
         <CardHeader className="pb-3">
-          <div className="text-xs font-medium text-zinc-400">Temperature</div>
+          <div className="text-xs font-medium text-zinc-400 mr-2">Temperature</div>
           <div className="mt-1 flex items-baseline gap-2">
             <div className="text-2xl font-semibold text-zinc-100">
               {temp?.available ? `${Number(temp?.cpuCelsius ?? 0).toFixed(1)}°C` : "—"}

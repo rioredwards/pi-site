@@ -17,11 +17,11 @@ export function HeaderSection({
   error: string | null;
 }) {
   return (
-    <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+    <div className="relative flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div className="min-w-0">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
-            Live Stats
+            Raspberry Pi Server
           </h1>
 
           <StatusPill
@@ -38,7 +38,7 @@ export function HeaderSection({
           />
         </div>
 
-        <div className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-xs text-zinc-400 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-xs text-zinc-400 md:grid-cols-2">
           <span className="inline-flex items-center gap-2 whitespace-nowrap">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white/30" />
             Host: <span className="font-semibold text-zinc-200">Raspberry Pi 5 Model B Rev 1.0</span>

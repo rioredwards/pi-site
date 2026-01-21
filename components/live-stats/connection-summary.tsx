@@ -14,11 +14,11 @@ export function ConnectionSummary({
   freshnessTone: Tone;
 }) {
   return (
-    <div className="w-full md:w-[340px]">
+    <div className="w-full">
       <Card className="border-white/10 bg-white/5 backdrop-blur">
         <CardHeader className="pb-3">
-          <div className="text-sm font-semibold text-zinc-100">Realtime</div>
-          <div className="mt-1 text-xs text-zinc-400">
+          <div className="text-sm font-semibold text-zinc-100 mr-2 mb-0">Realtime</div>
+          <div className="text-xs text-zinc-400">
             Streaming via SSE • Auto-updating charts
           </div>
         </CardHeader>
