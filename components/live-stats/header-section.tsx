@@ -5,14 +5,10 @@ import { formatUptime } from "./utils";
 
 export function HeaderSection({
   sys,
-  lastUpdatedMs,
-  ageSeconds,
   freshnessTone,
   error,
 }: {
   sys: any;
-  lastUpdatedMs: number | null;
-  ageSeconds: number | null;
   freshnessTone: Tone;
   error: string | null;
 }) {
@@ -49,6 +45,14 @@ export function HeaderSection({
             CPU: <span className="font-semibold text-zinc-200">Cortex-A76 / 4 Cores / 2400MHz</span>
           </span>
 
+          <span className="inline-flex items-center gap-2 whitespace-nowrap min-w-[180px]">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white/30" />
+            OS
+            <span className="font-semibold text-zinc-200">
+              Debian GNU/Linux 13 (trixie)
+            </span>
+          </span>
+
           <span className="inline-flex items-center gap-2 whitespace-nowrap">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white/30" />
             Uptime:{" "}
@@ -57,16 +61,6 @@ export function HeaderSection({
             </span>
           </span>
 
-          <span className="inline-flex items-center gap-2 whitespace-nowrap min-w-[180px]">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white/30" />
-            Last update:{" "}
-            <span className="font-semibold text-zinc-200">
-              {lastUpdatedMs ? new Date(lastUpdatedMs).toLocaleTimeString([], { hour12: false }) : "—"}
-            </span>
-            {ageSeconds != null ? (
-              <span className="text-zinc-500">({ageSeconds.toFixed(1)}s ago)</span>
-            ) : null}
-          </span>
         </div>
 
         {error ? (

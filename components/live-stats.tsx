@@ -77,8 +77,6 @@ export function LiveStats() {
       <div className="relative flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <HeaderSection
           sys={sys}
-          lastUpdatedMs={lastUpdatedMs}
-          ageSeconds={ageSeconds}
           freshnessTone={freshnessTone}
           error={error}
         />
