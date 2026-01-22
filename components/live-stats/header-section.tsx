@@ -1,15 +1,17 @@
+import { CombinedStats } from "../../shared/types";
 import { PiModelCanvas } from "../pi-model-canvas";
-import { StatusPill } from "./status-pill";
-import { Tone } from "./types";
+import { FreshnessStatusPill } from "./freshnessStatusPill";
 import { formatUptime } from "./utils";
 
 export function HeaderSection({
+  connected,
+  effective,
   sys,
-  freshnessTone,
   error,
 }: {
   sys: any;
-  freshnessTone: Tone;
+  connected: boolean;
+  effective: CombinedStats | null;
   error: string | null;
 }) {
   return (
@@ -20,17 +22,10 @@ export function HeaderSection({
             Status Dashboard
           </h1>
 
-          <StatusPill
-            label={
-              freshnessTone === "good"
-                ? "LIVE"
-                : freshnessTone === "warn"
-                  ? "LIVE (lagging)"
-                  : freshnessTone === "bad"
-                    ? "OFFLINE / STALE"
-                    : "LIVE"
-            }
-            tone={freshnessTone}
+          <FreshnessStatusPill
+            connected={connected}
+            effective={effective}
+            label="Status"
           />
         </div>
 

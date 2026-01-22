@@ -29,7 +29,7 @@ export function ServicesChart({
   return (
     <ChartWrap
       title="Service health & latency"
-      subtitle="Heartbeat checks (great realtime signal)"
+      subtitle="Heartbeat checks"
       right={
         <StatusPill
           label={allHealthy ? "All healthy" : "Degraded"}

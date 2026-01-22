@@ -2,10 +2,8 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
+  ResponsiveContainer, Tooltip, XAxis,
+  YAxis
 } from "recharts";
 import { ChartWrap } from "./chart-wrap";
 import { StatusPill } from "./status-pill";

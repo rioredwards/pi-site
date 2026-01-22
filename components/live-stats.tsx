@@ -1,48 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { ConnectionSummary } from "./live-stats/connection-summary";
 import { ContainersChart } from "./live-stats/containers-chart";
 import { CpuMemoryChart } from "./live-stats/cpu-memory-chart";
-import { DiskChart } from "./live-stats/disk-chart";
 import { HeaderSection } from "./live-stats/header-section";
 import { KpiCards } from "./live-stats/kpi-cards";
 import { LoadingSkeleton } from "./live-stats/loading-skeleton";
 import { NetworkChart } from "./live-stats/network-chart";
 import { ServicesChart } from "./live-stats/services-chart";
-import { Tone } from "./live-stats/types";
 import { useStatsStream } from "./live-stats/use-stats-stream";
 
 export function LiveStats() {
   const { stats, lastGood, history, connected, error } = useStatsStream();
-  const [now, setNow] = useState(() => Date.now());
-
-  // tick clock for "x seconds ago"
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 250);
-    return () => clearInterval(id);
-  }, []);
-
   const effective = stats ?? lastGood;
-
-  const lastUpdatedMs = useMemo(() => {
-    if (!effective) return null;
-    const t = Date.parse((effective as any)?.timestamp ?? "");
-    return Number.isFinite(t) ? t : null;
-  }, [effective]);
-
-  const ageSeconds = useMemo(() => {
-    if (!lastUpdatedMs) return null;
-    return Math.max(0, (now - lastUpdatedMs) / 1000);
-  }, [now, lastUpdatedMs]);
-
-  const freshnessTone: Tone = useMemo(() => {
-    if (!connected) return "bad";
-    if (ageSeconds == null) return "neutral";
-    if (ageSeconds < 3) return "good";
-    if (ageSeconds < 8) return "warn";
-    return "bad";
-  }, [connected, ageSeconds]);
 
   // Loading skeleton (first paint)
   if (!effective) {
@@ -64,7 +34,8 @@ export function LiveStats() {
   const allHealthy = (effective as any)?.services?.allHealthy ?? null;
 
   const pageBg =
-    "relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900/80 p-6 shadow-2xl before:pointer-events-none before:absolute before:inset-0 before:opacity-[0.18] before:content-[''] before:[background-image:linear-gradient(to_right,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.08)_1px,transparent_1px)] before:[background-size:48px_48px]";
+    "relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900/95 p-6 before:pointer-events-none before:absolute before:inset-0 before:opacity-[0.18] before:content-[''] before:[background-image:linear-gradient(to_right,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.08)_1px,rgba(255,255,255,0.08)_1px)] before:[background-size:48px_48px]";
+  // const pageBg = "";
 
   const glow =
     "pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.18),rgba(168,85,247,0.10),rgba(0,0,0,0))] blur-3xl";
@@ -77,14 +48,14 @@ export function LiveStats() {
       <div className="relative flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <HeaderSection
           sys={sys}
-          freshnessTone={freshnessTone}
+          connected={connected}
+          effective={effective}
           error={error}
         />
 
         <ConnectionSummary
           connected={connected}
-          ageSeconds={ageSeconds}
-          freshnessTone={freshnessTone}
+          effective={effective}
         />
       </div>
 
@@ -98,8 +69,8 @@ export function LiveStats() {
       </div>
 
       {/* Lower grid */}
-      <div className="relative mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <DiskChart disks={disks} />
+      <div className="relative mt-6 grid gap-4 md:grid-cols-2">
+        {/* <DiskChart disks={disks} /> */}
         <ContainersChart containers={containers} containerSummary={containerSummary} />
         <ServicesChart services={services} allHealthy={allHealthy} />
       </div>

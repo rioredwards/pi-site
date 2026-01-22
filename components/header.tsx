@@ -74,8 +74,8 @@ export default function Header() {
                   <AuthButton iconVariant={{ size: "sm" }} className="gap-0 rounded-xl px-2 py-2 group w-full" isActive={pathname?.startsWith("/profile")}>
                     <span className={cn(
                       "text-xs font-medium transition-colors duration-200",
-                      isActive && "text-primary",
-                      !isActive && "text-muted-foreground group-hover:text-primary"
+                      // isActive && "text-primary",
+                      // !isActive && "text-muted-foreground group-hover:text-primary"
                     )}>Profile</span>
                   </AuthButton>
                 )}

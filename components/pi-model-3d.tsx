@@ -21,7 +21,7 @@ interface PiTiltControls {
 }
 
 const DEFAULTS: PiTiltControls = {
-  displacement: 0.12,
+  displacement: 0.06,
   invertDepth: false,
   rotationX: 0.25,
   rotationY: 0.35,
@@ -29,8 +29,8 @@ const DEFAULTS: PiTiltControls = {
 
   bobAmount: 0.02,
   bobSpeed: 1.2,
-  idleTiltX: 0.05,
-  idleTiltY: 0.04,
+  idleTiltX: 0.09,
+  idleTiltY: 0.06,
   idleTiltSpeed: 0.9,
 };
 

@@ -57,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
+      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1.0"></meta>
       <body className={`font-sans antialiased flex min-h-screen flex-col`}>
         <ThemeProvider
           attribute="class"

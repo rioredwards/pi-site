@@ -1,5 +1,7 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { StatsDashboard } from "../../components/stats-dashboard";
+import { RotatingGradientBorder } from "../../components/ui/RotatingGradientBorder";
 
 export const metadata: Metadata = {
   title: "System Stats | DogTown",
@@ -15,12 +17,19 @@ export default function StatsPage() {
           This site is running on a Raspberry Pi in my bedroom 👾
         </p>
         <p className="text-muted-foreground mt-2">
-          Reach out if you want to learn more about it. I&apos;m happy to share!
+          Check out the <Link href="/about" className="text-blue-500 hover:text-blue-600">about page</Link> if you want to learn more about the project. Also, feel free to reach out! I&apos;m happy to share!
         </p>
       </div>
 
       {/* Static System Info */}
-      <StatsDashboard />
+      <RotatingGradientBorder
+        borderRadius="24px"
+        shadow={false}
+        borderColors={["rgb(151, 11, 11)", "rgb(46, 0, 146)", "rgb(151, 11, 11)", "rgb(46, 0, 146)",]}
+        spinAnimationSpeed={20}
+      >
+        <StatsDashboard />
+      </RotatingGradientBorder>
     </div>
   );
 }
