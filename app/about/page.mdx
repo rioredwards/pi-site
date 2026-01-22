@@ -5,6 +5,7 @@ import GitHub from "@/components/svg/GitHub";
 import LinkedIn from "@/components/svg/LinkedIn";
 import YouTube from "@/components/svg/YouTube";
 import RaspberryPi from "@/components/svg/RaspberryPi";
+import { RotatingGradientBorder } from "@/components/ui/RotatingGradientBorder";
 
 export const metadata = {
   title: "About",
@@ -36,18 +37,18 @@ export const metadata = {
   alt="A Raspberry Pi"
   width={300}
   height={225}
-  className="float-right mb-4 ml-6 w-40 md:w-52"
+  className="float-right mb-4 ml-6 w-full"
 />
 
 Over the holidays, my sister gifted me a **Raspberry Pi** <RaspberryPi className="inline w-4 -mt-1" />. Thanks, sis! 🫶
 
-If you haven't heard of them, a Raspberry Pi is a tiny computer. Why would you want a tiny computer? Idk... stuff. Like, whatever you want! It's _your_ tiny computer.
+If you haven't heard of them, a Raspberry Pi is a tiny computer. But unlike other computers, these things don't ship with a screen or keyboard or anything really. The big selling point of my model is that [it comes with a power button 🤯🤯🤯](https://www.raspberrypi.com/products/raspberry-pi-5/#:~:text=That%E2%80%99s%20not%20all-,Power%20button,-Dual%204Kp60).
 
-Well, in this case, it's _my_ tiny computer.
+They're not the best gaming pc out there, but they're great for hacking and DIY tech projects. You can make robots, smart home devices, and even use them as a server for your website, which is what I did here.
 
 After some tinkering and late-night coding sessions, this little project came to life—my first **self-hosted website**!
 
-Naturally, the theme is **dog photos** because my life pretty much revolves around these majestic furballs. 🐶
+Naturally, the theme is **dog photos** because why not? Dogs are sick. 🐶
 
 <div className="clear-both" />
 
@@ -55,20 +56,65 @@ Naturally, the theme is **dog photos** because my life pretty much revolves arou
 
 ## Inspiration
 
-I started programming in 2021, and since then I've always relied on _The Cloud_ ☁️ to deploy my websites.
+I started programming in 2021, and since then I've always relied on _The Cloud_ ☁️ to host my websites. Services like Vercel, Netlify and others make it really easy.
 
 With this project, I wanted to step outside my comfort zone and dive into the world of **self-hosting**. It felt like the perfect way to fill some knowledge gaps, satisfy my curiosity, and get familiar with my new Raspberry Pi.
 
-Building this site was a ton of fun—and I learned a lot along the way! 🧠
+<span>I also had some fun making custom components, like these </span>
+<RotatingGradientBorder
+  backgroundColor="transparent"
+  borderRadius="12px"
+  containerClassName="mx-1 inline-block align-middle bg-background">
+  <span className="px-2 bg-background rounded-full">Glowing Gradient Borders</span>
+</RotatingGradientBorder>
+<span>. Building this site was a ton of fun—and I learned a lot along the way! 🧠</span>
 
 ---
 
-## The Setup
-
-_For the techy people_
+## The Setup (for dummies)
 
 <Image
-  src="/myImages/My-Pi-Setup.jpeg"
+  src="/myImages/Tech-For-Dummies.jpg"
+  alt="My Raspberry Pi setup"
+  width={600}
+  height={400}
+  className="w-full"
+/>
+
+## What is the internet?
+
+Just a bunch of computers connected to each other.
+
+## Like.. my computer?
+
+Yeah, kind of. There are **servers** and **clients**. Your computer is the **client**. My raspberry pi is the **server**.
+
+## How does it get from over there to here?
+
+Cables mostly. And maybe some wifi.
+
+## How did our computers find each other?
+
+IP Addresses, URLs and DNS.
+
+Every computer gets a unique IP Address. Then, with the help of the Domain Name System (DNS), "pi.rioredwards.com" (my URL) gets routed to the right place (my raspberry pi).
+
+I bought my domain name from Cloudflare and then configured it to point to my raspberry pi.
+
+## What makes a computer a server?
+
+Any computer can be a server! Even yours! You can download a web-server for free right now!
+
+BUT if you want it to be accessible from the internet, you need to change some settings on your router or use a service like Cloudflare. Also, if you don't know what your doing, you could break the whole internet and get in big trouble.
+
+Just kidding...
+
+If you want to dive deeper, I'd recommend checking out this article I wrote: [What is the backend?](https://medium.com/@rioedwards/what-is-the-backend-ffd808ff950e).
+
+## The Setup (for smarties)
+
+<Image
+  src="/myImages/Tech-Stack.jpg"
   alt="My Raspberry Pi setup"
   width={600}
   height={400}
