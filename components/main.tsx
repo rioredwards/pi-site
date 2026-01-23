@@ -94,7 +94,7 @@ export function Main() {
   }
 
   return (
-    <div className="md:pl-24 ontainer mx-auto min-h-dvh px-4 py-8">
+    <div className="md:pl-24 container mx-auto min-h-dvh px-4 py-8">
       <Suspense
         fallback={
           <div className="mt-8 flex items-center justify-center">
