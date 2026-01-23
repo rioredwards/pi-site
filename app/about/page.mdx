@@ -42,13 +42,13 @@ export const metadata = {
 
 Over the holidays, my sister gifted me a **Raspberry Pi** <RaspberryPi className="inline w-4 -mt-1" />. Thanks, sis! 🫶
 
-If you haven't heard of them, a Raspberry Pi is a tiny computer. But unlike other computers, these things don't ship with a screen or keyboard or anything really. The big selling point of my model is that [it comes with a power button 🤯🤯🤯](https://www.raspberrypi.com/products/raspberry-pi-5/#:~:text=That%E2%80%99s%20not%20all-,Power%20button,-Dual%204Kp60).
+If you’re unfamiliar, a Raspberry Pi is a credit-card-sized computer. Unlike traditional machines, it doesn’t include a screen, keyboard, or even a case—just the bare essentials. The main selling point of my model? [It has a power button 🤯🤯🤯](https://www.raspberrypi.com/products/raspberry-pi-5/#:~:text=That%E2%80%99s%20not%20all-,Power%20button,-Dual%204Kp60).
 
-They're not the best gaming pc out there, but they're great for hacking and DIY tech projects. You can make robots, smart home devices, and even use them as a server for your website, which is what I did here.
+While not built for gaming, Raspberry Pis are fantastic for DIY projects and experimentation. You can create robots, smart home devices—or even host a website. Which is exactly what I did.
 
-After some tinkering and late-night coding sessions, this project came to life—my first **self-hosted website**!
+After some late-night coding sessions and hardware tinkering, I launched my first **self-hosted website**.
 
-Naturally, the theme is **dog photos** because why not? Dogs are sick. 🐶
+Naturally, the theme is **dog photos**. Because dogs are awesome. 🐶
 
 <div className="clear-both" />
 
@@ -56,15 +56,15 @@ Naturally, the theme is **dog photos** because why not? Dogs are sick. 🐶
 
 ## Inspiration
 
-I've always relied on _The Cloud_ ☁️ to host my websites. Services like Vercel, Netlify and others make it really easy.
+I’ve always used cloud services like Vercel and Netlify to host my projects. They’re fast, simple, and take care of a lot behind the scenes.
 
-With this project, I wanted to step outside my comfort zone and dive into the world of **self-hosting**. It felt like the perfect way to fill some knowledge gaps, satisfy my curiosity, and get familiar with my new Raspberry Pi.
+But for this one, I wanted a challenge—something that would push me to understand self-hosting, fill knowledge gaps, and get hands-on with my new Pi.
 
-I learned a ton about networking, linux, process management, docker, devops, security, and more.
+In the process, I learned about networking, Linux, process management, Docker, DevOps, security, and more.
 
 ---
 
-## The Setup (for dummies)
+## The Setup (for beginners)
 
 <Image
   src="/myImages/Tech-For-Dummies.jpg"
@@ -74,37 +74,33 @@ I learned a ton about networking, linux, process management, docker, devops, sec
   className="w-full"
 />
 
-The internet is just a bunch of computers connected to each other.
+The internet is essentially just computers talking to each other over cables and Wi-Fi.
 
-They send signals back and forth through cables and wifi. Those signals are routed to the correct destination with the help of IP Addresses, URLs and the Domain Name System (DNS), which is commonly referred to as the "phone book" of the internet.
+They send data back and forth using IP addresses, URLs, and something called DNS (Domain Name System)—often referred to as the internet’s "phone book."
 
-For the networking part of this project, I bought my domain name, "rioredwards.com", from [Cloudflare](https://www.cloudflare.com/) and then configured a subdomain, "pi.rioredwards.com", to route traffic to my raspberry pi.
+For this project, I bought the domain `rioredwards.com` from [Cloudflare](https://www.cloudflare.com/) and created a subdomain, `pi.rioredwards.com`, that points directly to my Raspberry Pi.
 
-Now, in the internet world, there are two types of computers: **servers** and **clients**. In this case, your computer is the **client**. My raspberry pi is the **server**. My pi is running a "web server", which is software that listens for requests from the internet and and sends back the appropriate response (code and photos usually). On your end, your web browser is doing the heavy lifting. It's in charge of communicating with servers and running the code that displays the website.
+In simple terms, there are two kinds of computers online: **clients** and **servers**. Your computer (the client) sends a request to mine (the server). My Pi is running web server software that listens for those requests and responds with code and images. Your browser then renders it into what you see here.
 
-So, to summarize, my **web server** and your **web browser** are talking to each other over cables and wifi. And now you know how the internet works. 👍
+To make this site work, I had to:
 
-So, in order to make this website, I needed to:
+- Build the **frontend**—code that runs in your browser
+- Build the **backend**—code that runs on my Pi
+- Configure the domain and networking
 
-- Write some code that will run in your browser (the "frontend")
-- Write some code that will run on my pi (the "backend")
-- Own a domain name and configure it to point to my pi (the "networking stuff")
-
-Now, there's a few more pieces involved, like a database, an AI Image Validator ("Dog Bot"), and a system profieler, but I'll save the technical details for the next section.
+There’s more going on behind the scenes—like a database, an AI-powered DogBot, and a system profiler—but we’ll get into that next.
 
 ### Bonus: What makes a computer a server?
 
-Any computer can be a server! Even yours! You can download a web-server for free right now!
+Any computer can be a server—even yours! All it takes is downloading some free server software.
 
-BUT if you want it to be accessible from the internet, you need to change some settings on your router or use a service like Cloudflare. Also, if you don't know what your doing, you could break the whole internet and get in big trouble.
+That said, to make it accessible from the internet, you'd need to configure your router or use a service like Cloudflare Tunnels. Without that, your site wouldn't be reachable outside your local network.
 
-Just kidding...
-
-If you want to dive deeper, I'd recommend checking out this article I wrote: [What is the backend?](https://medium.com/@rioedwards/what-is-the-backend-ffd808ff950e).
+Want a deeper dive? Check out my article: [What is the Backend?](https://medium.com/@rioedwards/what-is-the-backend-ffd808ff950e).
 
 ---
 
-## The Setup (for smarties)
+## The Setup (for techies)
 
 <Image
   src="/myImages/Tech-Stack.jpg"
@@ -118,143 +114,119 @@ If you want to dive deeper, I'd recommend checking out this article I wrote: [Wh
 
 | Layer           | Technology                                                                     |
 | --------------- | ------------------------------------------------------------------------------ |
-| OS              | Raspberry Pi OS (a port of Debian GNU/Linux trixie)                            |
+| OS              | Raspberry Pi OS (Debian GNU/Linux "trixie")                                    |
 | Tunnel          | Cloudflare Tunnels                                                             |
 | Web             | Next.js, React, TypeScript, Tailwind, ShadCN, Three.js, MDX, Drizzle, NextAuth |
 | Database        | PostgreSQL                                                                     |
 | AI Validation   | Python, FastAPI, OpenNSFW, PyTorch                                             |
-| System Profiler | Hono, Typescript, Node.js                                                      |
+| System Profiler | Hono, TypeScript, Node.js                                                      |
 
-Overengineered? Probably, but my goal here was to learn new technologies and concepts, not to build the most efficient system possible.
+Was this overengineered? Probably. But my goal was to **learn**, not just ship.
+
+---
 
 ### Phase 1
 
-I started by following this tutorial: [Every Developer Needs a Raspberry Pi](https://www.youtube.com/watch?v=Vp4glSVPT8o), which was a great starting point. By the end of it, I had a fullstack Next.js app running on my pi and a cloudflare tunnel routing traffic to it. That was really exciting, so I kept on going!
+I began with [this tutorial](https://www.youtube.com/watch?v=Vp4glSVPT8o), which got me a basic fullstack Next.js app running on the Pi, with traffic routed through Cloudflare.
 
-Originally, the app was setup without a proper database and was using node.js and my filesystem to store photos and json files with metadata. I also had a basic UUID tagging system instead of proper auth. This clearly wasn't a long-term solution, but I was just tinkering and adding features as I went.
+Initially, the app used Node.js and the filesystem for storage—photos and metadata saved as JSON. I also had a simple UUID tagging system instead of real auth. Functional, but definitely not scalable.
 
-At this point in the project, I got busy with work and so I left it on the back burner for about a year.
+Eventually, work got busy, and the project sat idle for about a year.
 
-Some of the highlights at this point:
+Highlights from Phase 1:
 
-- <span>I made this component that renders </span>
+- Built a reusable component with
   <RotatingGradientBorder
     backgroundColor="transparent"
     borderRadius="12px"
     containerClassName="mx-1 inline-block align-middle bg-background">
     <span className="px-2 bg-background rounded-full">Glowing Gradient Borders</span>
   </RotatingGradientBorder>
-  <span>around things. I might turn it into an npm package if I find the time.</span>
-- I made a bash script that I could use from my pi to update the app and restart the server. This was the beginning of a little foray into devops and also becoming more comfortable with bash.
-- I made a custom image compression/conversion service which runs in the browser, so my pi doesn't have to deal with all your big files. It also allows me to display a preview of HEIC images, which are a [PAIN](https://caniuse.com/?search=heif). Thank you to these stackoverflow chads [1](https://stackoverflow.com/a/32490603/18654411) and [2](https://stackoverflow.com/questions/20600800/js-client-side-exif-orientation-rotate-and-mirror-jpeg-images/40867559#40867559) and [this article](https://code.flickr.net/2012/06/01/parsing-exif-client-side-using-javascript-2/) for getting me through the hardest part. Look at this atrocity just for determining the orientation of an image:
+  Might release it as an npm package someday.
+- Wrote a Bash script to update the app and restart the server—my first step into DevOps.
 
-```tsx
-// Modified from https://stackoverflow.com/a/32490603, cc by-sa 3.0
-// -2 = not jpeg, -1 = no data, 1..8 = orientations
-function getExifOrientation(file: Blob, callback: (orientation: number) => void) {
-  // Suggestion from http://code.flickr.net/2012/06/01/parsing-exif-client-side-using-javascript-2/:
-  if (file.slice) {
-    file = file.slice(0, 131072);
-  } else if ((file as unknown as any).webkitSlice) {
-    file = (file as unknown as any).webkitSlice(0, 131072);
-  }
+- Built a browser-based image compression service to convert large files and HEIC images. That alone was a [PAIN](https://caniuse.com/?search=heif) to support.
 
-  const reader = new FileReader();
-  reader.onload = function (e: ProgressEvent<FileReader>) {
-    const view = new DataView(e.target!.result as ArrayBuffer);
-    if (view.getUint16(0, false) != 0xffd8) {
-      callback(-2);
-      return;
-    }
-    const length = view.byteLength;
-    let offset = 2;
-    while (offset < length) {
-      const marker = view.getUint16(offset, false);
-      offset += 2;
-      if (marker == 0xffe1) {
-        if (view.getUint32((offset += 2), false) != 0x45786966) {
-          callback(-1);
-          return;
-        }
-        const little = view.getUint16((offset += 6), false) == 0x4949;
-        offset += view.getUint32(offset + 4, little);
-        const tags = view.getUint16(offset, little);
-        offset += 2;
-        for (let i = 0; i < tags; i++)
-          if (view.getUint16(offset + i * 12, little) == 0x0112) {
-            callback(view.getUint16(offset + i * 12 + 8, little));
-            return;
-          }
-      } else if ((marker & 0xff00) != 0xff00) break;
-      else offset += view.getUint16(offset, false);
-    }
-    callback(-1);
-  };
-  reader.readAsArrayBuffer(file);
-}
-```
+---
 
 ### Phase 2
 
-I came back with a fresh perspective and a ton of new ideas. I began by adding a proper database with SQLite and Prisma. Then I added NextAuth for authentication.
+After a long break, I came back with fresh energy and ideas. First step: upgrade the stack.
 
-There were still a few things I needed to address before I went live:
+- Switched to SQLite and Prisma
+- Added NextAuth for authentication
+- Identified a few major issues:
+  1. Server instability
+  2. Clunky deployment
+  3. No moderation for uploads
 
-1. The server kept crashing.
-2. The DevOps felt clunky.
-3. There was no moderation system for people uploading photos.
+To fix them, I:
 
-To address these issues, I decided to:
+1. Replaced `nohup` with **PM2** for process management
+2. Set up a **GitHub Actions** workflow for auto-deployments
+3. Created **DogBot**, an AI image validator
+4. **Dockerized** everything
+5. Rebuilt the `/stats` page as a dedicated microservice
 
-1. Switch from using nohup to PM2 to manage the server process.
-2. Add a github actions workflow for automatic deployments.
-3. Add DogBot: an AI Image Validation system to prevent people from uploading photos that aren't appropriate (NSFW or not a dog).
-4. Dockerize it, cause why not?
-5. Ressurect a /stats page from phase 1.
+#### AI Image Validation (DogBot)
 
-Setting up with PM2 was easy. I didn't spend too much time learning about it.
+This was surprisingly smooth. I used:
 
-For the GitHub actions workflow, I self-hosted a runner on my pi, so I that whenever I pushed to main, it would pull changes and restart the server. This was pretty straightforward to setup.
+- **OpenNSFW** for detecting inappropriate content
+- **PyTorch** model for verifying dog images
 
-The DogBot was suprisingly easy to implement. I used two pre-trained image detection models: one from OpenNSFW for detecting NSFW content, and another from PyTorch, for detecting dogs. I tested them out in isolation in the command line to get a sense of how they worked, and then I integrated them into my app using a FastAPI server. The server has a single endpoint that recieves images and returns the "isDog" and "isNSFW" predictions. I tested it out on all the images that had been uploaded to the site so far and they all passed, so I took that win and went to the next.
+The service runs on a **FastAPI** server with one endpoint. It receives an image and returns `isDog` and `isNSFW` booleans. I tested it with existing site images—everything passed.
 
-Everything went smoothly until I got to the dockerizing part. It's supposed to make things easier, right?
+---
 
-Well, eventually it did, but it took a lot of trial and error... mostly error. I spent so much time trying to get builds to work only for them to fail the next time. Basically, I just had to learn a lot more about linux and bash scripting and docker and docker-compose and all the other tools involved.
+### Docker Woes & Wins
 
-At some point, while I was deep in my docker woes, I found a tutorial by Lee Rob on [Self-Hosting Next.js](https://www.youtube.com/watch?v=sIVL4JMqRfc), and it was the answer to all my prayers. I set up that app with docker and then re-integrated pieces of my app one at a time. This made things a lot easier. As a result, I changed the tech stack to use Drizzle instead of Prisma, PostgreSQL instead of SQLite, and added Nginx for caching images.
+Docker was a pain at first. Builds failed constantly. But once I discovered [Lee Rob’s tutorial](https://www.youtube.com/watch?v=sIVL4JMqRfc), things clicked.
 
-I was on a roll after getting the infrastructure in place, so I when I came back to re-implement the /stats page, I decided to build it out into a standalone service that I could run in another container.
+I rebuilt the project using his setup, reintegrating my features one by one. Along the way, I switched:
 
-This turned into the system-profiler service, which monitors the server's performance and health. I built it using Hono, TypeScript and Node.js. It exposes an endpoint that returns metrics about the pi and its containers. The metrics are gathered by utilizing node.js's filesystem api to read files in the `/proc` and `/sys` directories, which contain information about the pi's hardware and software. The `os` module is used to get information about the pi's operating system, but it tends to be less accurate, so I used it as a fallback. Docker exposes a socket at `/var/run/docker.sock` that is queried via http requests. All this data is parsed and consolidated into a single object that is returned to the client. The client in this case is the Next.js backend, which has a route that fetches the data and streams it to the real client (the browser) via Server-Sent Events (SSE). It polls the system-profiler service every 2 seconds as long as there are active connections (people viewing the stats page). The system-profiler service also has a mock mode which was necessary because it contained a lot of linux-specific code that wouldn't work on my dev machine (macOS). In order to see a realistic view of the dashboard during development, I used real sampled data for the mocks. While writing out the functions that supply mock data, I found my first real use-case for generator functions.
+- Prisma ➡️ Drizzle
+- SQLite ➡️ PostgreSQL
+- Added **Nginx** for image caching
 
-But I had this nagging feeling that I shouldn't let it loose without any sort of moderation system. This is the internet, after all, and an image gallery that's free to the public might be abused.
+---
 
-So I decided to add an onboard AI Image Validation system. I'm sure I could have gone with a cloud-based service, but the theme of the project is "self-hosting", so you know I had to roll my own and self-host it. I should probably clarify that I didn't train the models myself, I used pre-trained models from OpenNSFW and PyTorch and setup a FastAPI server for the API.
+### System Profiler Service
 
-Before I added this service to my app, I should
+I turned the `/stats` page into a fully-fledged service that monitors the server in real-time.
 
-helped me to set up Cloudflare Tunnels routing traffic to my pi. This is a great alternative to setting up port-forwarding, which would have been more complicated and less secure. Next.js is my bread and butter, so I had a fullstack app running in no time.
+- Built using **Hono**, **TypeScript**, and **Node.js**
+- Uses filesystem APIs (`/proc`, `/sys`) and Docker socket for metrics
+- Streams data to the frontend via **Server-Sent Events (SSE)**
 
-It's a great starting point for anyone looking to build a self-hosted website with Raspberry Pi and Next.js.
+There’s even a mock mode using generator functions and sample data for local development on macOS.
 
-### Connecting to the Pi
+---
 
-My laptop connects via Raspberry Pi Connect and SSH. I also hooked the Pi up to a TV with a keyboard and mouse for direct access. Only one method is necessary, but I had fun experimenting!
+## Connecting to the Pi
 
-### How It Works
+I connect to the Pi using:
 
-**Database:** All photo metadata is stored in PostgreSQL. Images are stored as files on disk. Schema changes are managed through migrations that run automatically on deployment.
+- **SSH**
+- **Raspberry Pi Connect**
+- A keyboard + mouse + TV (for direct access)
 
-**AI Validation:** Before any photo uploads, it goes through an AI service that checks for NSFW content and verifies the image actually contains a dog. This keeps the gallery on-brand and appropriate.
+Only one is necessary, but it was fun trying them all.
 
-**Live Monitoring:** The site includes a real-time system stats dashboard showing CPU, memory, disk usage, temperature, network activity, and container health. It's powered by a system-profiler service that streams metrics via SSE—a great way to see the Pi working in real-time!
+---
+
+## How It Works
+
+- **Database:** PostgreSQL stores photo metadata. Images live on disk. Schema changes are applied automatically on deployment.
+- **AI Validation:** Every photo is checked for NSFW content and to ensure it’s actually a dog before it's uploaded. Keeps things clean and on-brand.
+
+- **Live Monitoring:** A real-time dashboard displays CPU, memory, network, and container health—powered by the system-profiler service and streamed via SSE.
 
 ---
 
 ## Get in Touch
 
-Feel free to reach out with any comments, questions, or concerns!
+Got questions, feedback, or just want to connect? Reach out below!
 
 <div className="not-prose mt-6 flex gap-4">
   <Link href="https://www.linkedin.com/in/rio-edwards/" aria-label="LinkedIn">
