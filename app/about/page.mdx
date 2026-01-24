@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import BlueSky from "@/components/svg/Bluesky";
 import GitHub from "@/components/svg/GitHub";
@@ -6,13 +5,41 @@ import LinkedIn from "@/components/svg/LinkedIn";
 import YouTube from "@/components/svg/YouTube";
 import RaspberryPi from "@/components/svg/RaspberryPi";
 import { RotatingGradientBorder } from "@/components/ui/RotatingGradientBorder";
-import { ImageWithCaption } from "@/components/image-with-caption";
+import { LightboxImage } from "@/components/lightbox-image";
 import { VideoWithCaption } from "@/components/video-with-caption";
 
 export const metadata = {
   title: "About",
   description: "Learn about Rio, this site, and the Raspberry Pi powering it all.",
 };
+
+export const aboutGallery = [
+  {
+    src: "/images/My-Pi.jpeg",
+    alt: "A Raspberry Pi",
+    description: "The Raspberry Pi powering this site",
+  },
+  {
+    src: "/images/Tech-For-Dummies.jpg",
+    alt: "My Raspberry Pi setup",
+    description: "My Raspberry Pi setup with all the essentials",
+  },
+  {
+    src: "/images/Tech-Stack.jpg",
+    alt: "Tech stack diagram",
+    description: "The tech stack powering this site",
+  },
+  {
+    type: "video",
+    sources: [{ src: "/videos/DogBot-Demo.mp4", type: "video/mp4" }],
+    description: "Hammers are not dogs. Good to know!",
+  },
+  {
+    src: "/images/The-Setup-OG.jpeg",
+    alt: "My Raspberry Pi setup",
+    description: "The physical setup with keyboard, mouse, and monitor",
+  },
+];
 
 <article className="prose container mx-auto max-w-2xl px-4 py-12">
 
@@ -34,17 +61,22 @@ export const metadata = {
 
 ## What is this?
 
-<Image
-  src="/images/My-Pi.jpeg"
-  alt="A Raspberry Pi"
-  width={300}
-  height={225}
-  className="float-right mb-4 ml-6 w-full"
-/>
+<div className="not-prose">
+  <LightboxImage
+    src="/images/My-Pi.jpeg"
+    alt="A Raspberry Pi"
+    width={600}
+    height={400}
+    caption="The Raspberry Pi powering this site"
+    enableLightbox
+    gallery={aboutGallery}
+    galleryIndex={0}
+  />
+</div>
 
 Over the holidays, my sister gifted me a **Raspberry Pi** <RaspberryPi className="inline w-4 -mt-1" />. Thanks, sis! 🫶
 
-If you’re unfamiliar, a Raspberry Pi is a credit-card-sized computer. Unlike traditional machines, it doesn’t include a screen, keyboard, or even a case—just the bare essentials. The main selling point of my model? [It has a power button 🤯🤯🤯](https://www.raspberrypi.com/products/raspberry-pi-5/#:~:text=That%E2%80%99s%20not%20all-,Power%20button,-Dual%204Kp60).
+If you're unfamiliar, a Raspberry Pi is a credit-card-sized computer. Unlike traditional machines, it doesn't include a screen, keyboard, or even a case—just the bare essentials. The main selling point of my model? [It has a power button 🤯🤯🤯](https://www.raspberrypi.com/products/raspberry-pi-5/#:~:text=That%E2%80%99s%20not%20all-,Power%20button,-Dual%204Kp60).
 
 While not built for gaming, Raspberry Pis are fantastic for DIY projects and experimentation. You can create robots, smart home devices—or even host a website. Which is exactly what I did.
 
@@ -58,7 +90,7 @@ Naturally, the theme is **dog photos**. Because dogs are awesome. 🐶
 
 ## Inspiration
 
-I’ve always used cloud services like Vercel and Netlify to host my projects. They’re fast, simple, and take care of a lot behind the scenes.
+I've always used cloud services like Vercel and Netlify to host my projects. They're fast, simple, and take care of a lot behind the scenes.
 
 But for this one, I wanted a challenge—something that would push me to understand self-hosting, fill knowledge gaps, and get hands-on with my new Pi.
 
@@ -68,19 +100,22 @@ In the process, I learned about networking, Linux, process management, Docker, D
 
 ## The Setup (non-technical)
 
-<ImageWithCaption
-  src="/images/Tech-For-Dummies.jpg"
-  alt="My Raspberry Pi setup"
-  width={600}
-  height={400}
-  className="w-full"
-  caption="My Raspberry Pi setup with all the essentials"
-  enableLightbox
-/>
+<div className="not-prose">
+  <LightboxImage
+    src="/images/Tech-For-Dummies.jpg"
+    alt="My Raspberry Pi setup"
+    width={600}
+    height={400}
+    caption="My Raspberry Pi setup with all the essentials"
+    enableLightbox
+    gallery={aboutGallery}
+    galleryIndex={1}
+  />
+</div>
 
 The internet is essentially just computers talking to each other over cables and Wi-Fi.
 
-They send data back and forth using IP addresses, URLs, and something called DNS (Domain Name System)—often referred to as the internet’s "phone book."
+They send data back and forth using IP addresses, URLs, and something called DNS (Domain Name System)—often referred to as the internet's "phone book."
 
 For this project, I bought the domain `rioredwards.com` from [Cloudflare](https://www.cloudflare.com/) and created a subdomain, `pi.rioredwards.com`, that points directly to my Raspberry Pi.
 
@@ -92,7 +127,7 @@ To make this site work, I had to:
 - Build the **backend**—code that runs on my Pi
 - Configure the domain and networking
 
-There’s more going on behind the scenes—like a database, an AI-powered DogBot, and a system profiler—but we’ll get into that next.
+There's more going on behind the scenes—like a database, an AI-powered DogBot, and a system profiler—but we'll get into that next.
 
 ### Bonus: What makes a computer a server?
 
@@ -106,13 +141,18 @@ Want a deeper dive? Check out my article: [What is the Backend?](https://medium.
 
 ## The Setup (technical)
 
-<Image
-  src="/images/Tech-Stack.jpg"
-  alt="My Raspberry Pi setup"
-  width={600}
-  height={400}
-  className="w-full"
-/>
+<div className="not-prose">
+  <LightboxImage
+    src="/images/Tech-Stack.jpg"
+    alt="Tech stack diagram"
+    width={600}
+    height={400}
+    caption="The tech stack powering this site"
+    enableLightbox
+    gallery={aboutGallery}
+    galleryIndex={2}
+  />
+</div>
 
 ### Tech Stack
 
@@ -187,6 +227,8 @@ Fun fact: the validation process is actually much faster than it appears (~200ms
   src="/videos/DogBot-Demo.mp4"
   caption="Hammers are not dogs. Good to know!"
   className="w-full rounded-lg"
+  gallery={aboutGallery}
+  galleryIndex={3}
   enableLightbox
 />
 
@@ -194,7 +236,7 @@ Fun fact: the validation process is actually much faster than it appears (~200ms
 
 ### Docker Woes & Wins
 
-Docker was a pain at first. Builds failed constantly. But once I discovered [Lee Rob’s tutorial](https://www.youtube.com/watch?v=sIVL4JMqRfc), things clicked.
+Docker was a pain at first. Builds failed constantly. But once I discovered [Lee Rob's tutorial](https://www.youtube.com/watch?v=sIVL4JMqRfc), things clicked.
 
 I rebuilt the project using his setup, reintegrating my features one by one. Along the way, I switched:
 
@@ -212,7 +254,7 @@ I turned the `/stats` page into a fully-fledged service that monitors the server
 - Uses filesystem APIs (`/proc`, `/sys`) and Docker socket for metrics
 - Streams data to the frontend via **Server-Sent Events (SSE)**
 
-There’s even a mock mode using generator functions and sample data for local development on macOS.
+There's even a mock mode using generator functions and sample data for local development on macOS.
 
 ---
 
@@ -226,20 +268,25 @@ I connect to the Pi using:
 
 Only one is necessary, but it was fun trying them all.
 
-<Image
-  src="/images/The-Setup-OG.jpeg"
-  alt="My Raspberry Pi setup"
-  width={600}
-  height={400}
-  className="w-full"
-/>
+<div className="not-prose">
+  <LightboxImage
+    src="/images/The-Setup-OG.jpeg"
+    alt="My Raspberry Pi setup"
+    width={600}
+    height={400}
+    caption="The physical setup with keyboard, mouse, and monitor"
+    enableLightbox
+    gallery={aboutGallery}
+    galleryIndex={4}
+  />
+</div>
 
 ---
 
 ## How It Works
 
 - **Database:** PostgreSQL stores photo metadata. Images live on disk. Schema changes are applied automatically on deployment.
-- **AI Validation:** Every photo is checked for NSFW content and to ensure it’s actually a dog before it's uploaded. Keeps things clean and on-brand.
+- **AI Validation:** Every photo is checked for NSFW content and to ensure it's actually a dog before it's uploaded. Keeps things clean and on-brand.
 
 - **Live Monitoring:** A real-time dashboard displays CPU, memory, network, and container health—powered by the system-profiler service and streamed via SSE.
 

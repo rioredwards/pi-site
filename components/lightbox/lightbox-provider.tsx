@@ -3,7 +3,6 @@
 import { createContext, useCallback, useContext, useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
 import Video from "yet-another-react-lightbox/plugins/video";
-import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Captions from "yet-another-react-lightbox/plugins/captions";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/captions.css";
@@ -48,7 +47,7 @@ export function LightboxProvider({ children }: { children: React.ReactNode }) {
         close={close}
         slides={slides}
         index={currentIndex}
-        plugins={[Video, Zoom, Captions]}
+        plugins={[Video, Captions]}
         video={{
           controls: true,
           autoPlay: true,
