@@ -17,9 +17,15 @@ export function getProfilePictureUrl(filename: string | null): string | null {
 // In production, this becomes a no-op
 export const devLog =
   process.env.NODE_ENV === "production"
-    ?  
-      (..._args: unknown[]) => {}
+    ? (..._args: unknown[]) => {}
     : (...args: unknown[]) => {
         // eslint-disable-next-line no-console
         console.log(...args);
       };
+
+export function isMobile(): boolean {
+  const isMobile =
+    typeof window !== "undefined" ? window.matchMedia("(any-pointer:coarse)").matches : false;
+
+  return isMobile;
+}

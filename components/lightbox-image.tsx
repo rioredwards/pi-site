@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/app/lib/utils";
+import { cn, devLog } from "@/app/lib/utils";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { Maximize2 } from "lucide-react";
 import Image from "next/image";

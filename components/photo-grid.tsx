@@ -2,7 +2,7 @@
 
 import { cn } from "@/app/lib/utils"
 import { DogCard, DogCardProps } from "./dog-card/dog-card"
-import { useLightbox, LightboxSlide } from "./lightbox"
+import { LightboxSlide, useLightbox } from "./lightbox"
 
 
 interface PhotoGridProps {
@@ -27,7 +27,7 @@ export function PhotoGrid({ photos, columns = 3, className, enableLightbox = fal
     description: `Uploaded by ${photo.ownerDisplayName || "Anonymous"}`,
   }))
 
-  const handleImageClick = (index: number) => {
+  const showLightbox = (index: number) => {
     openGallery(slides, index)
   }
 
@@ -37,7 +37,7 @@ export function PhotoGrid({ photos, columns = 3, className, enableLightbox = fal
         <DogCard
           key={photo.id}
           {...photo}
-          onImageClick={enableLightbox ? () => handleImageClick(index) : undefined}
+          showLightbox={enableLightbox ? () => showLightbox(index) : undefined}
         />
       ))}
     </div>

@@ -1,13 +1,14 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import { Trash2, User02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Maximize2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useState } from "react";
 import BounceLoader from "react-spinners/BounceLoader";
 import { cn, getProfilePictureUrl } from "../../app/lib/utils";
+import { useIsMobile } from "../../hooks/use-is-mobile";
 import { Card } from "../card";
 import { DeleteDogConfirmationDialog } from "../dialogs/delete-dog-confirmation-dialog";
 
@@ -20,7 +21,7 @@ export interface DogCardProps {
   ownerProfilePicture?: string | null;
   deletePhoto: (id: string) => void;
   priority?: boolean;
-  onImageClick?: () => void;
+  showLightbox?: () => void;
 }
 
 export function DogCard({
@@ -32,13 +33,14 @@ export function DogCard({
   ownerProfilePicture,
   deletePhoto,
   priority = false,
-  onImageClick,
+  showLightbox,
 }: DogCardProps) {
   const { data: session } = useSession();
   const [showDetail, setShowDetail] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
   const isOwner = session?.user?.id === userId || session?.user?.id === "admin";
+  const isMobile = useIsMobile();
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -47,7 +49,7 @@ export function DogCard({
 
   const handleFullscreen = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onImageClick?.();
+    showLightbox?.();
   };
 
   const confirmDelete = () => {
@@ -59,13 +61,21 @@ export function DogCard({
     setShowConfirm(false);
   };
 
+  const handleClick = () => {
+    if (isMobile) {
+      setShowDetail((prev) => !prev);
+    } else if (showLightbox) {
+      showLightbox();
+    }
+  };
+
   return (
     <>
       <Card
         className={cn(
           "group transition-all duration-200 ease-in-out relative aspect-square overflow-hidden rounded-2xl cursor-pointer"
         )}
-        onClick={() => setShowDetail((prev) => !prev)}
+        onClick={handleClick}
         onMouseEnter={() => setShowDetail(true)}
         onMouseLeave={() => setShowDetail(false)}
       >
@@ -113,7 +123,7 @@ export function DogCard({
               </button>
             )}
             {/* Fullscreen button - top right */}
-            {onImageClick && (
+            {showLightbox && (
               <button
                 onClick={handleFullscreen}
                 className={cn(
