@@ -97,13 +97,14 @@ export function LightboxImage({
           width={fill ? undefined : width ?? undefined}
           height={fill ? undefined : height ?? undefined}
           fill={fill}
+          placeholder={typeof src === "object" ? "blur" : undefined}
           priority={priority}
           className={cn(
             "block object-cover my-0! transition-transform duration-300 ease-in-out rounded-2xl",
             shouldShowOverlay && "scale-105",
             className
           )}
-          sizes={fill ? "(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw" : undefined}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 640px"
         />
         {/* Overlay */}
         <div

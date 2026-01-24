@@ -63,7 +63,7 @@ export function NextJsImageSlide({ slide, offset, rect }: RenderSlideProps) {
           objectFit: cover ? "cover" : "contain",
           cursor: click ? "pointer" : undefined,
         }}
-        sizes={`${Math.ceil((width / (typeof window !== "undefined" ? window.innerWidth : 1920)) * 100)}vw`}
+        sizes="100vw"
         onClick={
           offset === 0 ? () => click?.({ index: currentIndex }) : undefined
         }
@@ -71,17 +71,3 @@ export function NextJsImageSlide({ slide, offset, rect }: RenderSlideProps) {
     </div>
   );
 }
-
-
-
-<img
-  alt="A Raspberry Pi"
-  loading="lazy"
-  width="1280"
-  height="1029"
-  decoding="async"
-  data-nimg="1"
-  class="block object-cover my-0! transition-transform duration-300 ease-in-out rounded-2xl"
-  style="color:transparent"
-  srcset="/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FMy-Pi.95b696c4.jpeg&amp;w=1920&amp;q=75 1x, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2FMy-Pi.95b696c4.jpeg&amp;w=3840&amp;q=75 2x"
-  src="/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FMy-Pi.95b696c4.jpeg&amp;w=3840&amp;q=75"></img>
