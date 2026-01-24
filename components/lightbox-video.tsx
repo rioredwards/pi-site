@@ -1,8 +1,9 @@
 "use client";
 
-import { cn, devLog, isMobile } from "@/app/lib/utils";
+import { cn, devLog } from "@/app/lib/utils";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { Maximize2, Pause, Play } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { LightboxSlide, useLightbox } from "./lightbox";
 
 interface LightboxVideoProps
@@ -33,17 +34,13 @@ export function LightboxVideo({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
-  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const isMobile = useIsMobile();
   const { openSingle, openGallery } = useLightbox();
 
-  useEffect(() => {
-    setIsMobileDevice(isMobile());
-  }, []);
-
-  const shouldShowOverlay = showOverlay || isMobileDevice;
+  const shouldShowOverlay = showOverlay || isMobile;
 
   const handlePlayPause = () => {
-    devLog("handlePlayPause", videoRef.current, isMobile());
+    devLog("handlePlayPause", videoRef.current, isMobile);
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();

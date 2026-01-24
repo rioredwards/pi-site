@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/app/lib/utils";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { Maximize2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -38,10 +39,12 @@ export function LightboxImage({
   galleryIndex = 0,
 }: LightboxImageProps) {
   const [showOverlay, setShowOverlay] = useState(false);
+  const isMobile = useIsMobile();
   const { openSingle, openGallery } = useLightbox();
 
-  const handleFullscreen = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const shouldShowOverlay = showOverlay;
+
+  const openLightbox = () => {
     if (gallery && gallery.length > 0) {
       openGallery(gallery, galleryIndex);
     } else {
@@ -51,6 +54,21 @@ export function LightboxImage({
         description: caption,
       });
     }
+  };
+
+  const handleClick = () => {
+    if (isMobile) {
+      // On mobile, toggle overlay
+      setShowOverlay((prev) => !prev);
+    } else if (enableLightbox) {
+      // On desktop with lightbox enabled, open lightbox directly
+      openLightbox();
+    }
+  };
+
+  const handleFullscreen = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    openLightbox();
   };
 
   const aspectClasses = {
@@ -67,20 +85,20 @@ export function LightboxImage({
           aspectClasses[aspectRatio],
           containerClassName
         )}
-        onClick={() => setShowOverlay((prev) => !prev)}
+        onClick={handleClick}
         onMouseEnter={() => setShowOverlay(true)}
         onMouseLeave={() => setShowOverlay(false)}
       >
         <Image
           src={src}
           alt={alt}
-          width={!fill ? width : undefined}
-          height={!fill ? height : undefined}
+          width={fill ? undefined : width ?? undefined}
+          height={fill ? undefined : height ?? undefined}
           fill={fill}
           priority={priority}
           className={cn(
             "block object-cover my-0! transition-transform duration-300 ease-in-out rounded-2xl",
-            showOverlay && "scale-105",
+            shouldShowOverlay && "scale-105",
             className
           )}
           sizes={fill ? "(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw" : undefined}
@@ -89,7 +107,7 @@ export function LightboxImage({
         <div
           className={cn(
             "absolute inset-0 bg-foreground/0 transition-colors duration-300 rounded-2xl",
-            showOverlay && "bg-foreground/40"
+            shouldShowOverlay && "bg-foreground/20"
           )}
         >
           {/* Fullscreen button - top right */}
@@ -98,7 +116,7 @@ export function LightboxImage({
               onClick={handleFullscreen}
               className={cn(
                 "invisible opacity-0 backdrop-blur-sm bg-background/70 absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full text-foreground shadow-md transition-all duration-200 ease-in-out hover:bg-primary hover:text-primary-foreground",
-                showOverlay && "opacity-100 visible"
+                shouldShowOverlay && "opacity-100 visible"
               )}
               aria-label="View fullscreen"
             >

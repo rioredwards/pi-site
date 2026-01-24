@@ -1,21 +1,21 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
-export const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
+function getIsMobile() {
+  if (typeof window === "undefined") return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+}
 
-  useEffect(() => {
-    const checkMobile = () => {
-      const touch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-      const userAgent =
-        /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
-          navigator.userAgent.toLowerCase()
-        );
+function subscribe() {
+  // Mobile status doesn't change, so no subscription needed
+  return () => {};
+}
 
-      setIsMobile(touch && userAgent);
-    };
-
-    checkMobile();
-  }, []);
-
-  return isMobile;
-};
+export function useIsMobile() {
+  return useSyncExternalStore(
+    subscribe,
+    getIsMobile,
+    () => false // Server snapshot
+  );
+}
