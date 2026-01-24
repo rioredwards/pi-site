@@ -6,7 +6,13 @@ import YouTube from "@/components/svg/YouTube";
 import RaspberryPi from "@/components/svg/RaspberryPi";
 import { RotatingGradientBorder } from "@/components/ui/RotatingGradientBorder";
 import { LightboxImage } from "@/components/lightbox-image";
-import { VideoWithCaption } from "@/components/video-with-caption";
+import { LightboxVideo } from "@/components/lightbox-video";
+
+import ImgMeWithPups from "@/public/images/Me-With-Pups.jpeg";
+import ImgMyPi from "@/public/images/My-Pi.jpeg";
+import ImgTechForDummies from "@/public/images/Tech-For-Dummies.jpeg";
+import ImgTechStack from "@/public/images/Tech-Stack.jpeg";
+import ImgTheSetupOg from "@/public/images/The-Setup-OG.jpeg";
 
 export const metadata = {
   title: "About",
@@ -15,17 +21,17 @@ export const metadata = {
 
 export const aboutGallery = [
   {
-    src: "/images/My-Pi.jpeg",
+    ...ImgMyPi,
     alt: "A Raspberry Pi",
     description: "The Raspberry Pi powering this site",
   },
   {
-    src: "/images/Tech-For-Dummies.jpg",
+    ...ImgTechForDummies,
     alt: "My Raspberry Pi setup",
     description: "My Raspberry Pi setup with all the essentials",
   },
   {
-    src: "/images/Tech-Stack.jpg",
+    ...ImgTechStack,
     alt: "Tech stack diagram",
     description: "The tech stack powering this site",
   },
@@ -35,7 +41,7 @@ export const aboutGallery = [
     description: "Hammers are not dogs. Good to know!",
   },
   {
-    src: "/images/The-Setup-OG.jpeg",
+    ...ImgTheSetupOg,
     alt: "My Raspberry Pi setup",
     description: "The physical setup with keyboard, mouse, and monitor",
   },
@@ -44,14 +50,8 @@ export const aboutGallery = [
 <article className="prose container mx-auto max-w-2xl px-4 py-12">
 
 <div className="not-prose mb-12 flex flex-col items-center text-center">
-  <Image
-    src="/images/Rio-With-Pups.jpg"
-    alt="Rio with dogs"
-    width={240}
-    height={240}
-    className="mb-6 rounded-full shadow-lg"
-  />
   <h1 className="text-3xl font-bold tracking-tight">Hey, I'm Rio 👋</h1>
+  <Image src={ImgMeWithPups} alt="Rio with dogs" className="mb-6 shadow-lg max-w-96" />
   <div className="mt-2 text-muted-foreground">
     Software developer and dog enthusiast based in Portland, OR.
   </div>
@@ -63,10 +63,8 @@ export const aboutGallery = [
 
 <div className="not-prose">
   <LightboxImage
-    src="/images/My-Pi.jpeg"
+    src={ImgMyPi}
     alt="A Raspberry Pi"
-    width={600}
-    height={400}
     caption="The Raspberry Pi powering this site"
     enableLightbox
     gallery={aboutGallery}
@@ -102,10 +100,8 @@ In the process, I learned about networking, Linux, process management, Docker, D
 
 <div className="not-prose">
   <LightboxImage
-    src="/images/Tech-For-Dummies.jpg"
+    src={ImgTechForDummies}
     alt="My Raspberry Pi setup"
-    width={600}
-    height={400}
     caption="My Raspberry Pi setup with all the essentials"
     enableLightbox
     gallery={aboutGallery}
@@ -143,10 +139,8 @@ Want a deeper dive? Check out my article: [What is the Backend?](https://medium.
 
 <div className="not-prose">
   <LightboxImage
-    src="/images/Tech-Stack.jpg"
+    src={ImgTechStack}
     alt="Tech stack diagram"
-    width={600}
-    height={400}
     caption="The tech stack powering this site"
     enableLightbox
     gallery={aboutGallery}
@@ -223,7 +217,7 @@ The service runs on a **FastAPI** server with one endpoint. It receives an image
 
 Fun fact: the validation process is actually much faster than it appears (~200ms). The "dogBot is processing your dog..." screen is just for show.
 
-<VideoWithCaption
+<LightboxVideo
   src="/videos/DogBot-Demo.mp4"
   caption="Hammers are not dogs. Good to know!"
   className="w-full rounded-lg"
@@ -270,10 +264,8 @@ Only one is necessary, but it was fun trying them all.
 
 <div className="not-prose">
   <LightboxImage
-    src="/images/The-Setup-OG.jpeg"
+    src={ImgTheSetupOg}
     alt="My Raspberry Pi setup"
-    width={600}
-    height={400}
     caption="The physical setup with keyboard, mouse, and monitor"
     enableLightbox
     gallery={aboutGallery}

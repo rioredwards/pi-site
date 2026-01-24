@@ -1,14 +1,14 @@
 "use client";
 
-import { cn, devLog } from "@/app/lib/utils";
+import { cn } from "@/app/lib/utils";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { Maximize2 } from "lucide-react";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import { useState } from "react";
 import { LightboxSlide, useLightbox } from "./lightbox";
 
 interface LightboxImageProps {
-  src: string;
+  src: string | StaticImageData;
   alt: string;
   caption?: string;
   width?: number;
@@ -48,8 +48,10 @@ export function LightboxImage({
     if (gallery && gallery.length > 0) {
       openGallery(gallery, galleryIndex);
     } else {
+      // Spread StaticImageData to get src, width, height, blurDataURL at top level
+      const imageData = typeof src === "object" ? src : { src, width, height };
       openSingle({
-        src,
+        ...imageData,
         alt,
         description: caption,
       });

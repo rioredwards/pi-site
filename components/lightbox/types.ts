@@ -1,23 +1,10 @@
-export interface ImageSlide {
-  type?: "image";
-  src: string;
-  alt?: string;
-  title?: string;
-  description?: string;
-}
-
-export interface VideoSlide {
-  type: "video";
-  sources: { src: string; type: string }[];
-  poster?: string;
-  title?: string;
-  description?: string;
-}
-
-export type LightboxSlide = ImageSlide | VideoSlide;
+import type { Slide } from "yet-another-react-lightbox";
 
 export interface LightboxContextValue {
-  openSingle: (slide: LightboxSlide) => void;
-  openGallery: (slides: LightboxSlide[], index: number) => void;
+  openSingle: (slide: Slide) => void;
+  openGallery: (slides: Slide[], index: number) => void;
   close: () => void;
 }
+
+// Re-export Slide type for convenience
+export type { Slide as LightboxSlide } from "yet-another-react-lightbox";
