@@ -16,6 +16,7 @@ import ImgTheSetupOg from "@/public/images/The-Setup-OG.jpeg";
 import ImgPi3D from "@/public/pi/pi.png";
 import ImgPiDepth from "@/public/pi/pi_depth.png";
 import ImgFzfCmd from "@/public/images/fzf-cmd.jpg";
+import ImgLogoProg from "@/public/images/Logo-Prog.jpg";
 
 export const metadata = {
   title: "About",
@@ -62,6 +63,11 @@ export const aboutGallery = [
     type: "video",
     sources: [{ src: "/videos/DogBot-Demo.mp4", type: "video/mp4" }],
     description: "apparently hammers are not dogs... thanks DogBot!",
+  },
+  {
+    ...ImgLogoProg,
+    alt: "Logo progression",
+    description: "Logo progression",
   },
 ];
 
@@ -198,13 +204,11 @@ Want a deeper dive? Check out my article: [What is the Backend?](https://medium.
 
 Was this overengineered? Probably. But my goal was to **learn** stuff, not just ship.
 
----
-
 ### Phase 1
 
-I began with [this tutorial](https://www.youtube.com/watch?v=Vp4glSVPT8o), which got me a basic fullstack [Next.js](https://nextjs.org/) app running on the Pi, with traffic routed through a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/).
+I began with [this tutorial](https://www.youtube.com/watch?v=Vp4glSVPT8o), which got me a basic fullstack [Next.js](https://nextjs.org/) app running on the Pi, with traffic routed through a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/). That was a big win right away, so I just kept going.
 
-Initially, the app didn't have a database, authentication, or any of that fancy stuff. I was just tinkering and adding features as I went.
+Initially, the app didn't have a database, authentication, or any of that fancy stuff. I was just adding features as I went along without any real plan.
 
 I started off just using Node.js and the filesystem for storing photos and saving metadata as json files. I also setup a simple UUID tagging system as a basic way to identify photos and users.
 
@@ -247,8 +251,6 @@ Highlights from Phase 1:
 
 - I built a browser-based image compression/conversion service to deal with large images and HEIC images. As it turns out all iPhone images are HEIC, and there's essentially [no browser support for them](https://caniuse.com/?search=heif).
 
----
-
 ### Phase 2
 
 After a long break, I came back with a fresh perspective and lots of ideas. First step: upgrade the stack.
@@ -288,11 +290,9 @@ Fun fact: the validation process is actually much faster than it appears (~200ms
   enableLightbox
 />
 
----
+#### Docker Woes & Wins
 
-### Docker Woes & Wins
-
-Setting up docker was a pain. I thought it was supposed to make my life easier?!?! Well, turns out I was just doing it wrong. For example, I was rebuilding the images for DogBot on every build, which was obviously super slow because of the ai models... 🤦‍♂️
+Setting up docker was a challenge. I thought it was supposed to make my life easier?!?! Well, turns out I was just doing it wrong. For example, I was rebuilding the images for DogBot on every build, which was obviously super slow because of the ai models... 🤦‍♂️
 
 You live and you learn. I probably spent more time learning about docker and docker-compose than anything else in this project, which is a good thing. It even spawned another side-project: a cli-tool for quickly casting commands from your history. Check it out [here](https://github.com/rioredwards/fz-cmd). (Still a WIP)
 
@@ -332,7 +332,7 @@ You live and you learn. I probably spent more time learning about docker and doc
   />
 </div>
 
-## Phase 3
+### Phase 3
 
 Along the way, I discovered this tutorial from Lee Rob on [self-hosting Next.js apps](https://www.youtube.com/watch?v=sIVL4JMqRfc) which was a great resource. I followed it closely, and once I had it working, I rebuilt my app using his setup, reintegrating my features one by one. Along the way, I switched:
 
@@ -340,9 +340,7 @@ Along the way, I discovered this tutorial from Lee Rob on [self-hosting Next.js 
 - SQLite ➡️ [PostgreSQL](https://www.postgresql.org/)
 - Added [**Nginx**](https://nginx.org/) for image caching
 
----
-
-### System Profiler Service
+#### System Profiler Service
 
 I had a super basic `/stats` page from the very start of the project, and I decided to turn it into a fully-fledged system-profiler service with a dashboard for monitoring the health of the host server and all the containers in real-time. It was pretty ambitious and somewhat unrelated to the rest of the app, but again, my goal was to learn, not make a marketable product.
 
@@ -352,7 +350,7 @@ I had a super basic `/stats` page from the very start of the project, and I deci
 - All requests are authenticated with a token to keep it secure.
 - The dashboard uses [ReCharts](https://recharts.github.io/) for the charts.
 
-### 3D Model using a Depth Map
+#### 3D Model using a Depth Map
 
 This was inspired by a [video by Wes Bos & SyntaxFM](https://www.youtube.com/watch?v=HzL65tTeANs&t=70s).
 
@@ -375,24 +373,62 @@ The last step was feeding them into [Three.js](https://threejs.org/) to create t
   <LightboxImage
     src={ImgPiDepth}
     alt="Depth map generated using MiDaS"
-    caption="Depth map composed of two images: one by MiDaS, one from Dalle-3, then touched up in Figma. It has to be just right, so I wrote a helper script for generating them. It's in my commit history (e721cbe) if you're interested."
+    caption="Depth map of the Raspberry Pi image"
     enableLightbox
     gallery={aboutGallery}
     galleryIndex={7}
   />
 </div>
 
-### The Dashboard
+### Phase 4
 
-I'm not a huge fan of the way recharts animate when they receive new data, but it would be too much work to change it now. 🤷‍♂️
+At this point, the app was feature-complete, so all I had to do was add some more features! 🤷‍♂️
 
-### MDX
+#### MDX
 
-I also added support for [MDX](https://mdxjs.com/) files, which allowed me to write this /about page in markdown, but still use react components when I needed to. I used another tutorial from Lee Rob, [MDX with Next.js App Router](https://www.youtube.com/watch?v=34bRv6cQezo), to help me set it up. This was my first time using MDX, and I'm in love. Definitely going to use it on more projects in the future.
+I added support for [MDX](https://mdxjs.com/) files, which allowed me to write this /about page in markdown, but still use react components when I needed to. I used another tutorial from Lee Rob, [MDX with Next.js App Router](https://www.youtube.com/watch?v=34bRv6cQezo), to help me set it up. This was my first time using MDX, and I'm in love! Definitely going to use it on more projects in the future.
 
-### Yet Another React Lightbox
+#### Yet Another React Lightbox
 
-I used [Yet Another React Lightbox](https://yet-another-react-lightbox.com/) for the fullscreen image and video previews. It's great!
+I used [Yet Another React Lightbox](https://yet-another-react-lightbox.com/) for the fullscreen image and video previews. It's great! I integrated it to use Next.js Images which come with extra features for optimizing images for the web.
+
+#### The Logo
+
+As with most of my projects, I designed the DogTown logo using Figma. I really love creating logos and giving my projects some personality.
+
+<div className="not-prose">
+  <LightboxImage
+    src={ImgLogoProg}
+    alt="Logo progression"
+    caption="Logo progression"
+    enableLightbox
+    gallery={aboutGallery}
+    galleryIndex={8}
+  />
+</div>
+
+#### I almost forgot
+
+While writing this page, I realized I kind of skipped over any mention of my experience with the core tech: Next.js, React, Tailwind, and ShadCN. Basically, these have been my daily drivers for a while now, so I didn't feel the need to talk about them. They're great, as always, thanks for asking!
+
+One new thing that I tried here was using [V0](https://v0.dev/) to generate a component library for a "dog themed" app and then selectively pulling out comopnents and styles that I liked. It's a great way to get some fresh design ideas. For example, that's what inspired the navbar design.
+
+---
+
+## Final Thoughts
+
+I learned a ton from this project. I got to try a lot of technologies that I'd never used before, and dive deep into some others. I went through multiple iterations of the app with different tech stacks, and I think I arrived on a stack that I'd be happy using for future projects. I've never been one to use "starter templates" for my projects, but I think this could be a good one.
+
+### Wishlist
+
+Here's what I'd like to add if I had unlimited time:
+
+- More CRUD operations: to make it more of a full-featured app.
+- Better type safety: with [Zod](https://zod.dev/). There's a [video by CJ at SyntaxFM](https://www.youtube.com/watch?v=sYZW8TK2IV4), where he shows off a super clean Hono/Zod setup.
+- Dev Container: because I've come a long way with Docker.
+- Better charts: the ReCharts library I used is great, but I don't love the way they animate when they receive new data.
+
+p.s. I know the whole "\_\_ for dogs" idea has been done a thousand times, but idc. I'll make dog-themed apps until they stop bringing me joy!
 
 ---
 
