@@ -10,7 +10,7 @@ import { LightboxSlide, useLightbox } from "./lightbox";
 interface LightboxImageProps {
   src: string | StaticImageData;
   alt: string;
-  caption?: string;
+  caption?: React.ReactNode;
   width?: number;
   height?: number;
   fill?: boolean;

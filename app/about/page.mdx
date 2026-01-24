@@ -13,6 +13,9 @@ import ImgMyPi from "@/public/images/My-Pi.jpeg";
 import ImgTechForDummies from "@/public/images/Tech-For-Dummies.jpeg";
 import ImgTechStack from "@/public/images/Tech-Stack.jpeg";
 import ImgTheSetupOg from "@/public/images/The-Setup-OG.jpeg";
+import ImgPi3D from "@/public/pi/pi.png";
+import ImgPiDepth from "@/public/pi/pi_depth.png";
+import ImgFzfCmd from "@/public/images/fzf-cmd.jpg";
 
 export const metadata = {
   title: "About",
@@ -27,23 +30,38 @@ export const aboutGallery = [
   },
   {
     ...ImgTechForDummies,
-    alt: "My Raspberry Pi setup",
-    description: "My Raspberry Pi setup with all the essentials",
+    alt: "Diagram showing how this website gets from my raspberry pi to your computer/phone",
+    description: "The noob diagram (not to scale)",
   },
   {
     ...ImgTechStack,
-    alt: "Tech stack diagram",
-    description: "The tech stack powering this site",
+    alt: "Diagram showing the tech stack powering this site",
+    description: "The stack",
   },
   {
-    type: "video",
-    sources: [{ src: "/videos/DogBot-Demo.mp4", type: "video/mp4" }],
-    description: "Hammers are not dogs. Good to know!",
+    ...ImgPi3D,
+    alt: "A 3D model of a Raspberry Pi",
+    description: "A 3D model of a Raspberry Pi",
+  },
+  {
+    ...ImgPiDepth,
+    alt: "A depth map of a Raspberry Pi",
+    description: "A depth map of a Raspberry Pi",
+  },
+  {
+    ...ImgFzfCmd,
+    alt: "fzf-cmd",
+    description: "fzf-cmd",
   },
   {
     ...ImgTheSetupOg,
     alt: "My Raspberry Pi setup",
-    description: "The physical setup with keyboard, mouse, and monitor",
+    description: "The setup with laptop, pi, tv and Suki ☁️",
+  },
+  {
+    type: "video",
+    sources: [{ src: "/videos/DogBot-Demo.mp4", type: "video/mp4" }],
+    description: "apparently hammers are not dogs... thanks DogBot!",
   },
 ];
 
@@ -80,11 +98,11 @@ export const aboutGallery = [
 
 Over the holidays, my sister gifted me a **Raspberry Pi** <RaspberryPi className="inline w-4 -mt-1" />. Thanks, sis! 🫶
 
-If you're unfamiliar, a Raspberry Pi is a credit-card-sized computer. Unlike traditional machines, it doesn't include a screen, keyboard, or even a case—just the bare essentials. The main selling point of my model? [It has a power button 🤯🤯🤯](https://www.raspberrypi.com/products/raspberry-pi-5/#:~:text=That%E2%80%99s%20not%20all-,Power%20button,-Dual%204Kp60).
+If you're unfamiliar, a Raspberry Pi is a credit-card-sized computer. Unlike traditional machines, it doesn't include a screen, keyboard, or even a case-just the bare essentials. The main selling point of my model? [It has a power button 🤯🤯🤯](https://www.raspberrypi.com/products/raspberry-pi-5/#:~:text=That%E2%80%99s%20not%20all-,Power%20button,-Dual%204Kp60).
 
-While not built for gaming, Raspberry Pis are fantastic for DIY projects and experimentation. You can create robots, smart home devices—or even host a website. Which is exactly what I did.
+So, why would you want one? Raspberry Pis are fantastic for DIY projects and experimentation. You can create robots, smart home devices, or even host a website. Which is exactly what I did.
 
-After some late-night coding sessions and hardware tinkering, I launched my first **self-hosted website**.
+After some late-night coding sessions and linux rabbit holes, I launched my first **self-hosted website**.
 
 Naturally, the theme is **dog photos**. Because dogs are awesome. 🐶
 
@@ -94,60 +112,73 @@ Naturally, the theme is **dog photos**. Because dogs are awesome. 🐶
 
 ## Inspiration
 
-I've always used cloud services like Vercel and Netlify to host my projects. They're fast, simple, and take care of a lot behind the scenes.
+I've always relied on cloud services like Vercel and Netlify to host my projects. They're fast, reliable, and super easy to use. But, I have this desire to understand how the internet works on a deeper level. What's going on behind the scenes? How do servers really work?
 
-But for this one, I wanted a challenge—something that would push me to understand self-hosting, fill knowledge gaps, and get hands-on with my new Pi.
+So for this project, I challenged myself to dive deep into the world of self-hosting. It seemed like a great way to fill some knowledge gaps, and get hands-on with my new Raspberry Pi.
 
-In the process, I learned about networking, Linux, process management, Docker, DevOps, security, and more.
+In the process, I learned a lot about networking, Linux, process management, Docker, DevOps, security, and more.
 
 ---
 
-## The Setup (non-technical)
+## Some background (for noobs)
 
 <div className="not-prose">
   <LightboxImage
     src={ImgTechForDummies}
-    alt="My Raspberry Pi setup"
-    caption="My Raspberry Pi setup with all the essentials"
+    alt="Diagram showing how this website gets from my raspberry pi to your computer/phone"
+    caption="The noob diagram (not to scale)"
     enableLightbox
     gallery={aboutGallery}
     galleryIndex={1}
   />
 </div>
 
+### Networking 101
+
 The internet is essentially just computers talking to each other over cables and Wi-Fi.
 
 They send data back and forth using IP addresses, URLs, and something called DNS (Domain Name System)—often referred to as the internet's "phone book."
 
-For this project, I bought the domain `rioredwards.com` from [Cloudflare](https://www.cloudflare.com/) and created a subdomain, `pi.rioredwards.com`, that points directly to my Raspberry Pi.
+For this project, I took a domain that I already owned, `rioredwards.com` and created a subdomain, `pi.rioredwards.com`, which I then pointed at my Raspberry Pi. Now anyone can visit `pi.rioredwards.com` and see this site!
 
-In simple terms, there are two kinds of computers online: **clients** and **servers**. Your computer (the client) sends a request to mine (the server). My Pi is running web server software that listens for those requests and responds with code and images. Your browser then renders it into what you see here.
+This is all facilitated by DNS providers (like [Cloudflare](https://www.cloudflare.com/)), who have servers all over the world for directing traffic (resolving domain names into IP addresses). So your computer asks your router for `pi.rioredwards.com` and that request eventually reaches Cloudflare's servers who direct it to my Raspberry Pi!
+
+### What is a server?
+
+In simple terms, there are two kinds of computers online: **clients** and **servers**. Your computer (the client) sends requests to mine (the server).
+
+As the client, you are using your **web-browser** to "browse" the web. That's your touchpoint with the internet. Your browser does all the heavy lifting, sending requests to servers and displaying the results.
+
+My Pi is running a **web-server**. That's it's touchpoint. A web-server is just some software that runs in the background, listening for requests and responding with stuff like code and images. That code and those images are carefully crafted by me, the developer, to run in your browser and create all the things you're seeing here.
+
+### Tying it all together
 
 To make this site work, I had to:
 
 - Build the **frontend**—code that runs in your browser
 - Build the **backend**—code that runs on my Pi
 - Configure the domain and networking
+- Figure out why my Pi kept disconnecting from the internet 🫠
 
-There's more going on behind the scenes—like a database, an AI-powered DogBot, and a system profiler—but we'll get into that next.
+There's a fair bit more going on behind the scenes—like a database, an AI-powered DogBot, and a system profiler—but we'll get into that next. That's all just software I wrote which runs on my Pi.
 
 ### Bonus: What makes a computer a server?
 
-Any computer can be a server—even yours! All it takes is downloading some free server software.
+Any computer can be a server—even yours! All it takes is downloading some free server software like [nginx](https://nginx.org/) or [Apache](https://httpd.apache.org/) and turning it on.
 
-That said, to make it accessible from the internet, you'd need to configure your router or use a service like Cloudflare Tunnels. Without that, your site wouldn't be reachable outside your local network.
+That said, to make it accessible from the internet, you'd need to configure your router or use a service like Cloudflare Tunnels. And if you make a mistake, you might break the whole internet and get in huge trouble.
 
 Want a deeper dive? Check out my article: [What is the Backend?](https://medium.com/@rioedwards/what-is-the-backend-ffd808ff950e).
 
 ---
 
-## The Setup (technical)
+## How it's made (for the nerds)
 
 <div className="not-prose">
   <LightboxImage
     src={ImgTechStack}
-    alt="Tech stack diagram"
-    caption="The tech stack powering this site"
+    alt="Diagram showing the tech stack powering this site"
+    caption="The stack"
     enableLightbox
     gallery={aboutGallery}
     galleryIndex={2}
@@ -165,40 +196,65 @@ Want a deeper dive? Check out my article: [What is the Backend?](https://medium.
 | AI Validation   | Python, FastAPI, OpenNSFW, PyTorch                                             |
 | System Profiler | Hono, TypeScript, Node.js                                                      |
 
-Was this overengineered? Probably. But my goal was to **learn**, not just ship.
+Was this overengineered? Probably. But my goal was to **learn** stuff, not just ship.
 
 ---
 
 ### Phase 1
 
-I began with [this tutorial](https://www.youtube.com/watch?v=Vp4glSVPT8o), which got me a basic fullstack Next.js app running on the Pi, with traffic routed through Cloudflare.
+I began with [this tutorial](https://www.youtube.com/watch?v=Vp4glSVPT8o), which got me a basic fullstack [Next.js](https://nextjs.org/) app running on the Pi, with traffic routed through a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/).
 
-Initially, the app used Node.js and the filesystem for storage—photos and metadata saved as JSON. I also had a simple UUID tagging system instead of real auth. Functional, but definitely not scalable.
+Initially, the app didn't have a database, authentication, or any of that fancy stuff. I was just tinkering and adding features as I went.
 
-Eventually, work got busy, and the project sat idle for about a year.
+I started off just using Node.js and the filesystem for storing photos and saving metadata as json files. I also setup a simple UUID tagging system as a basic way to identify photos and users.
+
+I built it over the holidays and had it connected to the TV, so my family could upload their dog photos and see them on the screen.
+
+<div className="not-prose">
+  <LightboxImage
+    src={ImgTheSetupOg}
+    alt="My Raspberry Pi setup"
+    caption={
+      <div>
+        Laptop, Pi, TV and{" "}
+        <Link
+          href="https://www.instagram.com/suki.thesammy/"
+          className="text-primary"
+          target="_blank">
+          Suki ☁️
+        </Link>
+      </div>
+    }
+    enableLightbox
+    gallery={aboutGallery}
+    galleryIndex={3}
+  />
+</div>
+
+Eventually, work got busy, and the project went on the back burner for about a year.
 
 Highlights from Phase 1:
 
-- Built a reusable component with
+- <span className="inline">I built this component that wraps anything in a</span>
   <RotatingGradientBorder
     backgroundColor="transparent"
     borderRadius="12px"
     containerClassName="mx-1 inline-block align-middle bg-background">
-    <span className="px-2 bg-background rounded-full">Glowing Gradient Borders</span>
+    <span className="px-2 bg-background rounded-full">Glowing Gradient Border</span>
   </RotatingGradientBorder>
-  Might release it as an npm package someday.
-- Wrote a Bash script to update the app and restart the server—my first step into DevOps.
+  <span className="inline">{". "}Might release it as an npm package someday.</span>
+- I wrote a Bash script to update the app and restart the server. This was my first step into DevOps for this project.
 
-- Built a browser-based image compression service to convert large files and HEIC images. That alone was a [PAIN](https://caniuse.com/?search=heif) to support.
+- I built a browser-based image compression/conversion service to deal with large images and HEIC images. As it turns out all iPhone images are HEIC, and there's essentially [no browser support for them](https://caniuse.com/?search=heif).
 
 ---
 
 ### Phase 2
 
-After a long break, I came back with fresh energy and ideas. First step: upgrade the stack.
+After a long break, I came back with a fresh perspective and lots of ideas. First step: upgrade the stack.
 
-- Switched to SQLite and Prisma
-- Added NextAuth for authentication
+- Switched to [SQLite](https://sqlite.org/) and [Prisma](https://www.prisma.io/)
+- Added [NextAuth](https://next-auth.js.org/) for authentication
 - Identified a few major issues:
   1. Server instability
   2. Clunky deployment
@@ -206,29 +262,29 @@ After a long break, I came back with fresh energy and ideas. First step: upgrade
 
 To fix them, I:
 
-1. Replaced `nohup` with **PM2** for process management
-2. Set up a **GitHub Actions** workflow for auto-deployments
+1. Replaced `nohup` with [**PM2**](https://pm2.keymetrics.io/) for process management
+2. Set up a [**GitHub Actions**](https://docs.github.com/en/actions) workflow for auto-deployments
 3. Created **DogBot**, an AI image validator
-4. **Dockerized** everything
+4. [**Dockerized**](https://www.docker.com/) everything
 5. Rebuilt the `/stats` page as a dedicated microservice
 
 #### AI Image Validation (DogBot)
 
-This was surprisingly smooth. I used:
+Adding this feature was surprisingly simple. I used:
 
-- **OpenNSFW** for detecting inappropriate content
-- **PyTorch** model for verifying dog images
+- [**OpenNSFW**](https://github.com/bhky/opennsfw2?tab=readme-ov-file) for detecting inappropriate content
+- [**PyTorch/TorchVision**](https://docs.pytorch.org/vision/stable/index.html) for verifying dog images
 
-The service runs on a **FastAPI** server with one endpoint. It receives an image and returns `isDog` and `isNSFW` booleans. I tested it with existing site images—everything passed.
+The service runs on a [**FastAPI**](https://fastapi.tiangolo.com/) server with a single endpoint. It receives an image and returns `isDog` and `isNSFW` scores as weights and booleans. I built it out in isolation first, then integrated it into this here app.
 
-Fun fact: the validation process is actually much faster than it appears (~200ms). The "dogBot is processing your dog..." screen is just for show.
+Fun fact: the validation process is actually much faster than it appears (~200ms). The "DogBot is processing your dog..." screen is just for show.
 
 <LightboxVideo
-  src="/videos/DogBot-Demo.mp4"
-  caption="Hammers are not dogs. Good to know!"
+  src="/videos/DogBot-Demo.mp4#t=0.001"
+  caption="apparently hammers are not dogs... thanks DogBot!"
   className="w-full rounded-lg"
   gallery={aboutGallery}
-  galleryIndex={3}
+  galleryIndex={4}
   enableLightbox
 />
 
@@ -236,25 +292,107 @@ Fun fact: the validation process is actually much faster than it appears (~200ms
 
 ### Docker Woes & Wins
 
-Docker was a pain at first. Builds failed constantly. But once I discovered [Lee Rob's tutorial](https://www.youtube.com/watch?v=sIVL4JMqRfc), things clicked.
+Setting up docker was a pain. I thought it was supposed to make my life easier?!?! Well, turns out I was just doing it wrong. For example, I was rebuilding the images for DogBot on every build, which was obviously super slow because of the ai models... 🤦‍♂️
 
-I rebuilt the project using his setup, reintegrating my features one by one. Along the way, I switched:
+You live and you learn. I probably spent more time learning about docker and docker-compose than anything else in this project, which is a good thing. It even spawned another side-project: a cli-tool for quickly casting commands from your history. Check it out [here](https://github.com/rioredwards/fz-cmd). (Still a WIP)
 
-- Prisma ➡️ Drizzle
-- SQLite ➡️ PostgreSQL
-- Added **Nginx** for image caching
+<div className="not-prose">
+  <LightboxImage
+    src={ImgFzfCmd}
+    alt="fz-cmd"
+    caption={
+      <div>
+        <Link href="https://github.com/rioredwards/fz-cmd" className="text-primary" target="_blank">
+          fz-cmd
+        </Link>
+        , built with{" "}
+        <Link href="https://www.gnu.org/software/bash/" className="text-primary" target="_blank">
+          bash
+        </Link>
+        {", "}
+        <Link href="https://github.com/junegunn/fzf" className="text-primary" target="_blank">
+          fzf
+        </Link>
+        {", "}
+        <Link href="https://atuin.sh/" className="text-primary" target="_blank">
+          atuin
+        </Link>
+        {" and "}
+        <Link
+          href="https://github.com/tealdeer-rs/tealdeer"
+          className="text-primary"
+          target="_blank">
+          tealdeer
+        </Link>
+      </div>
+    }
+    enableLightbox
+    gallery={aboutGallery}
+    galleryIndex={5}
+  />
+</div>
+
+## Phase 3
+
+Along the way, I discovered this tutorial from Lee Rob on [self-hosting Next.js apps](https://www.youtube.com/watch?v=sIVL4JMqRfc) which was a great resource. I followed it closely, and once I had it working, I rebuilt my app using his setup, reintegrating my features one by one. Along the way, I switched:
+
+- Prisma ➡️ [Drizzle](https://orm.drizzle.team/)
+- SQLite ➡️ [PostgreSQL](https://www.postgresql.org/)
+- Added [**Nginx**](https://nginx.org/) for image caching
 
 ---
 
 ### System Profiler Service
 
-I turned the `/stats` page into a fully-fledged service that monitors the server in real-time.
+I had a super basic `/stats` page from the very start of the project, and I decided to turn it into a fully-fledged system-profiler service with a dashboard for monitoring the health of the host server and all the containers in real-time. It was pretty ambitious and somewhat unrelated to the rest of the app, but again, my goal was to learn, not make a marketable product.
 
 - Built using **Hono**, **TypeScript**, and **Node.js**
-- Uses filesystem APIs (`/proc`, `/sys`) and Docker socket for metrics
-- Streams data to the frontend via **Server-Sent Events (SSE)**
+- Uses the Linux filesystem (`/proc`, `/sys`) and Docker socket for metrics
+- Data is sent to the Next.js backend and streamed to the frontend via **Server-Sent Events (SSE)**.
+- All requests are authenticated with a token to keep it secure.
+- The dashboard uses [ReCharts](https://recharts.github.io/) for the charts.
 
-There's even a mock mode using generator functions and sample data for local development on macOS.
+### 3D Model using a Depth Map
+
+This was inspired by a [video by Wes Bos & SyntaxFM](https://www.youtube.com/watch?v=HzL65tTeANs&t=70s).
+
+I created a 3D depth map using a combination of [MiDaS](https://github.com/isl-org/MiDaS), [Dalle-3](https://openai.com/dall-e-3/) and Figma. MiDaS generated the original depth map, then Dalle-3 made a more textured version which I composited with the MiDaS image. Then I touched them up in [Figma](https://www.figma.com/) and exported as a PNG. It has to be just right, so I wrote a helper script for generating them and viewing the results in realtime. It's in my commit history if you're interested (e721cbe).
+
+The last step was feeding them into [Three.js](https://threejs.org/) to create the 3D effect. Basically, the lightness of the pixels in the depth map correspond to the "closeness" of that area to the camera and how much the the corresponding pixels in the source image are displaced when rotated.
+
+<div className="not-prose">
+  <LightboxImage
+    src={ImgPi3D}
+    alt="2D image of a Raspberry Pi"
+    caption="2D image of a Raspberry Pi"
+    enableLightbox
+    gallery={aboutGallery}
+    galleryIndex={6}
+  />
+</div>
+
+<div className="not-prose">
+  <LightboxImage
+    src={ImgPiDepth}
+    alt="Depth map generated using MiDaS"
+    caption="Depth map composed of two images: one by MiDaS, one from Dalle-3, then touched up in Figma. It has to be just right, so I wrote a helper script for generating them. It's in my commit history (e721cbe) if you're interested."
+    enableLightbox
+    gallery={aboutGallery}
+    galleryIndex={7}
+  />
+</div>
+
+### The Dashboard
+
+I'm not a huge fan of the way recharts animate when they receive new data, but it would be too much work to change it now. 🤷‍♂️
+
+### MDX
+
+I also added support for [MDX](https://mdxjs.com/) files, which allowed me to write this /about page in markdown, but still use react components when I needed to. I used another tutorial from Lee Rob, [MDX with Next.js App Router](https://www.youtube.com/watch?v=34bRv6cQezo), to help me set it up. This was my first time using MDX, and I'm in love. Definitely going to use it on more projects in the future.
+
+### Yet Another React Lightbox
+
+I used [Yet Another React Lightbox](https://yet-another-react-lightbox.com/) for the fullscreen image and video previews. It's great!
 
 ---
 
@@ -268,31 +406,11 @@ I connect to the Pi using:
 
 Only one is necessary, but it was fun trying them all.
 
-<div className="not-prose">
-  <LightboxImage
-    src={ImgTheSetupOg}
-    alt="My Raspberry Pi setup"
-    caption="The physical setup with keyboard, mouse, and monitor"
-    enableLightbox
-    gallery={aboutGallery}
-    galleryIndex={4}
-  />
-</div>
-
----
-
-## How It Works
-
-- **Database:** PostgreSQL stores photo metadata. Images live on disk. Schema changes are applied automatically on deployment.
-- **AI Validation:** Every photo is checked for NSFW content and to ensure it's actually a dog before it's uploaded. Keeps things clean and on-brand.
-
-- **Live Monitoring:** A real-time dashboard displays CPU, memory, network, and container health—powered by the system-profiler service and streamed via SSE.
-
 ---
 
 ## Get in Touch
 
-Got questions, feedback, or just want to connect? Reach out below!
+Feel free to reach out if you have questions, feedback, or just want to chat!
 
 <div className="not-prose mt-6 flex gap-4">
   <Link href="https://www.linkedin.com/in/rio-edwards/" aria-label="LinkedIn">
