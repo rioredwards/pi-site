@@ -1,23 +1,27 @@
 "use client";
 
-import { Pause, Play } from "lucide-react";
+import { Maximize2, Pause, Play } from "lucide-react";
 import React, { useRef, useState } from "react";
+import { useLightbox } from "./lightbox";
 
 interface VideoWithCaptionProps extends React.VideoHTMLAttributes<HTMLVideoElement> {
   src: string;
   caption?: string;
   className?: string;
+  enableLightbox?: boolean;
 }
 
 export function VideoWithCaption({
   src,
   caption,
   className = "",
+  enableLightbox = false,
   ...props
 }: VideoWithCaptionProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(false);
+  const { openSingle } = useLightbox();
 
   const handlePlayPause = () => {
     if (videoRef.current) {
@@ -31,6 +35,18 @@ export function VideoWithCaption({
 
   const handleVideoPlay = () => setIsPlaying(true);
   const handleVideoPause = () => setIsPlaying(false);
+
+  const handleExpand = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+    openSingle({
+      type: "video",
+      sources: [{ src, type: "video/mp4" }],
+      description: caption,
+    });
+  };
 
   return (
     <figure className="my-6">
@@ -71,6 +87,17 @@ export function VideoWithCaption({
             )}
           </div>
         </div>
+        {enableLightbox && (
+          <button
+            onClick={handleExpand}
+            className={`absolute top-3 right-3 z-10 p-2 bg-white/90 dark:bg-black/90 rounded-full shadow-lg transition-all duration-300 hover:scale-110 ${
+              showControls ? "opacity-100" : "opacity-0"
+            }`}
+            aria-label="Expand video"
+          >
+            <Maximize2 className="w-4 h-4 text-foreground" />
+          </button>
+        )}
       </div>
       {caption && (
         <figcaption className="mt-2 text-sm text-muted-foreground text-center italic">

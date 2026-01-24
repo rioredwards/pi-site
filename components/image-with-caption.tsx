@@ -1,4 +1,7 @@
+"use client";
+
 import Image, { ImageProps } from "next/image";
+import { useLightbox } from "./lightbox";
 
 interface ImageWithCaptionProps extends Omit<ImageProps, "alt"> {
   src: string;
@@ -7,6 +10,7 @@ interface ImageWithCaptionProps extends Omit<ImageProps, "alt"> {
   width?: number;
   height?: number;
   className?: string;
+  enableLightbox?: boolean;
 }
 
 export function ImageWithCaption({
@@ -16,8 +20,21 @@ export function ImageWithCaption({
   width,
   height,
   className = "",
+  enableLightbox = false,
   ...props
 }: ImageWithCaptionProps) {
+  const { openSingle } = useLightbox();
+
+  const handleClick = () => {
+    if (enableLightbox) {
+      openSingle({
+        src,
+        alt,
+        description: caption,
+      });
+    }
+  };
+
   return (
     <figure className="my-6">
       <Image
@@ -25,7 +42,8 @@ export function ImageWithCaption({
         alt={alt}
         width={width}
         height={height}
-        className={className}
+        className={`${className}${enableLightbox ? " cursor-pointer" : ""}`}
+        onClick={handleClick}
         {...props}
       />
       {caption && (

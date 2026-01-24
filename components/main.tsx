@@ -137,7 +137,9 @@ export function Main() {
           photos={photos.map((photo) => ({
             ...photo,
             deletePhoto: () => deletePhoto(photo.id),
-          }))} />
+          }))}
+          enableLightbox
+        />
       )}
     </div>
   );

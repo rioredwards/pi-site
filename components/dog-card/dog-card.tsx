@@ -23,6 +23,7 @@ export interface DogCardProps {
   ownerProfilePicture?: string | null;
   deletePhoto: (id: string) => void;
   priority?: boolean;
+  onImageClick?: () => void;
 }
 
 export function DogCard({
@@ -34,6 +35,7 @@ export function DogCard({
   ownerProfilePicture,
   deletePhoto,
   priority = false,
+  onImageClick,
 }: DogCardProps) {
   const { data: session } = useSession();
   const [showDetail, setShowDetail] = useState(false);
@@ -63,7 +65,7 @@ export function DogCard({
         "group transition-all duration-200 ease-in-out relative aspect-square overflow-hidden rounded-2xl cursor-pointer",
         // showDetail && "border-2 border-blue-400"
       )}
-        onClick={() => setShowDetail((prev) => !prev)}
+        onClick={() => onImageClick ? onImageClick() : setShowDetail((prev) => !prev)}
         onMouseEnter={() => setShowDetail(true)}
         onMouseLeave={() => setShowDetail(false)}
       >
