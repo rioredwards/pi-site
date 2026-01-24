@@ -285,7 +285,11 @@ export default function PhotoUpload({ addPhoto }: Props) {
     const resizedImg = await reduceFileSize(croppedFile, MAX_FILE_SIZE, MAX_WIDTH, MAX_HEIGHT, QUALITY);
     const formData = new FormData();
     formData.append("file", resizedImg);
+    devLog("[photo-upload] startTime:", Date.now());
     const res = await uploadPhoto(formData);
+    devLog("[photo-upload] endTime:", Date.now());
+    devLog("[photo-upload] elapsedTime:", Date.now() - startTime);
+
     devLog("[photo-upload] upload response:", res);
 
     const elapsedTime = Date.now() - startTime;

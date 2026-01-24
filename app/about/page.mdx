@@ -6,6 +6,8 @@ import LinkedIn from "@/components/svg/LinkedIn";
 import YouTube from "@/components/svg/YouTube";
 import RaspberryPi from "@/components/svg/RaspberryPi";
 import { RotatingGradientBorder } from "@/components/ui/RotatingGradientBorder";
+import { ImageWithCaption } from "@/components/image-with-caption";
+import { VideoWithCaption } from "@/components/video-with-caption";
 
 export const metadata = {
   title: "About",
@@ -16,7 +18,7 @@ export const metadata = {
 
 <div className="not-prose mb-12 flex flex-col items-center text-center">
   <Image
-    src="/myImages/Rio-With-Pups.jpg"
+    src="/images/Rio-With-Pups.jpg"
     alt="Rio with dogs"
     width={240}
     height={240}
@@ -33,7 +35,7 @@ export const metadata = {
 ## What is this?
 
 <Image
-  src="/myImages/My-Pi.jpeg"
+  src="/images/My-Pi.jpeg"
   alt="A Raspberry Pi"
   width={300}
   height={225}
@@ -64,14 +66,15 @@ In the process, I learned about networking, Linux, process management, Docker, D
 
 ---
 
-## The Setup (for beginners)
+## The Setup (non-technical)
 
-<Image
-  src="/myImages/Tech-For-Dummies.jpg"
+<ImageWithCaption
+  src="/images/Tech-For-Dummies.jpg"
   alt="My Raspberry Pi setup"
   width={600}
   height={400}
   className="w-full"
+  caption="My Raspberry Pi setup with all the essentials"
 />
 
 The internet is essentially just computers talking to each other over cables and Wi-Fi.
@@ -100,10 +103,10 @@ Want a deeper dive? Check out my article: [What is the Backend?](https://medium.
 
 ---
 
-## The Setup (for techies)
+## The Setup (technical)
 
 <Image
-  src="/myImages/Tech-Stack.jpg"
+  src="/images/Tech-Stack.jpg"
   alt="My Raspberry Pi setup"
   width={600}
   height={400}
@@ -177,6 +180,14 @@ This was surprisingly smooth. I used:
 
 The service runs on a **FastAPI** server with one endpoint. It receives an image and returns `isDog` and `isNSFW` booleans. I tested it with existing site images—everything passed.
 
+Fun fact: the validation process is actually much faster than it appears (~200ms). The "dogBot is processing your dog..." screen is just for show.
+
+<VideoWithCaption
+  src="/videos/DogBot-Demo.mp4"
+  caption="Hammers are not dogs. Good to know!"
+  className="w-full rounded-lg"
+/>
+
 ---
 
 ### Docker Woes & Wins
@@ -207,11 +218,19 @@ There’s even a mock mode using generator functions and sample data for local d
 
 I connect to the Pi using:
 
-- **SSH**
-- **Raspberry Pi Connect**
-- A keyboard + mouse + TV (for direct access)
+- **SSH** usually
+- **Raspberry Pi Connect** if I'm not home
+- A keyboard + mouse + Monitor/TV (for fun)
 
 Only one is necessary, but it was fun trying them all.
+
+<Image
+  src="/images/The-Setup-OG.jpeg"
+  alt="My Raspberry Pi setup"
+  width={600}
+  height={400}
+  className="w-full"
+/>
 
 ---
 
