@@ -42,8 +42,6 @@ export function PhotoGrid({ photos, columns = 3, className, enableLightbox = fal
 
   const priorityIdxs = getPriorityIdxs();
 
-  console.log("priorityIdxs", priorityIdxs);
-
   return (
     <div className={cn("grid gap-3", columnClasses[columns], className)}>
       {photos.map((photo, index) => (
