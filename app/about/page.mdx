@@ -1,13 +1,15 @@
-import Link from "next/link";
+import { LightboxImage } from "@/components/lightbox-image";
+import { LightboxVideo } from "@/components/lightbox-video";
 import BlueSky from "@/components/svg/Bluesky";
 import GitHub from "@/components/svg/GitHub";
 import LinkedIn from "@/components/svg/LinkedIn";
-import YouTube from "@/components/svg/YouTube";
 import RaspberryPi from "@/components/svg/RaspberryPi";
+import YouTube from "@/components/svg/YouTube";
 import { RotatingGradientBorder } from "@/components/ui/RotatingGradientBorder";
-import { LightboxImage } from "@/components/lightbox-image";
-import { LightboxVideo } from "@/components/lightbox-video";
+import Link from "next/link";
 
+import ImgFzfCmd from "@/public/images/fzf-cmd.jpg";
+import ImgLogoProg from "@/public/images/Logo-Prog.jpg";
 import ImgMeWithPups from "@/public/images/Me-With-Pups.jpeg";
 import ImgMyPi from "@/public/images/My-Pi.jpeg";
 import ImgTechForDummies from "@/public/images/Tech-For-Dummies.jpeg";
@@ -15,8 +17,6 @@ import ImgTechStack from "@/public/images/Tech-Stack.jpeg";
 import ImgTheSetupOg from "@/public/images/The-Setup-OG.jpeg";
 import ImgPi3D from "@/public/pi/pi.png";
 import ImgPiDepth from "@/public/pi/pi_depth.png";
-import ImgFzfCmd from "@/public/images/fzf-cmd.jpg";
-import ImgLogoProg from "@/public/images/Logo-Prog.jpg";
 
 export const metadata = {
   title: "About",
@@ -149,7 +149,7 @@ They exchange data using IP addresses, URLs, and something called DNS—often re
 
 For this project, I took my existing domain, `rioedwards.com`, and created a subdomain: `pi.rioedwards.com`, which I pointed to my Raspberry Pi. Now anyone can visit that subdomain and land on this site!
 
-This is all facilitated by DNS providers (like [Cloudflare](https://www.cloudflare.com/)), who have servers all over the world for directing traffic. Your computer asks your router for `pi.rioredwards.com`, which eventually reaches Cloudflare, and they route the request to my Raspberry Pi.
+This is all facilitated by DNS providers (like [Cloudflare](https://www.cloudflare.com/)), who have servers all over the world for directing traffic. Your computer asks your router for `pi.rioedwards.com`, which eventually reaches Cloudflare, and they route the request to my Raspberry Pi.
 
 ### What is a server?
 
