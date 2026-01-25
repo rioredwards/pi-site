@@ -25,7 +25,6 @@ export function HeaderSection({
           <FreshnessStatusPill
             connected={connected}
             effective={effective}
-            label="Status"
           />
         </div>
 

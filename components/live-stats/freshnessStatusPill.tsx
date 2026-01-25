@@ -6,11 +6,9 @@ import { StatusPill } from "./status-pill";
 export function FreshnessStatusPill({
   connected,
   effective,
-  label,
 }: {
   connected: boolean;
   effective: CombinedStats | null;
-  label: string;
 }) {
   const [now, setNow] = useState(() => Date.now());
 
@@ -24,6 +22,15 @@ export function FreshnessStatusPill({
     return lastUpdatedMs ? getAgeSeconds(lastUpdatedMs, now) : null;
   }, [now, effective]);
   const freshnessTone = getFreshnessTone(connected, ageSeconds ?? 0);
+
+  const label =
+    freshnessTone === "good"
+      ? "LIVE"
+      : freshnessTone === "warn"
+        ? "LIVE (lagging)"
+        : freshnessTone === "bad"
+          ? "OFFLINE / STALE"
+          : "LIVE"
 
   return (
     <StatusPill
