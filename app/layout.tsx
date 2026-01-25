@@ -28,20 +28,11 @@ export const metadata: Metadata = {
     siteName: "DogTown",
     title: "DogTown",
     description: "A community gallery for sharing photos of our favorite dogs.",
-    images: [
-      {
-        url: "/logo.png",
-        width: 512,
-        height: 512,
-        alt: "DogTown Logo",
-      },
-    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "DogTown",
     description: "A community gallery for sharing photos of our favorite dogs.",
-    images: ["/logo.png"],
   },
   robots: {
     index: true,

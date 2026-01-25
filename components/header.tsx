@@ -34,6 +34,7 @@ export default function Header() {
               width={40}
               height={40}
               className="rounded-lg"
+              priority
             />
             <span className="text-sm font-semibold">DogTown</span>
           </Link>

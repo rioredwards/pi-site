@@ -12,6 +12,15 @@ interface PhotoGridProps {
   enableLightbox?: boolean
 }
 
+function getPriorityIdxs(): number[] | undefined {
+  if (typeof window === "undefined") return;
+  const windowWidth = window.innerWidth;
+  if (windowWidth < 768) return [0];
+  if (windowWidth < 1024) return [0, 1, 2, 3];
+  return [0, 1, 2, 3, 4, 5];
+}
+
+
 export function PhotoGrid({ photos, columns = 3, className, enableLightbox = false }: PhotoGridProps) {
   const { openGallery } = useLightbox()
 
@@ -31,6 +40,10 @@ export function PhotoGrid({ photos, columns = 3, className, enableLightbox = fal
     openGallery(slides, index)
   }
 
+  const priorityIdxs = getPriorityIdxs();
+
+  console.log("priorityIdxs", priorityIdxs);
+
   return (
     <div className={cn("grid gap-3", columnClasses[columns], className)}>
       {photos.map((photo, index) => (
@@ -38,6 +51,7 @@ export function PhotoGrid({ photos, columns = 3, className, enableLightbox = fal
           key={photo.id}
           {...photo}
           showLightbox={enableLightbox ? () => showLightbox(index) : undefined}
+          priority={priorityIdxs?.includes(index) || false}
         />
       ))}
     </div>
