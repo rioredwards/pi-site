@@ -58,6 +58,7 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
   manifest: "/manifest.json",
+  themeColor: "#09090b",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

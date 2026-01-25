@@ -4,11 +4,23 @@
   "description": "Finally, a place on the internet for dogs.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#09090b",
-  "theme_color": "#09090b",
+  "background_color": "#0A0A0A",
+  "theme_color": "#F59145",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/logo-256.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
