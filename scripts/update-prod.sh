@@ -42,6 +42,12 @@ log "Pulling latest changes..."
 git -C "$APP_DIR" fetch origin "$BRANCH"
 git -C "$APP_DIR" merge --ff-only "origin/$BRANCH"
 
+# Update nginx config if changed
+log "Updating nginx config..."
+sudo cp "${APP_DIR}/nginx/pi-site.conf"
+/etc/nginx/sites-available/pi-site
+sudo nginx -t && sudo systemctl reload nginx
+
 cd "$APP_DIR"
 
 # Determine which services to build
