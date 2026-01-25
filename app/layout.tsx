@@ -4,13 +4,18 @@ import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
-// import { Inter } from "next/font/google";
-import { Geist_Mono, Nunito } from 'next/font/google';
+import { Comfortaa, Inter } from 'next/font/google';
 import "./globals.css";
 
-const _nunito = Nunito({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
-// const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
+
+const comfortaa = Comfortaa({
+  subsets: ["latin"],
+  variable: "--font-comfortaa",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
@@ -47,10 +52,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${comfortaa.variable} scroll-smooth antialiased`} suppressHydrationWarning>
       <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
       <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1.0"></meta>
-      <body className={`font-sans antialiased flex min-h-screen flex-col`}>
+      <body className="font-sans flex min-h-screen flex-col">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
