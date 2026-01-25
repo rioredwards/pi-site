@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     default: "DogTown",
     template: "%s | DogTown",
   },
-  description: "A community gallery for sharing photos of our favorite dogs. Upload, browse, and celebrate the goodest boys and girls.",
+  description: "Finally, a place on the internet for dogs.",
   keywords: ["dogs", "dog photos", "pet gallery", "dog community"],
   authors: [{ name: "Rio Edwards" }],
   creator: "Rio Edwards",
@@ -33,12 +33,21 @@ export const metadata: Metadata = {
     locale: "en_US",
     siteName: "DogTown",
     title: "DogTown",
-    description: "A community gallery for sharing photos of our favorite dogs.",
+    description: "Finally, a place on the internet for dogs.",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Finally, a place on the internet for dogs.",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "DogTown",
-    description: "A community gallery for sharing photos of our favorite dogs.",
+    description: "Finally, a place on the internet for dogs.",
+    images: ["/opengraph-image"],
   },
   robots: {
     index: true,
