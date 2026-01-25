@@ -85,6 +85,28 @@ services:
           cpus: '0.25'
           memory: 256M
 
+  umami:
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/umami
+      APP_SECRET: ${UMAMI_APP_SECRET}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
 volumes:
   postgres_data:
     name: pi_site_prod_data

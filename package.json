@@ -24,7 +24,8 @@
     "db:studio": "drizzle-kit studio",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
     "@hugeicons/core-free-icons": "^3.1.1",
@@ -68,6 +69,7 @@
     "yet-another-react-lightbox": "^3.28.0"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.1.4",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/culori": "^4.0.1",
     "@types/lodash.shuffle": "^4.2.9",

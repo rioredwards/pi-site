@@ -41,3 +41,11 @@ services:
       retries: 10
     labels:
       - "com.rioredwards.stack=pi-site"
+
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    depends_on:
+      db:
+        condition: service_healthy
+    labels:
+      - "com.rioredwards.stack=pi-site"

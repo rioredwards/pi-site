@@ -1,7 +1,12 @@
+import bundleAnalyzer from "@next/bundle-analyzer";
 import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
 import remarkGfm from "remark-gfm";
 // import path from 'path';
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
@@ -76,4 +81,4 @@ const withMDX = createMDX({
 });
 
 // Merge MDX config with Next.js config
-export default withMDX(nextConfig);
+export default withBundleAnalyzer(withMDX(nextConfig));
