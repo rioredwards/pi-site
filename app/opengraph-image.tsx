@@ -31,7 +31,7 @@ export default async function Image() {
         <div
           style={{
             fontSize: 80,
-            fontFamily: 'Fredoka One',
+            fontFamily: 'Comfortaa',
             color: '#3d2814',
             marginBottom: 16,
           }}
