@@ -106,9 +106,9 @@ Over the holidays, my sister gifted me a **Raspberry Pi** <RaspberryPi className
 
 If you're unfamiliar, a Raspberry Pi is a credit-card-sized computer. Unlike traditional machines, it doesn't include a screen, keyboard, or even a case-just the bare essentials. The main selling point of my model? [It has a power button 🤯🤯🤯](https://www.raspberrypi.com/products/raspberry-pi-5/#:~:text=That%E2%80%99s%20not%20all-,Power%20button,-Dual%204Kp60).
 
-So, why would you want one? Raspberry Pis are fantastic for DIY projects and experimentation. You can create robots, smart home devices, or even host a website. Which is exactly what I did.
+So, why would you want one? Raspberry Pis are perfect for DIY projects. You can build robots, smart home devices, or even host your own website—like I did.
 
-After some late-night coding sessions and linux rabbit holes, I launched my first **self-hosted website**.
+After some late-night coding and falling down a few Linux rabbit holes, I launched my first **self-hosted website**.
 
 Naturally, the theme is **dog photos**. Because dogs are awesome. 🐶
 
@@ -118,11 +118,13 @@ Naturally, the theme is **dog photos**. Because dogs are awesome. 🐶
 
 ## Inspiration
 
-I've always relied on cloud services like Vercel and Netlify to host my projects. They're fast, reliable, and super easy to use. But, I have this desire to understand how the internet works on a deeper level. What's going on behind the scenes? How do servers really work?
+I've always leaned on services like Vercel and Netlify to host my projects. They're fast, reliable, and super easy to use.
 
-So for this project, I challenged myself to dive deep into the world of self-hosting. It seemed like a great way to fill some knowledge gaps, and get hands-on with my new Raspberry Pi.
+But I've had this nagging curiosity to understand how the internet actually works. What's really happening behind the scenes? What does it take to manage a server?
 
-In the process, I learned a lot about networking, Linux, process management, Docker, DevOps, security, and more.
+So I challenged myself to dive into the world of self-hosting. It felt like the perfect opportunity to fill in some knowledge gaps—and get hands-on with my new Raspberry Pi.
+
+Along the way, I learned a ton about networking, Linux, process management, Docker, DevOps, security, and more.
 
 ---
 
@@ -141,21 +143,21 @@ In the process, I learned a lot about networking, Linux, process management, Doc
 
 ### Networking 101
 
-The internet is essentially just computers talking to each other over cables and Wi-Fi.
+The internet is basically just computers talking to each other over cables and Wi-Fi.
 
-They send data back and forth using IP addresses, URLs, and something called DNS (Domain Name System)—often referred to as the internet's "phone book."
+They exchange data using IP addresses, URLs, and something called DNS—often referred to as the internet's "phone book."
 
-For this project, I took a domain that I already owned, `rioredwards.com` and created a subdomain, `pi.rioredwards.com`, which I then pointed at my Raspberry Pi. Now anyone can visit `pi.rioredwards.com` and see this site!
+For this project, I took my existing domain, `rioedwards.com`, and created a subdomain: `pi.rioedwards.com`, which I pointed to my Raspberry Pi. Now anyone can visit that subdomain and land on this site!
 
-This is all facilitated by DNS providers (like [Cloudflare](https://www.cloudflare.com/)), who have servers all over the world for directing traffic (resolving domain names into IP addresses). So your computer asks your router for `pi.rioredwards.com` and that request eventually reaches Cloudflare's servers who direct it to my Raspberry Pi!
+This is all facilitated by DNS providers (like [Cloudflare](https://www.cloudflare.com/)), who have servers all over the world for directing traffic. Your computer asks your router for `pi.rioredwards.com`, which eventually reaches Cloudflare, and they route the request to my Raspberry Pi.
 
 ### What is a server?
 
-In simple terms, there are two kinds of computers online: **clients** and **servers**. Your computer (the client) sends requests to mine (the server).
+In simple terms, the internet has two types of computers: **clients** and **servers**. Your computer (the client) sends requests to mine (the server).
 
-As the client, you are using your **web-browser** to "browse" the web. That's your touchpoint with the internet. Your browser does all the heavy lifting, sending requests to servers and displaying the results.
+Your browser is your interface to the internet. It sends requests to servers and displays the responses.
 
-My Pi is running a **web-server**. That's it's touchpoint. A web-server is just some software that runs in the background, listening for requests and responding with stuff like code and images. That code and those images are carefully crafted by me, the developer, to run in your browser and create all the things you're seeing here.
+My Pi runs a **web-server**, which allows it to respond to those requests. It responds with code (and images of dogs) which your browser uses to create the page you're seeing here.
 
 ### Tying it all together
 
@@ -163,16 +165,16 @@ To make this site work, I had to:
 
 - Build the **frontend**—code that runs in your browser
 - Build the **backend**—code that runs on my Pi
-- Configure the domain and networking
-- Figure out why my Pi kept disconnecting from the internet 🫠
+- Set up the domain and networking
+- Figure out why my Pi kept disconnecting 🫠
 
-There's a fair bit more going on behind the scenes—like a database, an AI-powered DogBot, and a system profiler—but we'll get into that next. That's all just software I wrote which runs on my Pi.
+There's more going on behind the scenes—like a database, an AI-powered DogBot, and a system profiler—but we'll get into that next..
 
 ### Bonus: What makes a computer a server?
 
-Any computer can be a server—even yours! All it takes is downloading some free server software like [nginx](https://nginx.org/) or [Apache](https://httpd.apache.org/) and turning it on.
+Any computer can be a server—even yours! All it takes is downloading some (free) server software like [nginx](https://nginx.org/) or [Apache](https://httpd.apache.org/) and turning it on.
 
-That said, to make it accessible from the internet, you'd need to configure your router or use a service like Cloudflare Tunnels. And if you make a mistake, you might break the whole internet and get in huge trouble.
+To expose it to the internet, you'd need to configure your router or use a service like Cloudflare Tunnels, like I did. But be careful! If you make a mistake, you might break the whole internet and get in big trouble.
 
 Want a deeper dive? Check out my article: [What is the Backend?](https://medium.com/@rioedwards/what-is-the-backend-ffd808ff950e).
 
@@ -202,17 +204,17 @@ Want a deeper dive? Check out my article: [What is the Backend?](https://medium.
 | AI Validation   | Python, FastAPI, OpenNSFW, PyTorch                                             |
 | System Profiler | Hono, TypeScript, Node.js                                                      |
 
-Was this overengineered? Probably. But my goal was to **learn** stuff, not just ship.
+Was this overengineered? Probably. But my goal was to **learn**, not just ship.
 
 ### Phase 1
 
-I began with [this tutorial](https://www.youtube.com/watch?v=Vp4glSVPT8o), which got me a basic fullstack [Next.js](https://nextjs.org/) app running on the Pi, with traffic routed through a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/). That was a big win right away, so I just kept going.
+I started with [this tutorial](https://www.youtube.com/watch?v=Vp4glSVPT8o), which got me a basic fullstack [Next.js](https://nextjs.org/) app running on the Pi, with traffic routed through a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/). That was an easy win, which gave me a lot of confidence to keep going.
 
-Initially, the app didn't have a database, authentication, or any of that fancy stuff. I was just adding features as I went along without any real plan.
+At first, there was no database, authentication, or any of that fancy stuff. I was just kind of winging it and adding features as I went along.
 
-I started off just using Node.js and the filesystem for storing photos and saving metadata as json files. I also setup a simple UUID tagging system as a basic way to identify photos and users.
+I stored photos and metadata as raw files using Node.js. I also setup a simple UUID tagging system for identifying users and images.
 
-I built it over the holidays and had it connected to the TV, so my family could upload their dog photos and see them on the screen.
+I started building it over the holidays and had it connected to the TV, so my family could upload dog photos and see them on screen.
 
 <div className="not-prose">
   <LightboxImage
@@ -247,39 +249,41 @@ Highlights from Phase 1:
     <span className="px-2 bg-background rounded-full">Glowing Gradient Border</span>
   </RotatingGradientBorder>
   <span className="inline">{". "}Might release it as an npm package someday.</span>
-- I wrote a Bash script to update the app and restart the server. This was my first step into DevOps for this project.
+- I wrote a Bash script for auto-updating the app and restarting the server. This was my first step into DevOps for this project.
 
-- I built a browser-based image compression/conversion service to deal with large images and HEIC images. As it turns out all iPhone images are HEIC, and there's essentially [no browser support for them](https://caniuse.com/?search=heif).
+- I built a browser-based image compression/conversion service to deal with large images and the HEIC file format, which is the default for iPhone images. As it turns out, there's essentially [no browser support for them 🤔](https://caniuse.com/?search=heif).
 
 ### Phase 2
 
 After a long break, I came back with a fresh perspective and lots of ideas. First step: upgrade the stack.
 
+Improvements:
+
 - Switched to [SQLite](https://sqlite.org/) and [Prisma](https://www.prisma.io/)
 - Added [NextAuth](https://next-auth.js.org/) for authentication
-- Identified a few major issues:
+- Identified key issues:
   1. Server instability
-  2. Clunky deployment
-  3. No moderation for uploads
+  2. Clunky deployments
+  3. No image moderation
 
-To fix them, I:
+To fix the issues, I:
 
 1. Replaced `nohup` with [**PM2**](https://pm2.keymetrics.io/) for process management
-2. Set up a [**GitHub Actions**](https://docs.github.com/en/actions) workflow for auto-deployments
+2. Set up a [**GitHub Actions**](https://docs.github.com/en/actions) workflow for CI/CD
 3. Created **DogBot**, an AI image validator
 4. [**Dockerized**](https://www.docker.com/) everything
 5. Rebuilt the `/stats` page as a dedicated microservice
 
-#### AI Image Validation (DogBot)
+#### DogBot - AI Image Validation
 
-Adding this feature was surprisingly simple. I used:
+DogBot runs as a middleware service, which verifies that all uploaded images are "SFW" and contain dogs.
+
+Built using:
 
 - [**OpenNSFW**](https://github.com/bhky/opennsfw2?tab=readme-ov-file) for detecting inappropriate content
-- [**PyTorch/TorchVision**](https://docs.pytorch.org/vision/stable/index.html) for verifying dog images
+- [**PyTorch/TorchVision**](https://docs.pytorch.org/vision/stable/index.html) for verifying images contain dogs
 
-The service runs on a [**FastAPI**](https://fastapi.tiangolo.com/) server with a single endpoint. It receives an image and returns `isDog` and `isNSFW` scores as weights and booleans. I built it out in isolation first, then integrated it into this here app.
-
-Fun fact: the validation process is actually much faster than it appears (~200ms). The "DogBot is processing your dog..." screen is just for show.
+It runs on a [**FastAPI**](https://fastapi.tiangolo.com/) server, processing images and returning `isDog` and `isNSFW` scores as weights and booleans.
 
 <LightboxVideo
   src="/videos/DogBot-Demo.mp4#t=0.001"
@@ -292,9 +296,9 @@ Fun fact: the validation process is actually much faster than it appears (~200ms
 
 #### Docker Woes & Wins
 
-Setting up docker was a challenge. I thought it was supposed to make my life easier?!?! Well, turns out I was just doing it wrong. For example, I was rebuilding the images for DogBot on every build, which was obviously super slow because of the ai models... 🤦‍♂️
+Docker makes things easier, but only if you know what you're doing 😅.
 
-You live and you learn. I probably spent more time learning about docker and docker-compose than anything else in this project, which is a good thing. It even spawned another side-project: a cli-tool for quickly casting commands from your history. Check it out [here](https://github.com/rioredwards/fz-cmd). (Still a WIP)
+I spent more time learning Docker/Docker Compose than anything else in this project. It was worth it though. I learned a lot, and the process even inspired a [side project](https://github.com/rioedwards/fz-cmd): a CLI utility for quickly casting commands from your history.
 
 <div className="not-prose">
   <LightboxImage
@@ -302,7 +306,7 @@ You live and you learn. I probably spent more time learning about docker and doc
     alt="fz-cmd"
     caption={
       <div>
-        <Link href="https://github.com/rioredwards/fz-cmd" className="text-primary" target="_blank">
+        <Link href="https://github.com/rioedwards/fz-cmd" className="text-primary" target="_blank">
           fz-cmd
         </Link>
         , built with{" "}
@@ -334,7 +338,9 @@ You live and you learn. I probably spent more time learning about docker and doc
 
 ### Phase 3
 
-Along the way, I discovered this tutorial from Lee Rob on [self-hosting Next.js apps](https://www.youtube.com/watch?v=sIVL4JMqRfc) which was a great resource. I followed it closely, and once I had it working, I rebuilt my app using his setup, reintegrating my features one by one. Along the way, I switched:
+Along the way, I discovered this tutorial from Lee Rob on [self-hosting Next.js apps](https://www.youtube.com/watch?v=sIVL4JMqRfc) which was a great resource. I followed it closely, and once I had it working, I rebuilt my app using his setup, reintegrating my features one by one.
+
+Upgrades:
 
 - Prisma ➡️ [Drizzle](https://orm.drizzle.team/)
 - SQLite ➡️ [PostgreSQL](https://www.postgresql.org/)
@@ -342,23 +348,25 @@ Along the way, I discovered this tutorial from Lee Rob on [self-hosting Next.js 
 
 #### System Profiler Service
 
-I had a super basic `/stats` page from the very start of the project, and I decided to turn it into a fully-fledged system-profiler service with a dashboard for monitoring the health of the host server and all the containers in real-time. It was pretty ambitious and somewhat unrelated to the rest of the app, but again, my goal was to learn, not make a marketable product.
+This started as a simple `/stats` page, but eventually evolved into a fully-fledged system-profiler, with a dashboard for monitoring the health of the host server and all the containers in real-time.
 
 - Built using **Hono**, **TypeScript**, and **Node.js**
-- Uses the Linux filesystem (`/proc`, `/sys`) and Docker socket for metrics
-- Data is sent to the Next.js backend and streamed to the frontend via **Server-Sent Events (SSE)**.
+- Gathers metrics from the host's filesystem (`/proc`, `/sys`) and Docker socket
+- Fetched from the Next.js backend and streamed to the frontend via **Server-Sent Events (SSE)**.
 - All requests are authenticated with a token to keep it secure.
-- The dashboard uses [ReCharts](https://recharts.github.io/) for the charts.
+- The dashboard uses [ReCharts](https://recharts.github.io/)
 
 #### 3D Model using a Depth Map
 
 This was inspired by a [video by Wes Bos & SyntaxFM](https://www.youtube.com/watch?v=HzL65tTeANs&t=70s).
 
-I created a 3D depth map using a combination of [MiDaS](https://github.com/isl-org/MiDaS), [Dalle-3](https://openai.com/dall-e-3/) and Figma. MiDaS generated the original depth map, then Dalle-3 made a more textured version which I composited with the MiDaS image. Then I touched them up in [Figma](https://www.figma.com/) and exported as a PNG. It has to be just right, so I wrote a helper script for generating them and viewing the results in realtime. It's in my commit history if you're interested (e721cbe).
+I created a 3D depth map using a combination of [MiDaS](https://github.com/isl-org/MiDaS), [Dalle-3](https://openai.com/dall-e-3/) and Figma. MiDaS generated the original depth map, then Dalle-3 made a more textured version which I composited with the MiDaS image. Then I touched them up in [Figma](https://www.figma.com/) and exported the result as a PNG. Finally, they get fed into [Three.js](https://threejs.org/) to create the 3D effect.
 
-The last step was feeding them into [Three.js](https://threejs.org/) to create the 3D effect. Basically, the lightness of the pixels in the depth map correspond to the "closeness" of that area to the camera and how much the the corresponding pixels in the source image are displaced when rotated.
+I wrote a helper script for generating these depth maps and viewing the results in realtime. It's in my commit history if you're interested (e721cbe).
 
-<div className="not-prose">
+It works by using the lightness of the pixels in the depth map to determine how much the corresponding pixels in the source image are displaced when rotated.
+
+<div className="not-prose flex flex-col gap-4 md:flex-row">
   <LightboxImage
     src={ImgPi3D}
     alt="2D image of a Raspberry Pi"
@@ -367,9 +375,6 @@ The last step was feeding them into [Three.js](https://threejs.org/) to create t
     gallery={aboutGallery}
     galleryIndex={6}
   />
-</div>
-
-<div className="not-prose">
   <LightboxImage
     src={ImgPiDepth}
     alt="Depth map generated using MiDaS"
@@ -382,19 +387,19 @@ The last step was feeding them into [Three.js](https://threejs.org/) to create t
 
 ### Phase 4
 
-At this point, the app was feature-complete, so all I had to do was add some more features! 🤷‍♂️
+At this point, it was “feature-complete.” So naturally, I added more features. 🤷‍♂️
 
-#### MDX
+#### MDX Support
 
-I added support for [MDX](https://mdxjs.com/) files, which allowed me to write this /about page in markdown, but still use react components when I needed to. I used another tutorial from Lee Rob, [MDX with Next.js App Router](https://www.youtube.com/watch?v=34bRv6cQezo), to help me set it up. This was my first time using MDX, and I'm in love! Definitely going to use it on more projects in the future.
+This was my first time using [MDX](https://mdxjs.com/), and I'm in love! I can write markdown and still embed React components.
 
 #### Yet Another React Lightbox
 
-I used [Yet Another React Lightbox](https://yet-another-react-lightbox.com/) for the fullscreen image and video previews. It's great! I integrated it to use Next.js Images which come with extra features for optimizing images for the web.
+I used [Yet Another React Lightbox](https://yet-another-react-lightbox.com/) for the fullscreen image and video previews. It's great!
 
 #### The Logo
 
-As with most of my projects, I designed the DogTown logo using Figma. I really love creating logos and giving my projects some personality.
+As with most of my projects, I designed the DogTown logo using Figma. I love giving my projects some personality.
 
 <div className="not-prose">
   <LightboxImage
@@ -409,38 +414,21 @@ As with most of my projects, I designed the DogTown logo using Figma. I really l
 
 #### I almost forgot
 
-While writing this page, I realized I kind of skipped over any mention of my experience with the core tech: Next.js, React, Tailwind, and ShadCN. Basically, these have been my daily drivers for a while now, so I didn't feel the need to talk about them. They're great, as always, thanks for asking!
+I didn't mention much about core tech like React, Next.js, Tailwind, and ShadCN. I use them on the daily so I didn't feel the need to talk about them.
 
-One new thing that I tried here was using [V0](https://v0.dev/) to generate a component library for a "dog themed" app and then selectively pulling out comopnents and styles that I liked. It's a great way to get some fresh design ideas. For example, that's what inspired the navbar design.
+There is one new technique I found for building UI's. [V0](https://v0.dev/)! I used it to generate a dog-themed UI component library and cherry-picked design ideas.
 
 ---
 
 ## Final Thoughts
 
-I learned a ton from this project. I got to try a lot of technologies that I'd never used before, and dive deep into some others. I went through multiple iterations of the app with different tech stacks, and I think I arrived on a stack that I'd be happy using for future projects. I've never been one to use "starter templates" for my projects, but I think this could be a good one.
+I learned a lot from this project. I deepened my knowlege of Docker, DevOps, Linux, bash scripting, networking and more. And these are skills that I'll benefit from for the rest of my career. Unless AI takes over... 🤔
 
-### Wishlist
+Okay, now now that I mentioned it, I feel like I have to share my perspective on AI... I'll keep it brief:
 
-Here's what I'd like to add if I had unlimited time:
+> I can't imagine a world where knowledge, skills, and experience aren't valuable.
 
-- More CRUD operations: to make it more of a full-featured app.
-- Better type safety: with [Zod](https://zod.dev/). There's a [video by CJ at SyntaxFM](https://www.youtube.com/watch?v=sYZW8TK2IV4), where he shows off a super clean Hono/Zod setup.
-- Dev Container: because I've come a long way with Docker.
-- Better charts: the ReCharts library I used is great, but I don't love the way they animate when they receive new data.
-
-p.s. I know the whole "\_\_ for dogs" idea has been done a thousand times, but idc. I'll make dog-themed apps until they stop bringing me joy!
-
----
-
-## Connecting to the Pi
-
-I connect to the Pi using:
-
-- **SSH** usually
-- **Raspberry Pi Connect** if I'm not home
-- A keyboard + mouse + Monitor/TV (for fun)
-
-Only one is necessary, but it was fun trying them all.
+That's all. Thanks for reading! ❤️
 
 ---
 
@@ -452,13 +440,13 @@ Feel free to reach out if you have questions, feedback, or just want to chat!
   <Link href="https://www.linkedin.com/in/rio-edwards/" aria-label="LinkedIn">
     <LinkedIn className="w-8 text-foreground/70 transition-colors hover:text-foreground" />
   </Link>
-  <Link href="https://bsky.app/profile/rioredwards.bsky.social" aria-label="Bluesky">
+  <Link href="https://bsky.app/profile/rioedwards.bsky.social" aria-label="Bluesky">
     <BlueSky className="w-8 text-foreground/70 transition-colors hover:text-foreground" />
   </Link>
   <Link href="https://www.youtube.com/channel/UCZdVYjS_Os_4e7DZAZSRxBQ" aria-label="YouTube">
     <YouTube className="w-8 text-foreground/70 transition-colors hover:text-foreground" />
   </Link>
-  <Link href="https://github.com/rioredwards/" aria-label="GitHub">
+  <Link href="https://github.com/rioedwards/" aria-label="GitHub">
     <GitHub className="w-8 text-foreground/70 transition-colors hover:text-foreground" />
   </Link>
 </div>
