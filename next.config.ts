@@ -1,12 +1,7 @@
-import bundleAnalyzer from "@next/bundle-analyzer";
 import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
 import remarkGfm from "remark-gfm";
 // import path from 'path';
-
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === "true",
-});
 
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
@@ -76,9 +71,18 @@ const nextConfig: NextConfig = {
 const withMDX = createMDX({
   options: {
     remarkPlugins: [remarkGfm],
-    // rehypePlugins: [],
   },
 });
 
-// Merge MDX config with Next.js config
-export default withBundleAnalyzer(withMDX(nextConfig));
+// Optionally wrap with bundle analyzer (only when ANALYZE=true)
+let config = withMDX(nextConfig);
+
+if (process.env.ANALYZE === "true") {
+  // Dynamic import to avoid requiring the package in production
+  const withBundleAnalyzer = require("@next/bundle-analyzer")({
+    enabled: true,
+  });
+  config = withBundleAnalyzer(config);
+}
+
+export default config;

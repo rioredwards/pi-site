@@ -54,5 +54,15 @@ services:
     ports:
       - '8000:8000'
 
+  umami:
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/umami
+      APP_SECRET: dev-secret-change-in-prod
+      TZ: America/Los_Angeles
+    env_file:
+      - .env.local
+
 volumes:
   postgres_data_dev:

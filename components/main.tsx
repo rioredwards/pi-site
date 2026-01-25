@@ -37,7 +37,6 @@ export function Main() {
     async function fetchPhotos() {
       setIsLoading(true);
       const response = await getPhotos();
-      // console.log("response", response);
       if (response.data) {
         const shuffledPhotos = shuffle(response.data);
         setPhotos(shuffledPhotos);
