@@ -33,6 +33,8 @@ export function PhotoGrid({ photos, columns = 3, className, enableLightbox = fal
   const slides: LightboxSlide[] = photos.map((photo) => ({
     src: photo.src,
     alt: photo.alt,
+    width: 1000,
+    height: 1000,
     description: `Uploaded by ${photo.ownerDisplayName || "Anonymous"}`,
   }))
 
