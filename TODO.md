@@ -28,9 +28,9 @@
 - [x] Display user's posts on their profile page
 - [x] Add profile links to dog cards for navigating to user profiles
 - [x] Allow users to delete their posts from their profile page
+- [x] Update docs (README, CLAUDE.md, verify DEPLOYMENT.md)
 
 ## In Progress 🚧
-- [ ] Update docs (readme and claude.md)
 - [ ] Remove any sensitive info from git history (e.g. I had some detailed info about the raspberry pi in the TODO.md file that may or may not have been sensitive)
 
 ## Backlog 📋

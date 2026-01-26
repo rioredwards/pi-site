@@ -20,15 +20,13 @@ npm update              # Update all packages
 ### Development Workflow
 
 ```bash
-# Start everything (services + Next.js dev server)
+# Start everything via Docker (Postgres, AI validator, system-profiler, Next.js)
 npm run dev
 
 # Or run separately:
-docker compose up -d     # Start services only (Postgres + AI validator)
+docker compose up -d     # Start services only
+npm run db:push          # Push database schema (first time or after schema changes)
 npm run dev:next         # Start Next.js dev server (http://localhost:3000)
-
-# Push database schema (first time or after schema changes)
-npm run db:push
 
 # Stop services
 npm run dev:stop
@@ -88,20 +86,37 @@ npm run start           # Start production server (uses standalone output)
 - **FastAPI**: Python service for AI-powered image validation (NSFW + dog detection)
 - **Tailwind CSS v4**: Styling with PostCSS
 - **TypeScript**: Strict mode enabled
+- **MDX**: Rich content pages (about page)
+- **Three.js**: 3D graphics (Raspberry Pi model on stats page)
+- **Umami**: Self-hosted analytics
 
 ### Project Structure
 
 ```
 app/
 ├── db/
-│   ├── schema.ts          # Drizzle schema definitions
+│   ├── schema.ts          # Drizzle schema (photos, users tables)
 │   ├── drizzle.ts         # Database client setup
-│   └── actions.ts         # Server actions for photo CRUD
-├── components/            # React components
+│   ├── actions.ts         # Server actions for photo/user CRUD
+│   └── migrations/        # SQL migration files
 ├── lib/                   # Utility functions and types
 ├── api/                   # API routes
-├── auth.ts               # NextAuth configuration
-└── [routes]/             # App Router pages
+├── profile/
+│   ├── [userId]/          # User profile page
+│   └── edit/              # Profile editing page
+├── stats/                 # System stats dashboard
+├── about/                 # About page (MDX)
+├── auth.ts                # NextAuth configuration
+└── page.tsx               # Home page (photo gallery)
+
+components/
+├── main.tsx               # Main gallery with infinite scroll
+├── photo-grid.tsx         # Grid layout for photos
+├── dog-card/              # Individual photo card component
+├── profile-photos-grid.tsx # Photo grid for profile pages
+├── lightbox/              # Full-screen photo viewer
+├── photo-upload.tsx       # Upload modal with AI validation
+└── ui/                    # Shared UI components
 
 ai-img-validator/              # FastAPI service for image validation
 docker-compose.yml             # Base configuration (shared)
@@ -110,13 +125,16 @@ docker-compose.staging.yml     # Staging overrides
 docker-compose.prod.yml        # Production overrides
 ```
 
-### Database Connection
+### Database Schema
+
+Schema is defined in `app/db/schema.ts` using Drizzle ORM:
+
+- **`photos`**: Dog photo records with UUID primary keys, user references, ordering
+- **`users`**: User profiles with OAuth-synced display names and profile pictures
 
 The app uses environment-based connection strings:
 
 - **`DATABASE_URL`**: Used when running inside Docker (points to `db` service)
-
-Schema is defined in `app/db/schema.ts` using Drizzle ORM. The main table is `photos` with UUID primary keys.
 
 ### Authentication System
 
@@ -125,6 +143,7 @@ NextAuth is configured in `app/auth.ts` with:
 - **Providers**: GitHub and Google OAuth
 - **Session Strategy**: JWT-based
 - **User IDs**: Format is `{provider}-{accountId}` (e.g., "github-123456")
+- **OAuth Profile Sync**: On sign-in, user's name and profile picture are automatically saved to the database from OAuth provider data
 - **Admin System**: Set `ADMIN_USER_IDS` env var with comma-separated provider-accountId values. Admins get userId "admin" and can delete any photo.
 
 ### Server Actions Pattern
@@ -136,6 +155,49 @@ export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; 
 ```
 
 All actions return `APIResponse<T>` for consistent error handling.
+
+Key actions:
+- `getPhotos(limit, offset)`: Paginated photo fetching for infinite scroll
+- `getPhotosByUserId(userId)`: Get all photos for a specific user (profile pages)
+- `uploadPhoto(formData)`: Upload with AI validation
+- `deletePhoto(id)`: Delete photo (owner or admin only)
+- `getUserProfile(userId)`: Get user profile data
+- `updateUserProfile(displayName)`: Update user's display name
+- `uploadProfilePicture(formData)`: Upload custom profile picture
+
+### User Profiles
+
+- **Profile Page** (`/profile/[userId]`): Displays user info and their uploaded photos
+- **Profile Edit** (`/profile/edit`): Allows users to update display name and profile picture
+- **Profile Links**: Dog cards in the gallery link to the uploader's profile
+
+### Photo Gallery
+
+The main gallery (`components/main.tsx`) features:
+
+- **Infinite Scroll**: Photos load progressively using Intersection Observer (12 photos per batch)
+- **Lightbox**: Click any photo to view full-screen with navigation (`components/lightbox/`)
+- **Profile Links**: User info panel links to uploader's profile page
+- **Delete**: Owners can delete their photos; admins can delete any photo
+
+### Stats Dashboard
+
+The `/stats` page (`app/stats/`) displays live system metrics:
+
+- **3D Raspberry Pi Model**: Interactive Three.js visualization with depth-map displacement
+- **Live Metrics**: CPU, memory, disk usage streamed via Server-Sent Events (SSE)
+- **Service Health**: Container status and health checks
+- **Charts**: ReCharts-powered visualizations
+
+Metrics are gathered by a separate system-profiler service that reads from `/proc`, `/sys`, and the Docker socket.
+
+### About Page
+
+The about page (`app/about/page.mdx`) uses MDX for rich content:
+
+- Embedded React components within markdown
+- Lightbox galleries for images and videos
+- Interactive elements (rotating gradient border, 3D model)
 
 ### AI Image Validation
 
@@ -194,6 +256,14 @@ NEXT_PUBLIC_SAFE_KEY=dev-public
 
 # Admin users (optional)
 ADMIN_USER_IDS=github-123456,google-789012
+
+# System Profiler (for /stats page)
+SYSTEM_PROFILER_BASE_URL=http://system-profiler:8787
+SYSTEM_PROFILER_AUTH_TOKEN=dev-token
+
+# Analytics (optional)
+NEXT_PUBLIC_UMAMI_WEBSITE_ID=your-website-id
+NEXT_PUBLIC_UMAMI_URL=https://your-umami-instance.com
 ```
 
 For production (`.env.prod`), key differences:
@@ -203,12 +273,17 @@ For production (`.env.prod`), key differences:
 
 ## Icon Usage
 
-This project uses **lucide-react** for icons:
+This project uses **lucide-react** and **hugeicons** for icons:
 
 ```typescript
+// Lucide icons
 import { IconName } from "lucide-react";
-
 <IconName className="h-4 w-4" />
+
+// Hugeicons
+import { IconName } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+<HugeiconsIcon icon={IconName} size={16} />
 ```
 
 ## Project Philosophy

@@ -4,11 +4,17 @@ A Next.js 15 portfolio website for showcasing dog photos with AI-powered validat
 
 ## Features
 
-- **Photo Gallery**: Responsive grid display of dog photos (shuffled on load)
+- **Photo Gallery**: Responsive grid with infinite scroll pagination
+- **Lightbox Viewing**: Full-screen photo viewing with navigation
 - **AI Image Validation**: NSFW detection + dog verification via FastAPI service
 - **Authentication**: NextAuth with GitHub and Google OAuth
+- **User Profiles**: View any user's profile and their uploaded photos
+- **Profile Editing**: Users can customize their display name and profile picture
 - **Admin System**: Configurable admin users who can delete any photo
-- **Photo Upload**: Users can upload dog photos with automatic validation
+- **Photo Upload**: Upload dog photos with AI validation and celebratory confetti
+- **Stats Dashboard**: Live system monitoring with 3D Raspberry Pi model
+- **About Page**: MDX-powered with lightbox galleries and interactive components
+- **Analytics**: Umami self-hosted analytics integration
 - **PostgreSQL Database**: Drizzle ORM with migration support
 - **Self-Hosted**: Runs on Raspberry Pi with Docker + Nginx
 
@@ -30,21 +36,20 @@ npm install
 ### 2. Configure Environment
 
 ```bash
-cp .env.example .env.local
+cp .env.local.example .env.local
 # Edit .env.local with your values
 ```
 
 ### 3. Start Services
 
 ```bash
-# Start PostgreSQL and AI validator services
-npm run dev:services
-
-# Push database schema (first time only)
-npm run db:push
-
-# Start Next.js dev server
+# Start all services (Postgres, AI validator, Next.js) via Docker
 npm run dev
+
+# Or run separately:
+docker compose up -d             # Start services only
+npm run db:push                  # Push database schema (first time)
+npm run dev:next                 # Start Next.js dev server
 ```
 
 Visit http://localhost:3000
@@ -52,7 +57,7 @@ Visit http://localhost:3000
 ### 4. Stop Services
 
 ```bash
-npm run dev:services:stop
+npm run dev:stop
 ```
 
 ## Production Deployment
@@ -105,12 +110,17 @@ Or simply re-run `./deploy.sh` - it's safe to run repeatedly.
 pi-site/
 ├── app/                      # Next.js App Router
 │   ├── db/                   # Database schema, client, and migrations
-│   │   ├── schema.ts         # Drizzle schema
+│   │   ├── schema.ts         # Drizzle schema (photos, users tables)
 │   │   ├── drizzle.ts        # Database client
 │   │   ├── actions.ts        # Server actions
 │   │   └── migrations/       # SQL migration files
 │   ├── lib/                  # Utilities and types
 │   ├── api/                  # API routes
+│   ├── profile/              # User profile pages
+│   │   ├── [userId]/         # View any user's profile
+│   │   └── edit/             # Edit own profile
+│   ├── stats/                # System stats dashboard
+│   ├── about/                # About page (MDX)
 │   └── auth.ts               # NextAuth configuration
 ├── components/               # React components
 ├── scripts/                  # Build and deployment scripts
@@ -151,6 +161,10 @@ IMG_UPLOAD_DIR=/data/uploads/images                          # prod
 # App keys
 SECRET_KEY=your-secret-key
 NEXT_PUBLIC_SAFE_KEY=your-public-key
+
+# System Profiler (for /stats page)
+SYSTEM_PROFILER_BASE_URL=http://system-profiler:8787  # prod
+SYSTEM_PROFILER_AUTH_TOKEN=your-auth-token
 ```
 
 ### Development vs Production
@@ -166,31 +180,37 @@ NEXT_PUBLIC_SAFE_KEY=your-public-key
 ```bash
 # Admin users (comma-separated provider-accountId format)
 ADMIN_USER_IDS=github-123456,google-789012
+
+# Umami Analytics
+NEXT_PUBLIC_UMAMI_WEBSITE_ID=your-website-id
+NEXT_PUBLIC_UMAMI_URL=https://your-umami-instance.com
 ```
 
 ## Tech Stack
 
-- **Frontend**: Next.js 15, React 19, Tailwind CSS v4
+- **Frontend**: Next.js 15, React 19, Tailwind CSS v4, Three.js
+- **Content**: MDX for rich content pages
 - **Backend**: Next.js Server Actions, NextAuth v4
 - **Database**: PostgreSQL 17 + Drizzle ORM
 - **AI Service**: FastAPI (Python) with NSFW + dog detection
+- **Analytics**: Umami (self-hosted)
 - **Deployment**: Docker, Nginx, Cloudflare Tunnel
-- **Icons**: Lucide React
+- **Icons**: Lucide React, Hugeicons
 
 ## Development Commands
 
 ```bash
-# Development
-npm run dev                    # Start Next.js dev server
-npm run dev:services           # Start Postgres + AI validator
-npm run dev:services:stop      # Stop dev services
-npm run dev:services:logs      # View dev service logs
+# Development (Docker-based)
+npm run dev                    # Start all services (Postgres, AI validator, etc.) via Docker
+npm run dev:next               # Start Next.js dev server only (if services already running)
+npm run dev:stop               # Stop dev services
+npm run dev:logs               # View dev service logs
 
 # Staging (full stack locally in Docker)
-npm run staging:services       # Start all services in Docker
-npm run staging:services:stop  # Stop staging
-npm run staging:services:logs  # View staging logs
-npm run staging:services:reset # Wipe staging (including volumes)
+npm run staging                # Start all services in Docker (staging config)
+npm run staging:stop           # Stop staging
+npm run staging:logs           # View staging logs
+npm run staging:reset          # Wipe staging (including volumes)
 
 # Database
 npm run db:generate            # Generate migrations from schema changes

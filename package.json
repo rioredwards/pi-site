@@ -21,6 +21,7 @@
     "fz-logs": "./scripts/logs-fzf.sh",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node scripts/run-migrations.js",
+    "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
