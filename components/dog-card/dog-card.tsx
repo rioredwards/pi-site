@@ -23,6 +23,7 @@ export interface DogCardProps {
   deletePhoto: (id: string) => void;
   priority?: boolean;
   showLightbox?: () => void;
+  showInfoPanel?: boolean;
 }
 
 export function DogCard({
@@ -35,6 +36,7 @@ export function DogCard({
   deletePhoto,
   priority = false,
   showLightbox,
+  showInfoPanel = true,
 }: DogCardProps) {
   const { data: session } = useSession();
   const [showDetail, setShowDetail] = useState(false);
@@ -137,34 +139,36 @@ export function DogCard({
               </button>
             )}
             {/* Info panel - bottom overlay */}
-            <Link
-              href={`/profile/${encodeURIComponent(userId)}`}
-              onClick={(e) => e.stopPropagation()}
-              className={cn(
-                "absolute invisible opacity-0 group-hover:bottom-0 -bottom-20 transition-all duration-200 ease-in-out left-0 right-0 z-30 flex items-center gap-3 rounded-t-2xl bg-background/70 px-4 py-3 shadow-md backdrop-blur-sm hover:bg-background/80",
-                showDetail && "bottom-0 opacity-100 visible"
-              )}
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
-                {ownerProfilePicture ? (
-                  <Image
-                    src={getProfilePictureUrl(ownerProfilePicture)!}
-                    alt={ownerDisplayName || "User"}
-                    width={40}
-                    height={40}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <HugeiconsIcon icon={User02Icon} size={20} className="text-muted-foreground" />
+            {showInfoPanel && (
+              <Link
+                href={`/profile/${encodeURIComponent(userId)}`}
+                onClick={(e) => e.stopPropagation()}
+                className={cn(
+                  "absolute invisible opacity-0 group-hover:bottom-0 -bottom-20 transition-all duration-200 ease-in-out left-0 right-0 z-30 flex items-center gap-3 rounded-t-2xl bg-background/70 px-4 py-3 shadow-md backdrop-blur-sm hover:bg-background/80",
+                  showDetail && "bottom-0 opacity-100 visible"
                 )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs text-muted-foreground">Uploaded by</p>
-                <p className="truncate text-sm font-semibold text-foreground">
-                  {ownerDisplayName || "Anonymous"}
-                </p>
-              </div>
-            </Link>
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
+                  {ownerProfilePicture ? (
+                    <Image
+                      src={getProfilePictureUrl(ownerProfilePicture)!}
+                      alt={ownerDisplayName || "User"}
+                      width={40}
+                      height={40}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <HugeiconsIcon icon={User02Icon} size={20} className="text-muted-foreground" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-muted-foreground">Uploaded by</p>
+                  <p className="truncate text-sm font-semibold text-foreground">
+                    {ownerDisplayName || "Anonymous"}
+                  </p>
+                </div>
+              </Link>
+            )}
           </div>
         </div>
       </Card>

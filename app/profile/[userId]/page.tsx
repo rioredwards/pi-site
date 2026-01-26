@@ -108,7 +108,10 @@ export default async function ProfilePage({ params }: Props) {
             {isOwner ? "Your Posts" : `${profile.displayName || "User"}'s Posts`}
           </h2>
           {photos.length > 0 ? (
-            <ProfilePhotosGrid photos={photos} isOwner={isOwner} />
+            <ProfilePhotosGrid
+              photos={photos}
+              isOwner={isOwner}
+            />
           ) : (
             <div className="rounded-lg border border-border bg-card p-6 text-center">
               <p className="text-muted-foreground">

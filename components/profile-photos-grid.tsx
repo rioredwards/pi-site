@@ -2,13 +2,9 @@
 
 import { deletePhoto } from "@/app/actions";
 import { Photo } from "@/app/lib/types";
-import { Trash2 } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { DeleteDogConfirmationDialog } from "./dialogs/delete-dog-confirmation-dialog";
 import { useToast } from "../hooks/use-toast";
+import { DogCard } from "./dog-card/dog-card";
 import { LightboxSlide, useLightbox } from "./lightbox";
 
 interface ProfilePhotosGridProps {
@@ -20,7 +16,6 @@ export function ProfilePhotosGrid({ photos, isOwner = false }: ProfilePhotosGrid
   const { openGallery } = useLightbox();
   const router = useRouter();
   const { toast } = useToast();
-  const [photoToDelete, setPhotoToDelete] = useState<Photo | null>(null);
 
   const slides: LightboxSlide[] = photos.map((photo) => ({
     src: photo.src,
@@ -34,14 +29,8 @@ export function ProfilePhotosGrid({ photos, isOwner = false }: ProfilePhotosGrid
     openGallery(slides, index);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent, photo: Photo) => {
-    e.stopPropagation();
-    setPhotoToDelete(photo);
-  };
-
-  const confirmDelete = async () => {
-    if (!photoToDelete) return;
-    const result = await deletePhoto(photoToDelete.id);
+  const confirmDelete = async (id: string) => {
+    const result = await deletePhoto(id);
     if (result.error) {
       toast({
         title: "Error",
@@ -55,46 +44,22 @@ export function ProfilePhotosGrid({ photos, isOwner = false }: ProfilePhotosGrid
         description: "Your photo has been deleted.",
       });
     }
-    setPhotoToDelete(null);
   };
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
         {photos.map((photo, index) => (
-          <button
+          <DogCard
             key={photo.id}
-            onClick={() => showLightbox(index)}
-            className="group relative aspect-square overflow-hidden rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-          >
-            <Image
-              src={photo.src}
-              alt={photo.alt}
-              fill
-              sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-              className="object-cover transition-transform duration-200 group-hover:scale-105"
-            />
-            {isOwner && (
-              <div
-                onClick={(e) => handleDeleteClick(e, photo)}
-                className="absolute top-2 left-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/70 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 hover:bg-destructive hover:text-destructive-foreground"
-              >
-                <HugeiconsIcon icon={Trash2} size={16} />
-              </div>
-            )}
-          </button>
+            {...photo}
+            deletePhoto={() => confirmDelete(photo.id)}
+            showLightbox={() => showLightbox(index)}
+            priority={true}
+            showInfoPanel={false}
+          />
         ))}
       </div>
-      {photoToDelete && (
-        <DeleteDogConfirmationDialog
-          open={!!photoToDelete}
-          onOpenChange={(open) => !open && setPhotoToDelete(null)}
-          onDelete={confirmDelete}
-          onCancel={() => setPhotoToDelete(null)}
-          src={photoToDelete.src}
-          alt={photoToDelete.alt}
-        />
-      )}
     </>
   );
 }
