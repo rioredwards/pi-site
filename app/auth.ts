@@ -1,6 +1,9 @@
+import { eq } from "drizzle-orm";
 import { type NextAuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
+import { getDb } from "./db/drizzle";
+import { users } from "./db/schema";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -18,6 +21,62 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // Create or update user in database with OAuth profile data
+      if (account && profile) {
+        const providerAccountId =
+          account.providerAccountId ||
+          (profile as any)?.sub ||
+          user.id ||
+          user.email;
+
+        const adminUserIds =
+          process.env.ADMIN_USER_IDS?.split(",").map((id) => id.trim()) || [];
+        const rawUserId = `${account.provider}-${providerAccountId}`;
+        const userId = adminUserIds.includes(rawUserId) ? "admin" : rawUserId;
+
+        // Extract OAuth profile data
+        // GitHub: profile.name, profile.avatar_url
+        // Google: profile.name, profile.picture
+        const oauthName = (profile as any).name || user.name || null;
+        const oauthImage =
+          (profile as any).avatar_url || // GitHub
+          (profile as any).picture || // Google
+          user.image ||
+          null;
+
+        try {
+          const db = getDb();
+          const [existingUser] = await db
+            .select()
+            .from(users)
+            .where(eq(users.id, userId))
+            .limit(1);
+
+          if (!existingUser) {
+            // Create new user with OAuth data
+            await db.insert(users).values({
+              id: userId,
+              displayName: oauthName,
+              profilePicture: oauthImage,
+            });
+          } else if (!existingUser.displayName && !existingUser.profilePicture) {
+            // Update existing user if they don't have profile data yet
+            await db
+              .update(users)
+              .set({
+                displayName: oauthName,
+                profilePicture: oauthImage,
+              })
+              .where(eq(users.id, userId));
+          }
+        } catch (error) {
+          // Log but don't block sign-in if database operation fails
+          console.error("Failed to sync user profile:", error);
+        }
+      }
+      return true;
+    },
     async jwt({ token, user, account, profile }) {
       // On initial sign-in, create and store the user ID
       if (account && user) {

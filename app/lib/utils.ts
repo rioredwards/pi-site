@@ -6,11 +6,17 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Profile picture URL builder - not a server action, just a utility
+// Handles both local filenames and external OAuth URLs
 const PROFILE_PICTURE_READ_BASE_URL = "/api/assets/profiles/";
 
-export function getProfilePictureUrl(filename: string | null): string | null {
-  if (!filename) return null;
-  return PROFILE_PICTURE_READ_BASE_URL + filename;
+export function getProfilePictureUrl(filenameOrUrl: string | null): string | null {
+  if (!filenameOrUrl) return null;
+  // If it's already a URL (OAuth profile picture), return as-is
+  if (filenameOrUrl.startsWith("http://") || filenameOrUrl.startsWith("https://")) {
+    return filenameOrUrl;
+  }
+  // Otherwise, build the local path for uploaded pictures
+  return PROFILE_PICTURE_READ_BASE_URL + filenameOrUrl;
 }
 
 // Safe for both client and server - always exists as a function

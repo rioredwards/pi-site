@@ -23,9 +23,9 @@
 - [x] Add monitoring/alerting
 - [x] Fix themeColor metadata warning (move to viewport export)
 - [x] Add infinite scroll pagination for gallery
+- [x] Populate user profiles with OAuth data (name and profile picture) on sign-in
 
 ## In Progress 🚧
-- [ ] User’s shouldn’t be anonymous by default. It should grab their profile pic and name from their OAuth provider
 - [ ] Google should appear first in the OAuth providers UI (just move the button above github)
 - [ ] User’s profile page should display their posts
 - [ ] User’s should be able to navigate to someone else’s profile to view just that person’s posts
