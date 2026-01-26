@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Maximize2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import BounceLoader from "react-spinners/BounceLoader";
 import { cn, getProfilePictureUrl } from "../../app/lib/utils";
@@ -136,9 +137,11 @@ export function DogCard({
               </button>
             )}
             {/* Info panel - bottom overlay */}
-            <div
+            <Link
+              href={`/profile/${encodeURIComponent(userId)}`}
+              onClick={(e) => e.stopPropagation()}
               className={cn(
-                "absolute invisible opacity-0 group-hover:bottom-0 -bottom-20 transition-all duration-200 ease-in-out left-0 right-0 z-30 flex items-center gap-3 rounded-t-2xl bg-background/70 px-4 py-3 shadow-md backdrop-blur-sm",
+                "absolute invisible opacity-0 group-hover:bottom-0 -bottom-20 transition-all duration-200 ease-in-out left-0 right-0 z-30 flex items-center gap-3 rounded-t-2xl bg-background/70 px-4 py-3 shadow-md backdrop-blur-sm hover:bg-background/80",
                 showDetail && "bottom-0 opacity-100 visible"
               )}
             >
@@ -161,7 +164,7 @@ export function DogCard({
                   {ownerDisplayName || "Anonymous"}
                 </p>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </Card>
