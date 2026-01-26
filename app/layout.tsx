@@ -3,7 +3,7 @@ import Header from "@/components/header";
 import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Comfortaa, Inter } from 'next/font/google';
 import Script from "next/script";
 import "./globals.css";
@@ -58,6 +58,9 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
   manifest: "/manifest.json",
+};
+
+export const viewport: Viewport = {
   themeColor: "#09090b",
 };
 
