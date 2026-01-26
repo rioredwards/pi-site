@@ -72,7 +72,7 @@ export default function Header() {
                 </Link>
                 <div className="w-px h-10 bg-border/60" />
                 {idx === navigation.length - 1 && (
-                  <AuthButton iconVariant={{ size: "sm" }} className="gap-0 rounded-xl px-2 py-2 group w-full" isActive={pathname?.startsWith("/profile")}>
+                  <AuthButton iconVariant={{ size: "sm" }} className="gap-0 rounded-xl px-2 py-2 group w-full" isActive={pathname?.startsWith("/profile")} hideSubMenuArrow>
                     <span className={cn(
                       "text-xs font-medium transition-colors duration-200",
                       // isActive && "text-primary",

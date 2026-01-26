@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DeleteDogConfirmationDialog } from "./dialogs/delete-dog-confirmation-dialog";
+import { useToast } from "../hooks/use-toast";
 import { LightboxSlide, useLightbox } from "./lightbox";
 
 interface ProfilePhotosGridProps {
@@ -18,6 +19,7 @@ interface ProfilePhotosGridProps {
 export function ProfilePhotosGrid({ photos, isOwner = false }: ProfilePhotosGridProps) {
   const { openGallery } = useLightbox();
   const router = useRouter();
+  const { toast } = useToast();
   const [photoToDelete, setPhotoToDelete] = useState<Photo | null>(null);
 
   const slides: LightboxSlide[] = photos.map((photo) => ({
@@ -40,8 +42,18 @@ export function ProfilePhotosGrid({ photos, isOwner = false }: ProfilePhotosGrid
   const confirmDelete = async () => {
     if (!photoToDelete) return;
     const result = await deletePhoto(photoToDelete.id);
-    if (!result.error) {
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error || "There was a problem deleting your photo.",
+        variant: "destructive",
+      });
+    } else {
       router.refresh();
+      toast({
+        title: "Success",
+        description: "Your photo has been deleted.",
+      });
     }
     setPhotoToDelete(null);
   };

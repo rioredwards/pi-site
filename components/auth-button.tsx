@@ -8,16 +8,19 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Login01Icon, Logout01Icon, UserIcon } from "@hugeicons/core-free-icons";
+import { Login01Icon, Logout01Icon, Moon02Icon, Sun01Icon, UserIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { cva, VariantProps } from "class-variance-authority";
 import { signOut, useSession } from "next-auth/react";
+import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import BounceLoader from "react-spinners/BounceLoader";
-import { ModeToggle } from "./ui/modeToggle";
 import { SignInModal } from "./ui/signInModal";
 
 const iconSizeVariants = cva("transition-colors duration-200", {
@@ -33,8 +36,9 @@ const iconSizeVariants = cva("transition-colors duration-200", {
 });
 
 
-export function AuthButton({ className, children, isActive, iconVariant = { size: "lg" } }: { className?: string, children?: React.ReactNode, isActive?: boolean, iconVariant?: VariantProps<typeof iconSizeVariants> }) {
+export function AuthButton({ className, children, isActive, iconVariant = { size: "lg" }, hideSubMenuArrow }: { className?: string, children?: React.ReactNode, isActive?: boolean, iconVariant?: VariantProps<typeof iconSizeVariants>, hideSubMenuArrow?: boolean }) {
   const { data: session, status } = useSession();
+  const { setTheme } = useTheme();
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [profile, setProfile] = useState<UserType | null>(null);
 
@@ -106,13 +110,22 @@ export function AuthButton({ className, children, isActive, iconVariant = { size
               Profile
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer p-0"
-          >
-            <ModeToggle className="w-full h-full border-none py-2 px-3 hover:bg-transparent bg-transparent gap-4 justify-start shadow-none">
-              <span className="text-foreground text-base">Theme</span>
-            </ModeToggle>
-          </DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="cursor-pointer" hideArrow={hideSubMenuArrow}>
+              <span className="dark:hidden">
+                <HugeiconsIcon icon={Sun01Icon} size={20} className="mr-2" />
+              </span>
+              <span className="hidden dark:inline">
+                <HugeiconsIcon icon={Moon02Icon} size={20} className="mr-2" />
+              </span>
+              Theme
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => signOut()}
@@ -158,13 +171,22 @@ export function AuthButton({ className, children, isActive, iconVariant = { size
             <HugeiconsIcon icon={Login01Icon} className={cn(iconSizeVariants(iconVariant), "mr-2")} />
             Sign In
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer p-0"
-          >
-            <ModeToggle className="w-full h-full border-none py-2 px-3 hover:bg-transparent bg-transparent gap-4 justify-start shadow-none">
-              <span className="text-foreground text-base">Theme</span>
-            </ModeToggle>
-          </DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="cursor-pointer" hideArrow={hideSubMenuArrow}>
+              <span className="dark:hidden">
+                <HugeiconsIcon icon={Sun01Icon} size={20} className="mr-2" />
+              </span>
+              <span className="hidden dark:inline">
+                <HugeiconsIcon icon={Moon02Icon} size={20} className="mr-2" />
+              </span>
+              Theme
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
         </DropdownMenuContent>
       </DropdownMenu>
       <SignInModal
