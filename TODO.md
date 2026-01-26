@@ -22,9 +22,9 @@
 - [x] Optimize Docker image sizes
 - [x] Add monitoring/alerting
 - [x] Fix themeColor metadata warning (move to viewport export)
+- [x] Add infinite scroll pagination for gallery
 
 ## In Progress 🚧
-- [ ] Add pagination for gallery: Currently, we fetch all dog images at once on the initial page load. We should have some pagination. More data should be fetched when the user reaches the bottom of the page. (Scroll triggered)
 - [ ] User’s shouldn’t be anonymous by default. It should grab their profile pic and name from their OAuth provider
 - [ ] Google should appear first in the OAuth providers UI (just move the button above github)
 - [ ] User’s profile page should display their posts

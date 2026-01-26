@@ -1,11 +1,12 @@
 "use server";
 
 import { devLog } from "@/app/lib/utils";
-import { deletePhoto, getPhotos, uploadPhoto } from "./db/actions";
+import { deletePhoto, getPhotos, uploadPhoto, PaginatedPhotosResponse } from "./db/actions";
 import { AnalysisResult } from "./lib/imgValidatorTypes";
 
 // Re-export database actions
 export { deletePhoto, getPhotos, uploadPhoto };
+export type { PaginatedPhotosResponse };
 
 /**
  * Server action to proxy image analysis requests to the ai-img-validator service.

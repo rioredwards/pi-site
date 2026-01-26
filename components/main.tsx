@@ -1,14 +1,15 @@
 "use client";
 
 import { devLog } from "@/app/lib/utils";
-import shuffle from "lodash.shuffle";
 import { useSession } from "next-auth/react";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import BounceLoader from "react-spinners/BounceLoader";
 import { deletePhoto as deletePhotoFile, getPhotos } from "../app/actions";
 import { Photo } from "../app/lib/types";
 import { useToast } from "../hooks/use-toast";
 import { PhotoGrid } from "./photo-grid";
+
+const PAGE_SIZE = 12;
 
 export const PhotoUpload = lazy(() => import("@/components/photo-upload"));
 
@@ -30,16 +31,20 @@ function PhotoGridSkeleton() {
 export function Main() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const { toast } = useToast();
   const { data: session } = useSession();
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
+  // Initial fetch
   useEffect(() => {
     async function fetchPhotos() {
       setIsLoading(true);
-      const response = await getPhotos();
+      const response = await getPhotos(PAGE_SIZE, 0);
       if (response.data) {
-        const shuffledPhotos = shuffle(response.data);
-        setPhotos(shuffledPhotos);
+        setPhotos(response.data.photos);
+        setHasMore(response.data.hasMore);
       } else {
         devLog(response.error);
         toast({
@@ -52,6 +57,44 @@ export function Main() {
     }
     fetchPhotos();
   }, [toast]);
+
+  // Load more photos
+  const loadMore = useCallback(async () => {
+    if (isFetchingMore || !hasMore) return;
+
+    setIsFetchingMore(true);
+    const response = await getPhotos(PAGE_SIZE, photos.length);
+    if (response.data) {
+      setPhotos((prev) => [...prev, ...response.data!.photos]);
+      setHasMore(response.data.hasMore);
+    } else {
+      devLog(response.error);
+      toast({
+        title: "Error",
+        description: "There was a problem fetching more photos.",
+        variant: "destructive",
+      });
+    }
+    setIsFetchingMore(false);
+  }, [isFetchingMore, hasMore, photos.length, toast]);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isFetchingMore && !isLoading) {
+          loadMore();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [loadMore, hasMore, isFetchingMore, isLoading]);
 
   function addPhoto(photo: Photo) {
     setPhotos((prevPhotos) => [photo, ...prevPhotos]);
@@ -132,13 +175,26 @@ export function Main() {
           </p>
         </div>
       ) : (
-        <PhotoGrid
-          photos={photos.map((photo) => ({
-            ...photo,
-            deletePhoto: () => deletePhoto(photo.id),
-          }))}
-          enableLightbox
-        />
+        <>
+          <PhotoGrid
+            photos={photos.map((photo) => ({
+              ...photo,
+              deletePhoto: () => deletePhoto(photo.id),
+            }))}
+            enableLightbox
+          />
+          {/* Infinite scroll sentinel */}
+          <div ref={loadMoreRef} className="h-4" />
+          {isFetchingMore && (
+            <div className="flex justify-center py-8">
+              <BounceLoader
+                color={"oklch(0.75 0.15 55)"}
+                loading={true}
+                size={25}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

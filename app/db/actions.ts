@@ -2,7 +2,7 @@
 
 import { authOptions } from "@/app/auth";
 import { devLog } from "@/app/lib/utils";
-import { count, eq } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import { existsSync, mkdirSync, unlinkSync } from "fs";
 import { writeFile } from "fs/promises";
 import { getServerSession } from "next-auth";
@@ -152,7 +152,15 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
   }
 }
 
-export async function getPhotos(): Promise<APIResponse<Photo[]>> {
+export type PaginatedPhotosResponse = {
+  photos: Photo[];
+  hasMore: boolean;
+};
+
+export async function getPhotos(
+  limit: number = 12,
+  offset: number = 0
+): Promise<APIResponse<PaginatedPhotosResponse>> {
   try {
     const dbPhotos = await getDb()
       .select({
@@ -167,9 +175,14 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
       })
       .from(photos)
       .leftJoin(users, eq(photos.userId, users.id))
-      .orderBy(photos.order);
+      .orderBy(desc(photos.order))
+      .limit(limit + 1)
+      .offset(offset);
 
-    const photoData: Photo[] = dbPhotos.map((photo) => ({
+    const hasMore = dbPhotos.length > limit;
+    const photosToReturn = hasMore ? dbPhotos.slice(0, limit) : dbPhotos;
+
+    const photoData: Photo[] = photosToReturn.map((photo) => ({
       id: photo.id,
       imgFilename: photo.imgFilename,
       userId: photo.userId,
@@ -180,11 +193,10 @@ export async function getPhotos(): Promise<APIResponse<Photo[]>> {
       ownerProfilePicture: photo.ownerProfilePicture,
     }));
 
-    const response: APIResponse<Photo[]> = {
+    return {
       error: undefined,
-      data: photoData,
+      data: { photos: photoData, hasMore },
     };
-    return response;
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
