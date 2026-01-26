@@ -25,10 +25,11 @@
 - [x] Add infinite scroll pagination for gallery
 - [x] Populate user profiles with OAuth data (name and profile picture) on sign-in
 - [x] Move Google sign-in button above GitHub
+- [x] Display user's posts on their profile page
 
 ## In Progress 🚧
-- [ ] User’s profile page should display their posts
 - [ ] User’s should be able to navigate to someone else’s profile to view just that person’s posts
+- [ ] User’s should be able to delete their posts from their profile page
 - [ ] Update docs (readme and claude.md)
 - [ ] Remove any sensitive info from git history (e.g. I had some detailed info about the raspberry pi in the TODO.md file that may or may not have been sensitive)
 

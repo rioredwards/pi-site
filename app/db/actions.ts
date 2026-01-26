@@ -203,6 +203,47 @@ export async function getPhotos(
   }
 }
 
+export async function getPhotosByUserId(
+  userId: string
+): Promise<APIResponse<Photo[]>> {
+  try {
+    const dbPhotos = await getDb()
+      .select({
+        id: photos.id,
+        imgFilename: photos.imgFilename,
+        userId: photos.userId,
+        order: photos.order,
+        src: photos.src,
+        alt: photos.alt,
+        ownerDisplayName: users.displayName,
+        ownerProfilePicture: users.profilePicture,
+      })
+      .from(photos)
+      .leftJoin(users, eq(photos.userId, users.id))
+      .where(eq(photos.userId, userId))
+      .orderBy(desc(photos.order));
+
+    const photoData: Photo[] = dbPhotos.map((photo) => ({
+      id: photo.id,
+      imgFilename: photo.imgFilename,
+      userId: photo.userId,
+      order: photo.order,
+      src: photo.src,
+      alt: photo.alt,
+      ownerDisplayName: photo.ownerDisplayName,
+      ownerProfilePicture: photo.ownerProfilePicture,
+    }));
+
+    return {
+      error: undefined,
+      data: photoData,
+    };
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    return { data: undefined, error: errorMsg };
+  }
+}
+
 export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {

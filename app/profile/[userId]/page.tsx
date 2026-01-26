@@ -1,6 +1,7 @@
 import { authOptions } from "@/app/auth";
-import { getUserProfile } from "@/app/db/actions";
+import { getPhotosByUserId, getUserProfile } from "@/app/db/actions";
 import { getProfilePictureUrl } from "@/app/lib/utils";
+import { ProfilePhotosGrid } from "@/components/profile-photos-grid";
 import { Button } from "@/components/ui/button";
 import { PencilEdit01Icon, UserIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -39,9 +40,10 @@ export default async function ProfilePage({ params }: Props) {
   const { userId } = await params;
   const decodedUserId = decodeURIComponent(userId);
 
-  const [session, profileResult] = await Promise.all([
+  const [session, profileResult, photosResult] = await Promise.all([
     getServerSession(authOptions),
     getUserProfile(decodedUserId),
+    getPhotosByUserId(decodedUserId),
   ]);
 
   if (profileResult.error || !profileResult.data) {
@@ -49,6 +51,7 @@ export default async function ProfilePage({ params }: Props) {
   }
 
   const profile = profileResult.data;
+  const photos = photosResult.data || [];
   const isOwner = session?.user?.id === decodedUserId;
   const profilePictureUrl = getProfilePictureUrl(profile.profilePicture);
 
@@ -99,14 +102,22 @@ export default async function ProfilePage({ params }: Props) {
         {/* Divider */}
         <div className="my-8 border-t border-border" />
 
-        {/* Additional Info Section */}
-        <div className="rounded-lg border border-border bg-card p-6">
-          <h2 className="text-lg font-semibold">About</h2>
-          <p className="mt-2 text-muted-foreground">
-            {isOwner
-              ? "This is your public profile. Other users can see your display name and profile picture."
-              : "This user hasn't added any additional information yet."}
-          </p>
+        {/* Photos Section */}
+        <div>
+          <h2 className="text-lg font-semibold mb-4">
+            {isOwner ? "Your Posts" : `${profile.displayName || "User"}'s Posts`}
+          </h2>
+          {photos.length > 0 ? (
+            <ProfilePhotosGrid photos={photos} />
+          ) : (
+            <div className="rounded-lg border border-border bg-card p-6 text-center">
+              <p className="text-muted-foreground">
+                {isOwner
+                  ? "You haven't posted any photos yet. Share your first dog photo!"
+                  : "This user hasn't posted any photos yet."}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

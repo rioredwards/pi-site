@@ -1,11 +1,11 @@
 "use server";
 
 import { devLog } from "@/app/lib/utils";
-import { deletePhoto, getPhotos, uploadPhoto, PaginatedPhotosResponse } from "./db/actions";
+import { deletePhoto, getPhotos, getPhotosByUserId, uploadPhoto, PaginatedPhotosResponse } from "./db/actions";
 import { AnalysisResult } from "./lib/imgValidatorTypes";
 
 // Re-export database actions
-export { deletePhoto, getPhotos, uploadPhoto };
+export { deletePhoto, getPhotos, getPhotosByUserId, uploadPhoto };
 export type { PaginatedPhotosResponse };
 
 /**
