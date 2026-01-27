@@ -11,7 +11,8 @@
       "Bash(docker exec:*)",
       "Bash(npm run build:*)",
       "Bash(grep:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm run typecheck:*)"
     ]
   }
 }
