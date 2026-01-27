@@ -31,14 +31,15 @@
 - [x] Update docs (README, CLAUDE.md, verify DEPLOYMENT.md)
 
 ## In Progress 🚧
-- [ ] Remove any sensitive info from git history (e.g. I had some detailed info about the raspberry pi in the TODO.md file that may or may not have been sensitive)
+
+- [ ] Figure out how to access the DrizzleKit UI
 
 ## Backlog 📋
 
 - [ ] Add all original dogs back to the database
 - [ ] Re-introduce github actions workflow
 - [ ] Get staging environment working again
-- [ ] Figure out how to access the DrizzleKit UI
+- [ ] Remove any sensitive info from git history (e.g. I had some detailed info about the raspberry pi in the TODO.md file that may or may not have been sensitive)
 
 ### Features
 

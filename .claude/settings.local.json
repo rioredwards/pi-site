@@ -10,7 +10,8 @@
       "Bash(curl:*)",
       "Bash(docker exec:*)",
       "Bash(npm run build:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }
