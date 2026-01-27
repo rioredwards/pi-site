@@ -145,7 +145,7 @@ export function DogCard({
                 onClick={(e) => e.stopPropagation()}
                 className={cn(
                   "absolute invisible opacity-0 group-hover:bottom-0 -bottom-20 transition-all duration-200 ease-in-out left-0 right-0 z-30 flex items-center gap-3 rounded-t-2xl bg-background/70 px-4 py-3 shadow-md backdrop-blur-sm hover:bg-background/80",
-                  showDetail && "bottom-0 opacity-100 visible"
+                  showDetail && "-bottom-1 opacity-100 visible"
                 )}
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
