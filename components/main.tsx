@@ -33,6 +33,7 @@ export function Main() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [seed] = useState(() => Math.random().toString(36).substring(2));
   const { toast } = useToast();
   const { data: session } = useSession();
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -41,7 +42,7 @@ export function Main() {
   useEffect(() => {
     async function fetchPhotos() {
       setIsLoading(true);
-      const response = await getPhotos(PAGE_SIZE, 0);
+      const response = await getPhotos(PAGE_SIZE, 0, seed);
       if (response.data) {
         setPhotos(response.data.photos);
         setHasMore(response.data.hasMore);
@@ -56,14 +57,14 @@ export function Main() {
       setIsLoading(false);
     }
     fetchPhotos();
-  }, [toast]);
+  }, [toast, seed]);
 
   // Load more photos
   const loadMore = useCallback(async () => {
     if (isFetchingMore || !hasMore) return;
 
     setIsFetchingMore(true);
-    const response = await getPhotos(PAGE_SIZE, photos.length);
+    const response = await getPhotos(PAGE_SIZE, photos.length, seed);
     if (response.data) {
       setPhotos((prev) => [...prev, ...response.data!.photos]);
       setHasMore(response.data.hasMore);
@@ -76,7 +77,7 @@ export function Main() {
       });
     }
     setIsFetchingMore(false);
-  }, [isFetchingMore, hasMore, photos.length, toast]);
+  }, [isFetchingMore, hasMore, photos.length, seed, toast]);
 
   // Intersection Observer for infinite scroll
   useEffect(() => {

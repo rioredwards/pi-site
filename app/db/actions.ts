@@ -2,7 +2,7 @@
 
 import { authOptions } from "@/app/auth";
 import { devLog } from "@/app/lib/utils";
-import { count, desc, eq } from "drizzle-orm";
+import { count, desc, eq, sql } from "drizzle-orm";
 import { existsSync, mkdirSync, unlinkSync } from "fs";
 import { writeFile } from "fs/promises";
 import { getServerSession } from "next-auth";
@@ -159,10 +159,53 @@ export type PaginatedPhotosResponse = {
 
 export async function getPhotos(
   limit: number = 12,
-  offset: number = 0
+  offset: number = 0,
+  seed?: string
 ): Promise<APIResponse<PaginatedPhotosResponse>> {
   try {
-    const dbPhotos = await getDb()
+    const db = getDb();
+
+    // If seed provided, use seeded random order
+    // Otherwise fall back to order column
+    if (seed) {
+      const dbPhotos = await db
+        .select({
+          id: photos.id,
+          imgFilename: photos.imgFilename,
+          userId: photos.userId,
+          order: photos.order,
+          src: photos.src,
+          alt: photos.alt,
+          ownerDisplayName: users.displayName,
+          ownerProfilePicture: users.profilePicture,
+        })
+        .from(photos)
+        .leftJoin(users, eq(photos.userId, users.id))
+        .orderBy(sql`md5(${photos.id}::text || ${seed})`)
+        .limit(limit + 1)
+        .offset(offset);
+
+      const hasMore = dbPhotos.length > limit;
+      const photosToReturn = hasMore ? dbPhotos.slice(0, limit) : dbPhotos;
+
+      const photoData: Photo[] = photosToReturn.map((photo) => ({
+        id: photo.id,
+        imgFilename: photo.imgFilename,
+        userId: photo.userId,
+        order: photo.order,
+        src: photo.src,
+        alt: photo.alt,
+        ownerDisplayName: photo.ownerDisplayName,
+        ownerProfilePicture: photo.ownerProfilePicture,
+      }));
+
+      return {
+        error: undefined,
+        data: { photos: photoData, hasMore },
+      };
+    }
+
+    const dbPhotos = await db
       .select({
         id: photos.id,
         imgFilename: photos.imgFilename,

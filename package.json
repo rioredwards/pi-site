@@ -23,6 +23,7 @@
     "db:migrate": "node scripts/run-migrations.js",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "db:import": "node scripts/bulk-import-photos.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
