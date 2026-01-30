@@ -92,11 +92,10 @@ const withMDX = createMDX({
 let config = withMDX(nextConfig);
 
 if (process.env.ANALYZE === "true") {
-  // Dynamic import to avoid requiring the package in production
-  const withBundleAnalyzer = require("@next/bundle-analyzer")({
-    enabled: true,
-  });
-  config = withBundleAnalyzer(config);
+  const { default: withBundleAnalyzer } = await import(
+    "@next/bundle-analyzer"
+  );
+  config = withBundleAnalyzer({ enabled: true })(config);
 }
 
 export default config;
