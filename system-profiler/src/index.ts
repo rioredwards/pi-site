@@ -43,5 +43,5 @@ serve(
     if (!config.authToken) {
       console.log("Warning: No PROFILER_AUTH_TOKEN set - auth disabled");
     }
-  }
+  },
 );

@@ -16,7 +16,9 @@ export function CpuMemoryChart({ history }: { history: HistoryPoint[] }) {
   // Calculate domains for CPU and Memory axes
   const cpuDomain = (() => {
     if (history.length === 0) return [0, 100];
-    const cpuValues = history.map((h) => h.cpu).filter((v) => !Number.isNaN(v) && v != null);
+    const cpuValues = history
+      .map((h) => h.cpu)
+      .filter((v) => !Number.isNaN(v) && v != null);
     if (cpuValues.length === 0) return [0, 100];
     const min = Math.max(0, Math.min(...cpuValues) * 0.9);
     const max = Math.min(100, Math.max(...cpuValues) * 1.1);
@@ -28,7 +30,9 @@ export function CpuMemoryChart({ history }: { history: HistoryPoint[] }) {
 
   const memDomain = (() => {
     if (history.length === 0) return [0, 100];
-    const memValues = history.map((h) => h.mem).filter((v) => !Number.isNaN(v) && v != null);
+    const memValues = history
+      .map((h) => h.mem)
+      .filter((v) => !Number.isNaN(v) && v != null);
     if (memValues.length === 0) return [0, 100];
     const min = Math.max(0, Math.min(...memValues) * 0.9);
     const max = Math.min(100, Math.max(...memValues) * 1.1);
@@ -52,7 +56,10 @@ export function CpuMemoryChart({ history }: { history: HistoryPoint[] }) {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={history}>
             <CartesianGrid stroke="rgba(255,255,255,0.08)" />
-            <XAxis dataKey="label" tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }} />
+            <XAxis
+              dataKey="label"
+              tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
+            />
             <YAxis
               yAxisId="cpu"
               orientation="left"

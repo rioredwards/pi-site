@@ -56,7 +56,7 @@ export default async function ProfilePage({ params }: Props) {
   const profilePictureUrl = getProfilePictureUrl(profile.profilePicture);
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto px-4 py-8">
       <div className="mx-auto max-w-2xl">
         {/* Profile Header */}
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
@@ -66,11 +66,15 @@ export default async function ProfilePage({ params }: Props) {
               <img
                 src={profilePictureUrl}
                 alt={profile.displayName || "User"}
-                className="h-32 w-32 rounded-full object-cover ring-4 ring-background shadow-lg"
+                className="h-32 w-32 rounded-full object-cover shadow-lg ring-4 ring-background"
               />
             ) : (
-              <div className="flex h-32 w-32 items-center justify-center rounded-full bg-muted ring-4 ring-background shadow-lg">
-                <HugeiconsIcon icon={UserIcon} size={64} className="text-muted-foreground" />
+              <div className="flex h-32 w-32 items-center justify-center rounded-full bg-muted shadow-lg ring-4 ring-background">
+                <HugeiconsIcon
+                  icon={UserIcon}
+                  size={64}
+                  className="text-muted-foreground"
+                />
               </div>
             )}
           </div>
@@ -81,7 +85,8 @@ export default async function ProfilePage({ params }: Props) {
               {profile.displayName || "Anonymous User"}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Member since {profile.createdAt.toLocaleDateString("en-US", {
+              Member since{" "}
+              {profile.createdAt.toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -104,13 +109,13 @@ export default async function ProfilePage({ params }: Props) {
 
         {/* Photos Section */}
         <div>
-          <h2 className="text-lg font-semibold mb-4">
-            {isOwner ? "Your Posts" : `${profile.displayName || "User"}'s Posts`}
+          <h2 className="mb-4 text-lg font-semibold">
+            {isOwner
+              ? "Your Posts"
+              : `${profile.displayName || "User"}'s Posts`}
           </h2>
           {photos.length > 0 ? (
-            <ProfilePhotosGrid
-              photos={photos}
-            />
+            <ProfilePhotosGrid photos={photos} />
           ) : (
             <div className="rounded-lg border border-border bg-card p-6 text-center">
               <p className="text-muted-foreground">

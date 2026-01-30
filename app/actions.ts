@@ -1,7 +1,13 @@
 "use server";
 
 import { devLog } from "@/app/lib/utils";
-import { deletePhoto, getPhotos, getPhotosByUserId, uploadPhoto, PaginatedPhotosResponse } from "./db/actions";
+import {
+  deletePhoto,
+  getPhotos,
+  getPhotosByUserId,
+  uploadPhoto,
+  PaginatedPhotosResponse,
+} from "./db/actions";
 import { AnalysisResult } from "./lib/imgValidatorTypes";
 
 // Re-export database actions
@@ -12,7 +18,9 @@ export type { PaginatedPhotosResponse };
  * Server action to proxy image analysis requests to the ai-img-validator service.
  * Expects a FormData with a `file` entry containing the image.
  */
-export async function analyzeImageAction(formData: FormData): Promise<AnalysisResult> {
+export async function analyzeImageAction(
+  formData: FormData,
+): Promise<AnalysisResult> {
   const file = formData.get("file");
 
   if (!file || !(file instanceof File)) {
@@ -21,7 +29,7 @@ export async function analyzeImageAction(formData: FormData): Promise<AnalysisRe
 
   // Prefer explicit env override; otherwise pick a sensible default.
   const validatorBaseUrl = process.env.PUBLIC_IMG_VALIDATOR_BASE_URL!;
-  
+
   const validatorUrl = `${validatorBaseUrl.replace(/\/+$/, "")}/analyze`;
   devLog("[analyzeImageAction] validatorUrl:", validatorUrl);
 

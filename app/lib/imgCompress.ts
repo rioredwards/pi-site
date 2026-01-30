@@ -28,7 +28,10 @@ function defineCanvasToBlobIfNotDefined() {
 
 // Modified from https://stackoverflow.com/a/32490603, cc by-sa 3.0
 // -2 = not jpeg, -1 = no data, 1..8 = orientations
-function getExifOrientation(file: Blob, callback: (orientation: number) => void) {
+function getExifOrientation(
+  file: Blob,
+  callback: (orientation: number) => void,
+) {
   // Suggestion from http://code.flickr.net/2012/06/01/parsing-exif-client-side-using-javascript-2/:
   if (file.slice) {
     file = file.slice(0, 131072);
@@ -74,7 +77,7 @@ function getExifOrientation(file: Blob, callback: (orientation: number) => void)
 function imgToCanvas(
   img: HTMLImageElement,
   rawWidth: number,
-  rawHeight: number
+  rawHeight: number,
 ): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
   canvas.width = rawWidth;
@@ -90,7 +93,7 @@ export function reduceFileSize(
   acceptFileSize: number,
   maxWidth: number,
   maxHeight: number,
-  quality: number
+  quality: number,
 ): Promise<Blob> {
   defineWindowUrlIfNotDefined();
   defineCanvasToBlobIfNotDefined();
@@ -130,7 +133,7 @@ export function reduceFileSize(
             }
           },
           "image/jpeg",
-          quality
+          quality,
         );
       });
     };

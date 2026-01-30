@@ -23,7 +23,7 @@ let prevCpuTimes: CpuTimes | null = null;
  */
 async function getDiskStats(
   mountPoint: string,
-  path: string
+  path: string,
 ): Promise<DiskStats | null> {
   try {
     const stats = await fs.statfs(path);
@@ -147,98 +147,36 @@ export async function getHostStats(): Promise<HostStats> {
 // Arrays of values to cycle through for varying mock data
 // Extracted from real production data in TEMP-sample-stream.json
 const mockCpuUsagePercentValues = [
-  1.125,
-  1.877346683354193,
-  1.7521902377972465,
-  2.753441802252816,
-  1.256281407035176,
-  2.0075282308657463,
-  1.6331658291457287,
-  1.875,
-  6.382978723404255,
-  1.6290726817042605,
+  1.125, 1.877346683354193, 1.7521902377972465, 2.753441802252816,
+  1.256281407035176, 2.0075282308657463, 1.6331658291457287, 1.875,
+  6.382978723404255, 1.6290726817042605,
 ];
 const mockMemoryUsagePercentValues = [
-  19.630485883545305,
-  19.651414939858032,
-  19.62273438120726,
-  19.672150208612308,
-  19.65257766520874,
-  19.620408930505846,
-  19.746370843499108,
-  19.565954626581064,
-  19.6543217532348,
-  19.652383877650287,
+  19.630485883545305, 19.651414939858032, 19.62273438120726, 19.672150208612308,
+  19.65257766520874, 19.620408930505846, 19.746370843499108, 19.565954626581064,
+  19.6543217532348, 19.652383877650287,
 ];
 const mockDiskUsagePercentValues = [
-  72.01446752169869,
-  72.01448082296534,
-  72.01449412423196,
-  72.01449412423196,
-  72.0145074254986,
-  72.01452072676526,
-  72.01638290409481,
-  72.01652921802784,
-  72.01654251929448,
-  72.01656912182777,
+  72.01446752169869, 72.01448082296534, 72.01449412423196, 72.01449412423196,
+  72.0145074254986, 72.01452072676526, 72.01638290409481, 72.01652921802784,
+  72.01654251929448, 72.01656912182777,
 ];
 const mockTemperatureCelsiusValues = [
-  43,
-  43,
-  43,
-  42.45,
-  43.55,
-  42.45,
-  43.55,
-  43,
-  43,
-  44.1,
+  43, 43, 43, 42.45, 43.55, 42.45, 43.55, 43, 43, 44.1,
 ];
 const mockDiskUsedBytesValues = [
-  22176178176,
-  22176178176,
-  22176182272,
-  22176182272,
-  22176186368,
-  22176186368,
-  22176186368,
-  22176186368,
-  22176190464,
-  22176190464,
-  22176194560,
-  22176194560,
-  22176768000,
-  22176768000,
-  22176813056,
-  22176813056,
-  22176817152,
-  22176817152,
-  22176825344,
-  22176825344,
+  22176178176, 22176178176, 22176182272, 22176182272, 22176186368, 22176186368,
+  22176186368, 22176186368, 22176190464, 22176190464, 22176194560, 22176194560,
+  22176768000, 22176768000, 22176813056, 22176813056, 22176817152, 22176817152,
+  22176825344, 22176825344,
 ];
 const mockNetworkRxBytesValues = [
-  34495290,
-  34526696,
-  34558168,
-  34589863,
-  34621046,
-  34652741,
-  39714840,
-  40092042,
-  40123448,
-  40217864,
+  34495290, 34526696, 34558168, 34589863, 34621046, 34652741, 39714840,
+  40092042, 40123448, 40217864,
 ];
 const mockNetworkTxBytesValues = [
-  3952245,
-  3955838,
-  3959427,
-  3963092,
-  3966634,
-  3970309,
-  4549847,
-  4593084,
-  4596694,
-  4607479,
+  3952245, 3955838, 3959427, 3963092, 3966634, 3970309, 4549847, 4593084,
+  4596694, 4607479,
 ];
 
 // Generator function that cycles through an array with an offset
@@ -251,13 +189,31 @@ function* createValueGenerator<T>(values: T[], offset: number): Generator<T> {
 }
 
 // Create generators for each varying parameter
-const cpuUsagePercentGenerator = createValueGenerator(mockCpuUsagePercentValues, 0);
-const memoryUsagePercentGenerator = createValueGenerator(mockMemoryUsagePercentValues, 1);
-const diskUsagePercentGenerator = createValueGenerator(mockDiskUsagePercentValues, 2);
+const cpuUsagePercentGenerator = createValueGenerator(
+  mockCpuUsagePercentValues,
+  0,
+);
+const memoryUsagePercentGenerator = createValueGenerator(
+  mockMemoryUsagePercentValues,
+  1,
+);
+const diskUsagePercentGenerator = createValueGenerator(
+  mockDiskUsagePercentValues,
+  2,
+);
 const diskUsedBytesGenerator = createValueGenerator(mockDiskUsedBytesValues, 2);
-const networkRxBytesGenerator = createValueGenerator(mockNetworkRxBytesValues, 0);
-const networkTxBytesGenerator = createValueGenerator(mockNetworkTxBytesValues, 1);
-const temperatureCelsiusGenerator = createValueGenerator(mockTemperatureCelsiusValues, 0);
+const networkRxBytesGenerator = createValueGenerator(
+  mockNetworkRxBytesValues,
+  0,
+);
+const networkTxBytesGenerator = createValueGenerator(
+  mockNetworkTxBytesValues,
+  1,
+);
+const temperatureCelsiusGenerator = createValueGenerator(
+  mockTemperatureCelsiusValues,
+  0,
+);
 
 /**
  * Get mock host stats for development on non-Linux systems.

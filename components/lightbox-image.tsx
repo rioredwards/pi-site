@@ -83,9 +83,9 @@ export function LightboxImage({
     <figure className={cn("my-6", !fill && "w-fit")}>
       <div
         className={cn(
-          "relative overflow-hidden rounded-2xl cursor-pointer",
+          "relative cursor-pointer overflow-hidden rounded-2xl",
           aspectClasses[aspectRatio],
-          containerClassName
+          containerClassName,
         )}
         onClick={handleClick}
         onMouseEnter={() => setShowOverlay(true)}
@@ -94,23 +94,23 @@ export function LightboxImage({
         <Image
           src={src}
           alt={alt}
-          width={fill ? undefined : width ?? undefined}
-          height={fill ? undefined : height ?? undefined}
+          width={fill ? undefined : (width ?? undefined)}
+          height={fill ? undefined : (height ?? undefined)}
           fill={fill}
           placeholder={typeof src === "object" ? "blur" : undefined}
           priority={priority}
           className={cn(
-            "block object-cover my-0! transition-transform duration-300 ease-in-out rounded-2xl",
+            "my-0! block rounded-2xl object-cover transition-transform duration-300 ease-in-out",
             shouldShowOverlay && "scale-105",
-            className
+            className,
           )}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 640px"
         />
         {/* Overlay */}
         <div
           className={cn(
-            "absolute inset-0 bg-foreground/0 transition-colors duration-300 rounded-2xl",
-            shouldShowOverlay && "bg-foreground/20"
+            "absolute inset-0 rounded-2xl bg-foreground/0 transition-colors duration-300",
+            shouldShowOverlay && "bg-foreground/20",
           )}
         >
           {/* Fullscreen button - top right */}
@@ -118,18 +118,18 @@ export function LightboxImage({
             <button
               onClick={handleFullscreen}
               className={cn(
-                "invisible opacity-0 backdrop-blur-sm bg-background/70 absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full text-foreground shadow-md transition-all duration-200 ease-in-out hover:bg-primary hover:text-primary-foreground",
-                shouldShowOverlay && "opacity-100 visible"
+                "invisible absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-background/70 text-foreground opacity-0 shadow-md backdrop-blur-sm transition-all duration-200 ease-in-out hover:bg-primary hover:text-primary-foreground",
+                shouldShowOverlay && "visible opacity-100",
               )}
               aria-label="View fullscreen"
             >
-              <Maximize2 className="w-4 h-4" />
+              <Maximize2 className="h-4 w-4" />
             </button>
           )}
         </div>
       </div>
       {caption && (
-        <figcaption className="mt-2 text-sm text-muted-foreground text-center italic">
+        <figcaption className="mt-2 text-center text-sm text-muted-foreground italic">
           {caption}
         </figcaption>
       )}

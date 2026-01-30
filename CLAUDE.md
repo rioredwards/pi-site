@@ -62,6 +62,7 @@ docker compose exec db psql -U myuser -d mydatabase
 ```
 
 **Migration Workflow (Production):**
+
 1. Make schema changes in `app/db/schema.ts`
 2. Run `npm run db:generate` to create migration SQL files
 3. Commit the migration files in `app/db/migrations/`
@@ -151,12 +152,15 @@ NextAuth is configured in `app/auth.ts` with:
 Server actions are defined in `app/db/actions.ts` and follow this pattern:
 
 ```typescript
-export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
+export type APIResponse<T> =
+  | { data: T; error: undefined }
+  | { data: undefined; error: string };
 ```
 
 All actions return `APIResponse<T>` for consistent error handling.
 
 Key actions:
+
 - `getPhotos(limit, offset)`: Paginated photo fetching for infinite scroll
 - `getPhotosByUserId(userId)`: Get all photos for a specific user (profile pages)
 - `uploadPhoto(formData)`: Upload with AI validation
@@ -222,6 +226,7 @@ Images use the path `/api/assets/images/{filename}` in all environments.
 **Development**: The Next.js API route at `app/api/assets/[...dir]/route.ts` serves files with streaming and proper caching headers.
 
 Photos are stored in:
+
 - **Upload path**: `process.env.IMG_UPLOAD_DIR` (dev: `./.data/uploads/images`, prod: `/data/uploads/images`)
 - **Read path**: `/api/assets/images/{filename}` (both environments)
 
@@ -267,6 +272,7 @@ NEXT_PUBLIC_UMAMI_URL=https://your-umami-instance.com
 ```
 
 For production (`.env.prod`), key differences:
+
 - `DATABASE_URL` uses `db` hostname instead of `localhost`
 - `PUBLIC_IMG_VALIDATOR_BASE_URL=http://ai-img-validator:8000`
 - `IMG_UPLOAD_DIR=/data/uploads/images`

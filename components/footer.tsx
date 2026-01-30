@@ -7,7 +7,7 @@ import YouTube from "./svg/YouTube";
 
 export default function Footer() {
   return (
-    <footer className="w-full pb-32 md:pl-24 border-t bg-background">
+    <footer className="w-full border-t bg-background pb-32 md:pl-24">
       <div className="container mx-auto max-w-7xl py-8">
         <div className="grid grid-cols-2 gap-8 px-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           <div className="col-span-2 sm:col-span-3 md:col-span-1 lg:col-span-2">
@@ -166,4 +166,3 @@ export default function Footer() {
     </footer>
   );
 }
-

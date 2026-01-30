@@ -40,7 +40,7 @@ export function ColorfulUnderline({
     "block w-full",
     colorUnderlineVariants[color],
     thicknessClasses[size],
-    topMarginClasses[size]
+    topMarginClasses[size],
   );
 
   return (

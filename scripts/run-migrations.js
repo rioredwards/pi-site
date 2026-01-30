@@ -19,10 +19,13 @@ const db = drizzle(client);
   try {
     console.log("🔄 Running migrations...");
     console.log("🔵 [run-migrations] db: ", db);
-    console.log("🔵 [run-migrations] migrationsFolder: ", path.join(process.cwd(), "app/db/migrations"));
+    console.log(
+      "🔵 [run-migrations] migrationsFolder: ",
+      path.join(process.cwd(), "app/db/migrations"),
+    );
     console.log("🔵 [run-migrations] databaseUrl: ", databaseUrl);
-    await migrate(db, { 
-      migrationsFolder: path.join(process.cwd(), "app/db/migrations") 
+    await migrate(db, {
+      migrationsFolder: path.join(process.cwd(), "app/db/migrations"),
     });
     console.log("🔵 [run-migrations] migrations complete");
     console.log("✅ Migrations complete");

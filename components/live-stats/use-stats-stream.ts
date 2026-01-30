@@ -37,18 +37,29 @@ export function useStatsStream() {
           setLastGood(parsed);
 
           // Build history point
-          const epoch = Date.parse((parsed as any)?.timestamp ?? "") || Date.now();
+          const epoch =
+            Date.parse((parsed as any)?.timestamp ?? "") || Date.now();
 
           const cpu = (parsed as any)?.host?.cpu?.usagePercent ?? 0;
           const mem = (parsed as any)?.host?.memory?.usagePercent ?? 0;
 
-          const tempAvailable = (parsed as any)?.host?.temperature?.available ?? false;
-          const tempVal = tempAvailable ? (parsed as any)?.host?.temperature?.cpuCelsius : null;
+          const tempAvailable =
+            (parsed as any)?.host?.temperature?.available ?? false;
+          const tempVal = tempAvailable
+            ? (parsed as any)?.host?.temperature?.cpuCelsius
+            : null;
 
           // Network (sum interfaces)
-          const ifaces: any[] = (parsed as any)?.host?.network?.interfaces ?? [];
-          const rxTotal = ifaces.reduce((sum, it) => sum + (it?.rxBytes ?? 0), 0);
-          const txTotal = ifaces.reduce((sum, it) => sum + (it?.txBytes ?? 0), 0);
+          const ifaces: any[] =
+            (parsed as any)?.host?.network?.interfaces ?? [];
+          const rxTotal = ifaces.reduce(
+            (sum, it) => sum + (it?.rxBytes ?? 0),
+            0,
+          );
+          const txTotal = ifaces.reduce(
+            (sum, it) => sum + (it?.txBytes ?? 0),
+            0,
+          );
 
           let rxRate: number | null = null;
           let txRate: number | null = null;
@@ -74,7 +85,9 @@ export function useStatsStream() {
 
           setHistory((prev) => {
             const next = [...prev, point];
-            return next.length > HISTORY_MAX ? next.slice(next.length - HISTORY_MAX) : next;
+            return next.length > HISTORY_MAX
+              ? next.slice(next.length - HISTORY_MAX)
+              : next;
           });
         }
       } catch (e) {
@@ -90,7 +103,9 @@ export function useStatsStream() {
     };
 
     return () => {
-      devLog("🔴 [stream/client] LiveStats component unmounted. Closing eventSource.");
+      devLog(
+        "🔴 [stream/client] LiveStats component unmounted. Closing eventSource.",
+      );
       eventSource.close();
     };
   }, []);

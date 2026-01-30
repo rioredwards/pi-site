@@ -40,4 +40,3 @@ function YouTube({ width = 20, className }: Props) {
 }
 
 export default YouTube;
-

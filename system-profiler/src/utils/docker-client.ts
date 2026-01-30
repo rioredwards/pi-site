@@ -6,7 +6,7 @@ import { config } from "../config.js";
  */
 export async function dockerRequest<T>(
   path: string,
-  options: { timeout?: number } = {}
+  options: { timeout?: number } = {},
 ): Promise<T> {
   const { timeout = 5000 } = options;
 
@@ -30,7 +30,7 @@ export async function dockerRequest<T>(
             reject(new Error(`Failed to parse Docker response: ${data}`));
           }
         });
-      }
+      },
     );
 
     req.on("error", (err) => {
@@ -107,11 +107,11 @@ export async function listContainers(): Promise<DockerContainer[]> {
   const filter = encodeURIComponent(
     JSON.stringify({
       label: [`${config.stackLabel}=${config.stackName}`],
-    })
+    }),
   );
 
   return dockerRequest<DockerContainer[]>(
-    `/containers/json?all=true&filters=${filter}`
+    `/containers/json?all=true&filters=${filter}`,
   );
 }
 
@@ -119,7 +119,7 @@ export async function listContainers(): Promise<DockerContainer[]> {
  * Get container details (for health and restart count).
  */
 export async function inspectContainer(
-  id: string
+  id: string,
 ): Promise<DockerContainerInspect> {
   return dockerRequest<DockerContainerInspect>(`/containers/${id}/json`);
 }
@@ -128,11 +128,11 @@ export async function inspectContainer(
  * Get container stats (one-shot, non-streaming).
  */
 export async function getContainerStats(
-  id: string
+  id: string,
 ): Promise<DockerContainerStats> {
   return dockerRequest<DockerContainerStats>(
     `/containers/${id}/stats?stream=false`,
-    { timeout: 10000 }
+    { timeout: 10000 },
   );
 }
 

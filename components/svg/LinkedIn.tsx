@@ -11,7 +11,10 @@ function LinkedIn({ width = 20, className }: Props) {
       role="img"
       height="100%"
       width={width}
-      className={cn(className, "text-[#2767B2] filter-none hover:scale-105 hover:brightness-105")}
+      className={cn(
+        className,
+        "text-[#2767B2] filter-none hover:scale-105 hover:brightness-105",
+      )}
       style={{
         fillRule: "evenodd",
         clipRule: "evenodd",
@@ -22,7 +25,8 @@ function LinkedIn({ width = 20, className }: Props) {
       viewBox="0 0 512 512"
       xmlSpace="preserve"
       xmlns="http://www.w3.org/2000/svg"
-      xmlnsXlink="http://www.w3.org/1999/xlink">
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+    >
       <title>LinkedIn</title>
       <g id="g5891">
         <path

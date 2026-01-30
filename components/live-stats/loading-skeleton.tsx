@@ -14,7 +14,9 @@ export function LoadingSkeleton({ connected }: { connected: boolean }) {
 
       <div className="relative flex items-start justify-between gap-4">
         <div>
-          <div className="text-sm font-semibold text-zinc-100 mr-2 mb-0">Live Stats</div>
+          <div className="mr-2 mb-0 text-sm font-semibold text-zinc-100">
+            Live Stats
+          </div>
           <div className="text-xs text-zinc-400">
             Waiting for the first realtime payload…
           </div>

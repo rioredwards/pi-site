@@ -30,16 +30,28 @@ interface PiModelCanvasProps {
 }
 
 // Memoized to prevent WebGL context issues from parent re-renders
-export const PiModelCanvas = memo(function PiModelCanvas(props: PiModelCanvasProps) {
+export const PiModelCanvas = memo(function PiModelCanvas(
+  props: PiModelCanvasProps,
+) {
   const combinedProps = {
     ...DEFAULT_CONTROLS,
     ...props,
-  }
-  const { width, height, fov, near, far, cameraPosition, ambientLightIntensity, directionalLightPosition, directionalLightIntensity } = combinedProps;
+  };
+  const {
+    width,
+    height,
+    fov,
+    near,
+    far,
+    cameraPosition,
+    ambientLightIntensity,
+    directionalLightPosition,
+    directionalLightIntensity,
+  } = combinedProps;
   return (
     <div
       style={{ aspectRatio: `${width}/${height}` }}
-      className="w-full overflow-hidden pointer-events-none"
+      className="pointer-events-none w-full overflow-hidden"
     >
       <Canvas
         dpr={[1, 2]}
@@ -52,7 +64,10 @@ export const PiModelCanvas = memo(function PiModelCanvas(props: PiModelCanvasPro
         camera={{ position: cameraPosition, fov: fov, near: near, far: far }}
       >
         <ambientLight intensity={ambientLightIntensity} />
-        <directionalLight position={directionalLightPosition} intensity={directionalLightIntensity} />
+        <directionalLight
+          position={directionalLightPosition}
+          intensity={directionalLightIntensity}
+        />
         <PiModel3D imageSrc={IMG_SRC} depthSrc={DEPTH_SRC} />
       </Canvas>
     </div>

@@ -29,7 +29,7 @@ function createHeading(level: number) {
           className: "anchor",
         }),
       ],
-      children
+      children,
     );
   };
   Heading.displayName = `Heading${level}`;
@@ -81,11 +81,7 @@ function Code({
   return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />;
 }
 
-function Table({
-  data,
-}: {
-  data: { headers: string[]; rows: string[][] };
-}) {
+function Table({ data }: { data: { headers: string[]; rows: string[][] } }) {
   return (
     <table>
       <thead>
@@ -110,7 +106,7 @@ function Table({
 
 function Blockquote({ children }: { children: React.ReactNode }) {
   return (
-    <blockquote className="border-l-4 border-neutral-300 dark:border-neutral-700 pl-4 italic text-neutral-600 dark:text-neutral-400">
+    <blockquote className="border-l-4 border-neutral-300 pl-4 text-neutral-600 italic dark:border-neutral-700 dark:text-neutral-400">
       {children}
     </blockquote>
   );

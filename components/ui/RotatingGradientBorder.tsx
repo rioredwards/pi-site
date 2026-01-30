@@ -220,4 +220,3 @@ function createBgStyle(
 }
 
 export { RotatingGradientBorder };
-

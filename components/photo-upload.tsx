@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { CropIcon, UploadCircle02Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from '@hugeicons/react';
+import { HugeiconsIcon } from "@hugeicons/react";
 import { LucideDog } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -26,9 +26,12 @@ import { DogBotCard, getDogBotBorderColors } from "./ui/dogBotCard";
 import { RotatingGradientBorder } from "./ui/RotatingGradientBorder";
 import { SignInModal } from "./ui/signInModal";
 
-
 // Helper to create cropped image from crop area
-async function getCroppedImg(imageSrc: string, pixelCrop: Area, rotation = 0): Promise<Blob> {
+async function getCroppedImg(
+  imageSrc: string,
+  pixelCrop: Area,
+  rotation = 0,
+): Promise<Blob> {
   const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
@@ -38,7 +41,11 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area, rotation = 0): P
   const rotRad = (rotation * Math.PI) / 180;
 
   // Calculate bounding box of the rotated image
-  const { width: bBoxWidth, height: bBoxHeight } = rotateSize(image.width, image.height, rotation);
+  const { width: bBoxWidth, height: bBoxHeight } = rotateSize(
+    image.width,
+    image.height,
+    rotation,
+  );
 
   // Set canvas size to match the bounding box
   canvas.width = bBoxWidth;
@@ -70,14 +77,18 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area, rotation = 0): P
     0,
     0,
     pixelCrop.width,
-    pixelCrop.height
+    pixelCrop.height,
   );
 
   return new Promise((resolve, reject) => {
-    croppedCanvas.toBlob((blob) => {
-      if (blob) resolve(blob);
-      else reject(new Error("Canvas toBlob failed"));
-    }, "image/jpeg", 0.95);
+    croppedCanvas.toBlob(
+      (blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error("Canvas toBlob failed"));
+      },
+      "image/jpeg",
+      0.95,
+    );
   });
 }
 
@@ -93,8 +104,10 @@ function createImage(url: string): Promise<HTMLImageElement> {
 function rotateSize(width: number, height: number, rotation: number) {
   const rotRad = (rotation * Math.PI) / 180;
   return {
-    width: Math.abs(Math.cos(rotRad) * width) + Math.abs(Math.sin(rotRad) * height),
-    height: Math.abs(Math.sin(rotRad) * width) + Math.abs(Math.cos(rotRad) * height),
+    width:
+      Math.abs(Math.cos(rotRad) * width) + Math.abs(Math.sin(rotRad) * height),
+    height:
+      Math.abs(Math.sin(rotRad) * width) + Math.abs(Math.cos(rotRad) * height),
   };
 }
 
@@ -102,7 +115,13 @@ interface Props {
   addPhoto: (photo: Photo) => void;
 }
 
-type ProcessingState = "preSelection" | "cropping" | "selected" | "processing" | "success" | "failure";
+type ProcessingState =
+  | "preSelection"
+  | "cropping"
+  | "selected"
+  | "processing"
+  | "success"
+  | "failure";
 
 function getDogModalTitle(processingState: ProcessingState): string {
   switch (processingState) {
@@ -141,14 +160,15 @@ function getDogModalDescription(processingState: ProcessingState): string {
 export default function PhotoUpload({ addPhoto }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
-  const [processingState, setProcessingState] = useState<ProcessingState>("preSelection");
+  const [processingState, setProcessingState] =
+    useState<ProcessingState>("preSelection");
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: session, status } = useSession();
   const [showConfetti, setShowConfetti] = useState(false);
-  const [isDragging, setIsDragging] = useState(false)
+  const [isDragging, setIsDragging] = useState(false);
 
   // Cropper state
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -157,25 +177,25 @@ export default function PhotoUpload({ addPhoto }: Props) {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
   const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") {
-      setIsDragging(true)
+      setIsDragging(true);
     } else if (e.type === "dragleave") {
-      setIsDragging(false)
+      setIsDragging(false);
     }
-  }
+  };
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
 
-    const file = e.dataTransfer.files[0]
+    const file = e.dataTransfer.files[0];
     if (file && file) {
-      handleFile(file)
+      handleFile(file);
     }
-  }
+  };
 
   const handleFile = (file: File) => {
     if (file && file.type.startsWith("image/")) {
@@ -186,7 +206,7 @@ export default function PhotoUpload({ addPhoto }: Props) {
       setRotation(0);
       setProcessingState("cropping");
     }
-  }
+  };
 
   const originalImageUrl = useMemo(() => {
     if (!file) return null;
@@ -198,9 +218,12 @@ export default function PhotoUpload({ addPhoto }: Props) {
     return null;
   }, [croppedFile]);
 
-  const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  }, []);
+  const onCropComplete = useCallback(
+    (_croppedArea: Area, croppedAreaPixels: Area) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    [],
+  );
 
   const resetFileInput = useCallback(() => {
     setFile(null);
@@ -236,8 +259,14 @@ export default function PhotoUpload({ addPhoto }: Props) {
     if (!originalImageUrl || !croppedAreaPixels) return;
 
     try {
-      const croppedBlob = await getCroppedImg(originalImageUrl, croppedAreaPixels, rotation);
-      const croppedFile = new File([croppedBlob], file?.name || "cropped.jpg", { type: "image/jpeg" });
+      const croppedBlob = await getCroppedImg(
+        originalImageUrl,
+        croppedAreaPixels,
+        rotation,
+      );
+      const croppedFile = new File([croppedBlob], file?.name || "cropped.jpg", {
+        type: "image/jpeg",
+      });
       setCroppedFile(croppedFile);
       setProcessingState("selected");
     } catch (error) {
@@ -282,7 +311,13 @@ export default function PhotoUpload({ addPhoto }: Props) {
     const MAX_HEIGHT = 1000;
     const QUALITY = 0.9;
 
-    const resizedImg = await reduceFileSize(croppedFile, MAX_FILE_SIZE, MAX_WIDTH, MAX_HEIGHT, QUALITY);
+    const resizedImg = await reduceFileSize(
+      croppedFile,
+      MAX_FILE_SIZE,
+      MAX_WIDTH,
+      MAX_HEIGHT,
+      QUALITY,
+    );
     const formData = new FormData();
     formData.append("file", resizedImg);
     devLog("[photo-upload] startTime:", Date.now());
@@ -315,9 +350,9 @@ export default function PhotoUpload({ addPhoto }: Props) {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file && file) {
-      handleFile(file)
+      handleFile(file);
     }
   };
 
@@ -344,7 +379,8 @@ export default function PhotoUpload({ addPhoto }: Props) {
           borderRadius="9999px"
           containerClassName="group"
           borderClassName="!opacity-[0.6] transition-all"
-          shadowClassName="!opacity-[0] transition-all group-hover:!opacity-[0.2] pointer-coarse:!opacity-[0.2]">
+          shadowClassName="!opacity-[0] transition-all group-hover:!opacity-[0.2] pointer-coarse:!opacity-[0.2]"
+        >
           <Button
             onClick={handleUploadButtonClick}
             className={cn(
@@ -352,11 +388,12 @@ export default function PhotoUpload({ addPhoto }: Props) {
               "text-foreground",
               "bg-background hover:bg-background",
               "shadow-sm transition-shadow hover:shadow-md pointer-coarse:shadow-md",
-            )}>
+            )}
+          >
             <GradientText className="text-md my-1 from-red-500 via-orange-500 to-yellow-500 text-foreground transition-all group-hover:text-transparent pointer-coarse:text-transparent">
               <LucideDog
                 style={{ width: "24px", height: "24px" }}
-                className="-mt-[2px] mr-2 inline-block text-foreground dark:group-hover:text-red-500 transition-all group-hover:text-red-500 pointer-coarse:text-red-500"
+                className="-mt-[2px] mr-2 inline-block text-foreground transition-all group-hover:text-red-500 dark:group-hover:text-red-500 pointer-coarse:text-red-500"
               />
               Upload Dog Button
             </GradientText>
@@ -368,13 +405,16 @@ export default function PhotoUpload({ addPhoto }: Props) {
         open={showUploadDialog}
         onOpenChange={(open) => {
           if (!open) handleClose();
-        }}>
+        }}
+      >
         <DialogContent
           className={cn(
-            "sm:max-w-[560px] sm:rounded-3xl rounded-3xl p-0",
+            "rounded-3xl p-0 sm:max-w-[560px] sm:rounded-3xl",
             isDogBotMode
-              ? cn("w-[calc(100vw-4rem)] md:w-full border-0 bg-transparent transition-all duration-300")
-              : "border border-border/60 bg-background/90 backdrop-blur shadow-2xl"
+              ? cn(
+                  "w-[calc(100vw-4rem)] border-0 bg-transparent transition-all duration-300 md:w-full",
+                )
+              : "border border-border/60 bg-background/90 shadow-2xl backdrop-blur",
           )}
           hideCloseButton={isDogBotMode}
         >
@@ -386,13 +426,20 @@ export default function PhotoUpload({ addPhoto }: Props) {
               borderWidth={3}
               shadowWidth={8}
               shadowSkew={90}
-              borderRadius="26px" containerClassName="relative inset-0 h-full w-full" borderColors={getDogBotBorderColors(processingState)}>
-              <div className={cn("relative aspect-square overflow-hidden rounded-3xl")}>
+              borderRadius="26px"
+              containerClassName="relative inset-0 h-full w-full"
+              borderColors={getDogBotBorderColors(processingState)}
+            >
+              <div
+                className={cn(
+                  "relative aspect-square overflow-hidden rounded-3xl",
+                )}
+              >
                 <Image
                   src={previewUrl!}
                   alt="Dog photo"
                   fill={true}
-                  className="object-cover scale-[1.01]"
+                  className="scale-[1.01] object-cover"
                 />
                 <DogBotCard processingState={processingState} />
               </div>
@@ -411,7 +458,7 @@ export default function PhotoUpload({ addPhoto }: Props) {
                 </DialogHeader>
               </div>
 
-              <div className="px-6 pb-6 pt-4">
+              <div className="px-6 pt-4 pb-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {!file ? (
                     <label
@@ -421,24 +468,34 @@ export default function PhotoUpload({ addPhoto }: Props) {
                       onDragOver={handleDrag}
                       onDrop={handleDrop}
                       className={cn(
-                        "hover:bg-muted/40 pointer-coarse:bg-muted/40 transition-all duration-300 group flex cursor-pointer flex-col items-center justify-center rounded-xl p-3",
-                        isDragging && "bg-primary/10 scale-105"
-                      )}>
+                        "group flex cursor-pointer flex-col items-center justify-center rounded-xl p-3 transition-all duration-300 hover:bg-muted/40 pointer-coarse:bg-muted/40",
+                        isDragging && "scale-105 bg-primary/10",
+                      )}
+                    >
                       <div
                         className={cn(
-                          "w-full h-full group-hover:bg-muted/40 pointer-coarse:bg-muted/40 group-hover:border-border pointer-coarse:border-border focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background relative flex flex-col items-center justify-center px-8 py-24 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-300 gap-2",
+                          "relative flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-8 py-24 transition-all duration-300 group-hover:border-border group-hover:bg-muted/40 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background pointer-coarse:border-border pointer-coarse:bg-muted/40",
                           isDragging
-                            ? "border-primary bg-primary/10 scale-105"
+                            ? "scale-105 border-primary bg-primary/10"
                             : "border-border group-hover:border-primary group-hover:bg-secondary/50 pointer-coarse:border-primary pointer-coarse:bg-secondary/50",
                         )}
                       >
-                        <div className={cn("flex h-14 w-14 items-center justify-center rounded-2xl bg-background shadow-sm ring-1 ring-border/60 transition group-hover:shadow-md pointer-coarse:shadow-md",
-                          isDragging ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
-                        )}>
+                        <div
+                          className={cn(
+                            "flex h-14 w-14 items-center justify-center rounded-2xl bg-background shadow-sm ring-1 ring-border/60 transition group-hover:shadow-md pointer-coarse:shadow-md",
+                            isDragging
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-secondary text-secondary-foreground",
+                          )}
+                        >
                           <LucideDog className="h-7 w-7 text-foreground transition-all duration-300 group-hover:text-primary pointer-coarse:text-primary" />
                         </div>
-                        <p className="font-bold text-card-foreground mb-1 transition-all duration-300 group-hover:text-primary pointer-coarse:text-primary">Upload a dog photo</p>
-                        <p className="text-sm text-muted-foreground">Drag & drop or click to browse</p>
+                        <p className="mb-1 font-bold text-card-foreground transition-all duration-300 group-hover:text-primary pointer-coarse:text-primary">
+                          Upload a dog photo
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Drag & drop or click to browse
+                        </p>
                       </div>
                     </label>
                   ) : processingState === "cropping" ? (
@@ -463,7 +520,9 @@ export default function PhotoUpload({ addPhoto }: Props) {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">Zoom</span>
-                          <span className="font-mono text-xs text-muted-foreground">{zoom.toFixed(1)}x</span>
+                          <span className="font-mono text-xs text-muted-foreground">
+                            {zoom.toFixed(1)}x
+                          </span>
                         </div>
                         <input
                           type="range"
@@ -482,13 +541,15 @@ export default function PhotoUpload({ addPhoto }: Props) {
                           type="button"
                           onClick={handleCancel}
                           variant="outline"
-                          className="flex-1 rounded-xl">
+                          className="flex-1 rounded-xl"
+                        >
                           Cancel
                         </Button>
                         <Button
                           type="button"
                           onClick={handleCropConfirm}
-                          className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90">
+                          className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90"
+                        >
                           <HugeiconsIcon icon={CropIcon} size={16} />
                           Crop
                         </Button>
@@ -514,12 +575,14 @@ export default function PhotoUpload({ addPhoto }: Props) {
                           type="button"
                           onClick={handleCancel}
                           variant="outline"
-                          className="flex-1 rounded-xl">
+                          className="flex-1 rounded-xl"
+                        >
                           Cancel
                         </Button>
                         <Button
                           type="submit"
-                          className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90">
+                          className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90"
+                        >
                           <HugeiconsIcon icon={UploadCircle02Icon} size={16} />
                           Upload
                         </Button>
@@ -542,7 +605,10 @@ export default function PhotoUpload({ addPhoto }: Props) {
         </DialogContent>
       </Dialog>
 
-      <SignInModal showSignInModal={showSignInModal} setShowSignInModal={setShowSignInModal} />
+      <SignInModal
+        showSignInModal={showSignInModal}
+        setShowSignInModal={setShowSignInModal}
+      />
     </section>
   );
 }

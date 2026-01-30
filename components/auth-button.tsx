@@ -13,7 +13,13 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Login01Icon, Logout01Icon, Moon02Icon, Sun01Icon, UserIcon } from "@hugeicons/core-free-icons";
+import {
+  Login01Icon,
+  Logout01Icon,
+  Moon02Icon,
+  Sun01Icon,
+  UserIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { cva, VariantProps } from "class-variance-authority";
 import { signOut, useSession } from "next-auth/react";
@@ -35,8 +41,19 @@ const iconSizeVariants = cva("transition-colors duration-200", {
   },
 });
 
-
-export function AuthButton({ className, children, isActive, iconVariant = { size: "lg" }, hideSubMenuArrow }: { className?: string, children?: React.ReactNode, isActive?: boolean, iconVariant?: VariantProps<typeof iconSizeVariants>, hideSubMenuArrow?: boolean }) {
+export function AuthButton({
+  className,
+  children,
+  isActive,
+  iconVariant = { size: "lg" },
+  hideSubMenuArrow,
+}: {
+  className?: string;
+  children?: React.ReactNode;
+  isActive?: boolean;
+  iconVariant?: VariantProps<typeof iconSizeVariants>;
+  hideSubMenuArrow?: boolean;
+}) {
   const { data: session, status } = useSession();
   const { setTheme } = useTheme();
   const [showSignInModal, setShowSignInModal] = useState(false);
@@ -68,32 +85,46 @@ export function AuthButton({ className, children, isActive, iconVariant = { size
     const profilePictureUrl = profile?.profilePicture
       ? getProfilePictureUrl(profile.profilePicture)
       : session.user?.image;
-    const displayName = profile?.displayName || session.user?.name || session.user?.email;
-    const profileUrl = session.user?.id ? `/profile/${encodeURIComponent(session.user.id)}` : "#";
+    const displayName =
+      profile?.displayName || session.user?.name || session.user?.email;
+    const profileUrl = session.user?.id
+      ? `/profile/${encodeURIComponent(session.user.id)}`
+      : "#";
 
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className={cn("outline-none ring-0 flex flex-col cursor-pointer items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none", className)}>
-            <div className={cn(
-              "flex w-full flex-col h-full group items-center justify-center gap-1 p-2 rounded-xl transition-colors duration-200",
-              "group-hover:bg-primary/20"
-            )}>
+          <button
+            className={cn(
+              "flex cursor-pointer flex-col items-center gap-2 rounded-full ring-0 transition-opacity outline-none hover:opacity-80 focus:outline-none",
+              className,
+            )}
+          >
+            <div
+              className={cn(
+                "group flex h-full w-full flex-col items-center justify-center gap-1 rounded-xl p-2 transition-colors duration-200",
+                "group-hover:bg-primary/20",
+              )}
+            >
               {profilePictureUrl ? (
                 <img
                   src={profilePictureUrl}
                   alt={displayName || "User"}
                   className={cn(
                     "h-8 w-8 rounded-full object-cover",
-                    iconSizeVariants(iconVariant)
+                    iconSizeVariants(iconVariant),
                   )}
                 />
               ) : (
-                <HugeiconsIcon icon={UserIcon} className={cn(
-                  iconSizeVariants(iconVariant),
-                  isActive && "text-primary",
-                  !isActive && "text-muted-foreground group-hover:text-primary"
-                )} />
+                <HugeiconsIcon
+                  icon={UserIcon}
+                  className={cn(
+                    iconSizeVariants(iconVariant),
+                    isActive && "text-primary",
+                    !isActive &&
+                      "text-muted-foreground group-hover:text-primary",
+                  )}
+                />
               )}
               {children && children}
             </div>
@@ -106,12 +137,18 @@ export function AuthButton({ className, children, isActive, iconVariant = { size
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link href={profileUrl} className="cursor-pointer">
-              <HugeiconsIcon icon={UserIcon} className={cn(iconSizeVariants(iconVariant), "mr-2")} />
+              <HugeiconsIcon
+                icon={UserIcon}
+                className={cn(iconSizeVariants(iconVariant), "mr-2")}
+              />
               Profile
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="cursor-pointer" hideArrow={hideSubMenuArrow}>
+            <DropdownMenuSubTrigger
+              className="cursor-pointer"
+              hideArrow={hideSubMenuArrow}
+            >
               <span className="dark:hidden">
                 <HugeiconsIcon icon={Sun01Icon} size={20} className="mr-2" />
               </span>
@@ -121,9 +158,15 @@ export function AuthButton({ className, children, isActive, iconVariant = { size
               Theme
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
-              <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                System
+              </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
           <DropdownMenuSeparator />
@@ -144,22 +187,40 @@ export function AuthButton({ className, children, isActive, iconVariant = { size
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className={cn("outline-none ring-0 flex flex-col cursor-pointer items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none", className)}>
-            <div className={cn(
-              "flex flex-col h-full group items-center justify-center gap-1 p-2 rounded-xl transition-colors duration-200",
-              "group-hover:bg-primary/20"
-            )}>
-              {status === "loading" && <BounceLoader color={"oklch(0.75 0.15 55)"} loading={true} size={25} />}
+          <button
+            className={cn(
+              "flex cursor-pointer flex-col items-center gap-2 rounded-full ring-0 transition-opacity outline-none hover:opacity-80 focus:outline-none",
+              className,
+            )}
+          >
+            <div
+              className={cn(
+                "group flex h-full flex-col items-center justify-center gap-1 rounded-xl p-2 transition-colors duration-200",
+                "group-hover:bg-primary/20",
+              )}
+            >
+              {status === "loading" && (
+                <BounceLoader
+                  color={"oklch(0.75 0.15 55)"}
+                  loading={true}
+                  size={25}
+                />
+              )}
               {status !== "loading" && (
                 <>
-                  <HugeiconsIcon icon={UserIcon} className={cn(
-                    iconSizeVariants(iconVariant),
-                    "h-6 w-6 transition-colors duration-200",
-                    isActive && "text-primary",
-                    !isActive && "text-muted-foreground group-hover:text-primary"
-                  )} />
+                  <HugeiconsIcon
+                    icon={UserIcon}
+                    className={cn(
+                      iconSizeVariants(iconVariant),
+                      "h-6 w-6 transition-colors duration-200",
+                      isActive && "text-primary",
+                      !isActive &&
+                        "text-muted-foreground group-hover:text-primary",
+                    )}
+                  />
                   {children && children}
-                </>)}
+                </>
+              )}
             </div>
           </button>
         </DropdownMenuTrigger>
@@ -168,11 +229,17 @@ export function AuthButton({ className, children, isActive, iconVariant = { size
             onClick={() => setShowSignInModal(true)}
             className="cursor-pointer"
           >
-            <HugeiconsIcon icon={Login01Icon} className={cn(iconSizeVariants(iconVariant), "mr-2")} />
+            <HugeiconsIcon
+              icon={Login01Icon}
+              className={cn(iconSizeVariants(iconVariant), "mr-2")}
+            />
             Sign In
           </DropdownMenuItem>
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="cursor-pointer" hideArrow={hideSubMenuArrow}>
+            <DropdownMenuSubTrigger
+              className="cursor-pointer"
+              hideArrow={hideSubMenuArrow}
+            >
               <span className="dark:hidden">
                 <HugeiconsIcon icon={Sun01Icon} size={20} className="mr-2" />
               </span>
@@ -182,9 +249,15 @@ export function AuthButton({ className, children, isActive, iconVariant = { size
               Theme
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
-              <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                System
+              </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
         </DropdownMenuContent>

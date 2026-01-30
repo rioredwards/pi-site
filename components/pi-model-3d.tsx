@@ -13,10 +13,10 @@ interface PiTiltControls {
   lerpSpeed: number;
 
   // ambient loop (optional)
-  bobAmount?: number;   // world units
-  bobSpeed?: number;    // radians/sec-ish
-  idleTiltX?: number;   // radians
-  idleTiltY?: number;   // radians
+  bobAmount?: number; // world units
+  bobSpeed?: number; // radians/sec-ish
+  idleTiltX?: number; // radians
+  idleTiltY?: number; // radians
   idleTiltSpeed?: number;
 }
 
@@ -25,7 +25,7 @@ const DEFAULTS: PiTiltControls = {
   invertDepth: false,
   rotationX: 0.25,
   rotationY: 0.35,
-  lerpSpeed: 0.10,
+  lerpSpeed: 0.1,
 
   bobAmount: 0.02,
   bobSpeed: 1.2,
@@ -139,19 +139,19 @@ export function PiModel3D({
       meshRef.current.rotation.x = THREE.MathUtils.lerp(
         meshRef.current.rotation.x,
         targetRx,
-        controls.lerpSpeed
+        controls.lerpSpeed,
       );
       meshRef.current.rotation.y = THREE.MathUtils.lerp(
         meshRef.current.rotation.y,
         targetRy,
-        controls.lerpSpeed
+        controls.lerpSpeed,
       );
 
       // Smooth bob (keep x/z stable)
       meshRef.current.position.y = THREE.MathUtils.lerp(
         meshRef.current.position.y,
         bobY,
-        Math.min(1, controls.lerpSpeed * 0.6)
+        Math.min(1, controls.lerpSpeed * 0.6),
       );
     }
   });

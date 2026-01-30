@@ -9,10 +9,15 @@ export function cn(...inputs: ClassValue[]) {
 // Handles both local filenames and external OAuth URLs
 const PROFILE_PICTURE_READ_BASE_URL = "/api/assets/profiles/";
 
-export function getProfilePictureUrl(filenameOrUrl: string | null): string | null {
+export function getProfilePictureUrl(
+  filenameOrUrl: string | null,
+): string | null {
   if (!filenameOrUrl) return null;
   // If it's already a URL (OAuth profile picture), return as-is
-  if (filenameOrUrl.startsWith("http://") || filenameOrUrl.startsWith("https://")) {
+  if (
+    filenameOrUrl.startsWith("http://") ||
+    filenameOrUrl.startsWith("https://")
+  ) {
     return filenameOrUrl;
   }
   // Otherwise, build the local path for uploaded pictures
@@ -32,7 +37,9 @@ export const devLog =
 
 export function isMobile(): boolean {
   const isMobile =
-    typeof window !== "undefined" ? window.matchMedia("(any-pointer:coarse)").matches : false;
+    typeof window !== "undefined"
+      ? window.matchMedia("(any-pointer:coarse)").matches
+      : false;
 
   return isMobile;
 }

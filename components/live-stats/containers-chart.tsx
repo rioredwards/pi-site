@@ -2,8 +2,10 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  ResponsiveContainer, Tooltip, XAxis,
-  YAxis
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 import { ChartWrap } from "./chart-wrap";
 import { StatusPill } from "./status-pill";
@@ -40,7 +42,9 @@ export function ContainersChart({
               ? "Containers OK"
               : "Container issues"
           }
-          tone={Number(containerSummary?.unhealthy ?? 0) === 0 ? "good" : "warn"}
+          tone={
+            Number(containerSummary?.unhealthy ?? 0) === 0 ? "good" : "warn"
+          }
         />
       }
     >
@@ -83,7 +87,8 @@ export function ContainersChart({
         {containersByCpu.slice(0, 4).map((c) => {
           // Containers without Docker healthcheck return "none" - treat as healthy if running
           const isHealthyOrRunning =
-            c.health === "healthy" || (c.health === "none" && c.state === "running");
+            c.health === "healthy" ||
+            (c.health === "none" && c.state === "running");
           const tone: Tone = isHealthyOrRunning
             ? "good"
             : c.health === "starting"
@@ -113,10 +118,7 @@ export function ContainersChart({
                 <div className="text-xs font-semibold text-zinc-100">
                   {c.cpu.toFixed(2)}%
                 </div>
-                <StatusPill
-                  label={healthLabel}
-                  tone={tone}
-                />
+                <StatusPill label={healthLabel} tone={tone} />
               </div>
             </div>
           );

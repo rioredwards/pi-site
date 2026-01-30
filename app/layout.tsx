@@ -4,7 +4,7 @@ import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import type { Metadata, Viewport } from "next";
-import { Comfortaa, Inter } from 'next/font/google';
+import { Comfortaa, Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
@@ -19,7 +19,9 @@ const comfortaa = Comfortaa({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  ),
   title: {
     default: "DogTown",
     template: "%s | DogTown",
@@ -64,14 +66,28 @@ export const viewport: Viewport = {
   themeColor: "#09090b",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
   const umamiUrl = process.env.NEXT_PUBLIC_UMAMI_URL;
 
   return (
-    <html lang="en" className={`${inter.variable} ${comfortaa.variable} scroll-smooth antialiased`} suppressHydrationWarning>
-      <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
-      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1.0"></meta>
+    <html
+      lang="en"
+      className={`${inter.variable} ${comfortaa.variable} scroll-smooth antialiased`}
+      suppressHydrationWarning
+    >
+      <meta
+        name="format-detection"
+        content="telephone=no, date=no, email=no, address=no"
+      />
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1.0"
+      ></meta>
       {umamiWebsiteId && umamiUrl && (
         <Script
           defer
@@ -80,20 +96,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="afterInteractive"
         />
       )}
-      <body className="font-sans flex min-h-screen flex-col">
+      <body className="flex min-h-screen flex-col font-sans">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange>
+          disableTransitionOnChange
+        >
           <Providers>
             <Header />
-            <main className="container mx-auto max-w-7xl flex-1 pt-8">{children}</main>
+            <main className="container mx-auto max-w-7xl flex-1 pt-8">
+              {children}
+            </main>
             <Toaster />
             <Footer />
           </Providers>
         </ThemeProvider>
       </body>
-    </html >
+    </html>
   );
 }

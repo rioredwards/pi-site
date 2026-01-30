@@ -30,13 +30,13 @@ Both monitoring systems are now properly set up. Here's what's working now:
 
 What's Fixed
 ┌─────────────────────┬───────────────────────┬─────────────────────────────────────────────┐
-│       System        │        Status         │                  Location                   │
+│ System │ Status │ Location │
 ├─────────────────────┼───────────────────────┼─────────────────────────────────────────────┤
-│ Journal persistence │ Active                │ journalctl -b -1 will work after next crash │
+│ Journal persistence │ Active │ journalctl -b -1 will work after next crash │
 ├─────────────────────┼───────────────────────┼─────────────────────────────────────────────┤
-│ Memory monitor      │ Running (every 5 min) │ /var/log/container-memory.log               │
+│ Memory monitor │ Running (every 5 min) │ /var/log/container-memory.log │
 ├─────────────────────┼───────────────────────┼─────────────────────────────────────────────┤
-│ Auto-start on boot  │ Enabled               │ mem-monitor.service                         │
+│ Auto-start on boot │ Enabled │ mem-monitor.service │
 └─────────────────────┴───────────────────────┴─────────────────────────────────────────────┘
 Hardware Check Results
 
@@ -47,6 +47,7 @@ Hardware Check Results
 Current Memory Usage
 
 Your containers are using the updated limits (I see you adjusted them):
+
 - web: 71MB / 768MB
 - ai-img-validator: 430MB / 1.5GB
 - db: 53MB / 512MB
@@ -57,12 +58,15 @@ If It Crashes Again
 Run these after reboot:
 
 # Check previous boot logs
+
 journalctl -b -1 | tail -100
 
 # Check memory trend before crash
+
 cat /var/log/container-memory.log | tail -50
 
 # Check for OOM events
+
 journalctl -b -1 | grep -i "oom\|killed\|out of memory"
 
 Since containers show 0 restarts and hardware looks fine, the crash might be something outside Docker entirely. The logs from the next crash should tell us more.

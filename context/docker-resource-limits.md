@@ -6,14 +6,15 @@ Production containers use the modern `deploy.resources` syntax (Compose v3+) for
 
 ## Current Allocations (Pi 5: 4 cores, 8GB RAM)
 
-| Service | CPU Limit | CPU Reserved | Memory Limit | Memory Reserved |
-|---------|-----------|--------------|--------------|-----------------|
-| web | 2 | 0.5 | 768M | 384M |
-| system-profiler | 0.5 | 0.25 | 256M | 128M |
-| ai-img-validator | 2 | 0.5 | 1536M | 768M |
-| db | 1 | 0.25 | 512M | 256M |
+| Service          | CPU Limit | CPU Reserved | Memory Limit | Memory Reserved |
+| ---------------- | --------- | ------------ | ------------ | --------------- |
+| web              | 2         | 0.5          | 768M         | 384M            |
+| system-profiler  | 0.5       | 0.25         | 256M         | 128M            |
+| ai-img-validator | 2         | 0.5          | 1536M        | 768M            |
+| db               | 1         | 0.25         | 512M         | 256M            |
 
 **Totals:**
+
 - Limits: ~3GB RAM, 5.5 CPU cores (burst capacity)
 - Reservations: ~1.5GB RAM, 1.5 CPU cores (guaranteed minimums)
 

@@ -1,27 +1,27 @@
-import { devLog } from '@/app/lib/utils';
-import chalk from 'chalk';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { devLog } from "@/app/lib/utils";
+import chalk from "chalk";
+import { promises as fs } from "fs";
+import path from "path";
 
-const CACHE_DIR = path.resolve('.cache'); // Adjust the cache directory as needed
-const TAGS_MANIFEST = path.join(CACHE_DIR, 'tags-manifest.json');
+const CACHE_DIR = path.resolve(".cache"); // Adjust the cache directory as needed
+const TAGS_MANIFEST = path.join(CACHE_DIR, "tags-manifest.json");
 
 // Initialize cache directory and tags manifest outside the class
 (async () => {
   try {
     await fs.mkdir(CACHE_DIR, { recursive: true });
-    devLog(chalk.blue('🔧 Cache directory initialized'));
+    devLog(chalk.blue("🔧 Cache directory initialized"));
   } catch (err) {
-    devLog('Failed to initialize cache directory', err);
+    devLog("Failed to initialize cache directory", err);
   }
 })();
 
 async function loadTagsManifest() {
   try {
-    const data = await fs.readFile(TAGS_MANIFEST, 'utf8');
+    const data = await fs.readFile(TAGS_MANIFEST, "utf8");
     return JSON.parse(data);
   } catch (err) {
-    if (err.code === 'ENOENT') {
+    if (err.code === "ENOENT") {
       return { items: {} };
     }
     throw err;
@@ -49,7 +49,7 @@ class CacheHandler {
     const filePath = this.getFilePath(key);
 
     try {
-      const data = await fs.readFile(filePath, 'utf8');
+      const data = await fs.readFile(filePath, "utf8");
       const entry = JSON.parse(data);
       const { value, lastModified } = entry;
 
@@ -58,9 +58,9 @@ class CacheHandler {
       if (
         (!cacheTags || cacheTags.length === 0) &&
         value.headers &&
-        value.headers['x-next-cache-tags']
+        value.headers["x-next-cache-tags"]
       ) {
-        cacheTags = value.headers['x-next-cache-tags'].split(',');
+        cacheTags = value.headers["x-next-cache-tags"].split(",");
       }
 
       const tagsManifest = await loadTagsManifest();
@@ -74,9 +74,9 @@ class CacheHandler {
           devLog(
             chalk.red(
               `♻️ Cache entry for key ${chalk.bold(
-                key
-              )} is stale due to tag ${chalk.bold(tag)} revalidation`
-            )
+                key,
+              )} is stale due to tag ${chalk.bold(tag)} revalidation`,
+            ),
           );
           break;
         }
@@ -86,9 +86,9 @@ class CacheHandler {
         devLog(
           chalk.yellow(
             `⚠️ Cache entry for key ${chalk.bold(
-              key
-            )} is stale due to stale tags`
-          )
+              key,
+            )} is stale due to stale tags`,
+          ),
         );
         return null;
       }
@@ -107,8 +107,8 @@ class CacheHandler {
   async set(key, data, ctx = {}) {
     let tags = ctx.tags || [];
 
-    if (data && data.headers && data.headers['x-next-cache-tags']) {
-      const headerTags = data.headers['x-next-cache-tags'].split(',');
+    if (data && data.headers && data.headers["x-next-cache-tags"]) {
+      const headerTags = data.headers["x-next-cache-tags"].split(",");
       tags = [...new Set([...tags, ...headerTags])];
     }
 
@@ -124,7 +124,7 @@ class CacheHandler {
       await fs.writeFile(filePath, JSON.stringify(entry));
       devLog(chalk.cyan(`📥 Set cached data for key: ${chalk.bold(key)}`));
       if (tags.length > 0) {
-        devLog(chalk.gray(`   Tags: ${tags.join(', ')}`));
+        devLog(chalk.gray(`   Tags: ${tags.join(", ")}`));
       }
     } catch (err) {
       devLog(`Failed to write cache entry for key ${key}`, err);
@@ -134,7 +134,9 @@ class CacheHandler {
   async revalidateTag(tags) {
     const tagsArray = Array.isArray(tags) ? tags : [tags];
     devLog(
-      chalk.magenta(`🔄 Revalidating tags: ${chalk.bold(tagsArray.join(', '))}`)
+      chalk.magenta(
+        `🔄 Revalidating tags: ${chalk.bold(tagsArray.join(", "))}`,
+      ),
     );
 
     const now = Date.now();
@@ -144,18 +146,18 @@ class CacheHandler {
       devLog(
         chalk.blue(
           `   ⏰ Tag ${chalk.bold(tag)} revalidated at ${new Date(
-            now
-          ).toISOString()}`
-        )
+            now,
+          ).toISOString()}`,
+        ),
       );
     }
 
     devLog(
       chalk.magenta(
         `✨ Revalidation complete for tags: ${chalk.bold(
-          tagsArray.join(', ')
-        )}.`
-      )
+          tagsArray.join(", "),
+        )}.`,
+      ),
     );
   }
 }

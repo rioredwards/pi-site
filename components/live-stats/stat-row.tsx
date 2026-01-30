@@ -17,7 +17,9 @@ export function StatRow({
           <div className="text-xs font-medium text-zinc-400">{label}</div>
         </div>
         {sub ? (
-          <div className="mt-1 text-[11px] leading-snug text-zinc-500">{sub}</div>
+          <div className="mt-1 text-[11px] leading-snug text-zinc-500">
+            {sub}
+          </div>
         ) : null}
       </div>
       <div className="shrink-0 text-right text-sm font-semibold text-zinc-100">

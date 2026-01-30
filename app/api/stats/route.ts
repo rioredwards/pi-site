@@ -17,8 +17,10 @@ function getSystemProfilerAuthToken(): string | null {
 }
 
 function getConfigError(): string | null {
-  if (!getSystemProfilerBaseUrl()) return "SYSTEM_PROFILER_BASE_URL is not configured";
-  if (!getSystemProfilerAuthToken()) return "SYSTEM_PROFILER_AUTH_TOKEN is not configured";
+  if (!getSystemProfilerBaseUrl())
+    return "SYSTEM_PROFILER_BASE_URL is not configured";
+  if (!getSystemProfilerAuthToken())
+    return "SYSTEM_PROFILER_AUTH_TOKEN is not configured";
   return null;
 }
 

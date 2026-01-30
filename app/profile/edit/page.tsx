@@ -20,7 +20,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SignInModal } from "@/components/ui/signInModal";
 import { useToast } from "@/hooks/use-toast";
-import { Camera01Icon, Loading01Icon, RotateClockwiseIcon, UserIcon } from "@hugeicons/core-free-icons";
+import {
+  Camera01Icon,
+  Loading01Icon,
+  RotateClockwiseIcon,
+  UserIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import BounceLoader from "react-spinners/BounceLoader";
 import { useSession } from "next-auth/react";
@@ -29,7 +34,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Cropper, { Area } from "react-easy-crop";
 
 // Helper to create cropped image from crop area
-async function getCroppedImg(imageSrc: string, pixelCrop: Area, rotation = 0): Promise<Blob> {
+async function getCroppedImg(
+  imageSrc: string,
+  pixelCrop: Area,
+  rotation = 0,
+): Promise<Blob> {
   const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
@@ -39,7 +48,11 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area, rotation = 0): P
   const rotRad = (rotation * Math.PI) / 180;
 
   // Calculate bounding box of the rotated image
-  const { width: bBoxWidth, height: bBoxHeight } = rotateSize(image.width, image.height, rotation);
+  const { width: bBoxWidth, height: bBoxHeight } = rotateSize(
+    image.width,
+    image.height,
+    rotation,
+  );
 
   // Set canvas size to match the bounding box
   canvas.width = bBoxWidth;
@@ -71,7 +84,7 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area, rotation = 0): P
     0,
     0,
     pixelCrop.width,
-    pixelCrop.height
+    pixelCrop.height,
   );
 
   return new Promise((resolve, reject) => {
@@ -81,7 +94,7 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area, rotation = 0): P
         else reject(new Error("Canvas toBlob failed"));
       },
       "image/jpeg",
-      0.95
+      0.95,
     );
   });
 }
@@ -98,8 +111,10 @@ function createImage(url: string): Promise<HTMLImageElement> {
 function rotateSize(width: number, height: number, rotation: number) {
   const rotRad = (rotation * Math.PI) / 180;
   return {
-    width: Math.abs(Math.cos(rotRad) * width) + Math.abs(Math.sin(rotRad) * height),
-    height: Math.abs(Math.sin(rotRad) * width) + Math.abs(Math.cos(rotRad) * height),
+    width:
+      Math.abs(Math.cos(rotRad) * width) + Math.abs(Math.sin(rotRad) * height),
+    height:
+      Math.abs(Math.sin(rotRad) * width) + Math.abs(Math.cos(rotRad) * height),
   };
 }
 
@@ -151,9 +166,12 @@ export default function EditProfilePage() {
     loadProfile();
   }, [session?.user?.id, status]);
 
-  const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  }, []);
+  const onCropComplete = useCallback(
+    (_croppedArea: Area, croppedAreaPixels: Area) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    [],
+  );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -174,8 +192,14 @@ export default function EditProfilePage() {
 
     setIsUploadingPicture(true);
     try {
-      const croppedBlob = await getCroppedImg(originalImageUrl, croppedAreaPixels, rotation);
-      const croppedFile = new File([croppedBlob], selectedFile.name, { type: "image/jpeg" });
+      const croppedBlob = await getCroppedImg(
+        originalImageUrl,
+        croppedAreaPixels,
+        rotation,
+      );
+      const croppedFile = new File([croppedBlob], selectedFile.name, {
+        type: "image/jpeg",
+      });
 
       // Resize the image
       const MAX_FILE_SIZE = 200 * 1000; // 200KB for profile pictures
@@ -183,7 +207,13 @@ export default function EditProfilePage() {
       const MAX_HEIGHT = 400;
       const QUALITY = 0.9;
 
-      const resizedImg = await reduceFileSize(croppedFile, MAX_FILE_SIZE, MAX_WIDTH, MAX_HEIGHT, QUALITY);
+      const resizedImg = await reduceFileSize(
+        croppedFile,
+        MAX_FILE_SIZE,
+        MAX_WIDTH,
+        MAX_HEIGHT,
+        QUALITY,
+      );
 
       // Upload the image
       const formData = new FormData();
@@ -235,7 +265,9 @@ export default function EditProfilePage() {
 
     setIsSaving(true);
     try {
-      const result = await updateUserProfile({ displayName: displayName.trim() });
+      const result = await updateUserProfile({
+        displayName: displayName.trim(),
+      });
 
       if (result.error) {
         toast({
@@ -271,13 +303,19 @@ export default function EditProfilePage() {
     }
   };
 
-  const profilePictureUrl = profile ? getProfilePictureUrl(profile.profilePicture) : null;
+  const profilePictureUrl = profile
+    ? getProfilePictureUrl(profile.profilePicture)
+    : null;
 
   if (isLoading || status === "loading") {
     return (
-      <div className="container mx-auto py-8 px-4">
+      <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center py-16">
-          <BounceLoader color={"oklch(0.75 0.15 55)"} loading={true} size={40} />
+          <BounceLoader
+            color={"oklch(0.75 0.15 55)"}
+            loading={true}
+            size={40}
+          />
         </div>
       </div>
     );
@@ -285,7 +323,7 @@ export default function EditProfilePage() {
 
   if (!session?.user?.id) {
     return (
-      <div className="container mx-auto py-8 px-4">
+      <div className="container mx-auto px-4 py-8">
         <div className="mx-auto max-w-md text-center">
           <h1 className="text-2xl font-bold">Sign In Required</h1>
           <p className="mt-2 text-muted-foreground">
@@ -295,13 +333,16 @@ export default function EditProfilePage() {
             Sign In
           </Button>
         </div>
-        <SignInModal showSignInModal={showSignInModal} setShowSignInModal={setShowSignInModal} />
+        <SignInModal
+          showSignInModal={showSignInModal}
+          setShowSignInModal={setShowSignInModal}
+        />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto px-4 py-8">
       <div className="mx-auto max-w-md">
         <h1 className="text-2xl font-bold tracking-tight">Edit Profile</h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -316,17 +357,21 @@ export default function EditProfilePage() {
                 <img
                   src={profilePictureUrl}
                   alt={profile?.displayName || "User"}
-                  className="h-32 w-32 rounded-full object-cover ring-4 ring-background shadow-lg"
+                  className="h-32 w-32 rounded-full object-cover shadow-lg ring-4 ring-background"
                 />
               ) : (
-                <div className="flex h-32 w-32 items-center justify-center rounded-full bg-muted ring-4 ring-background shadow-lg">
-                  <HugeiconsIcon icon={UserIcon} size={64} className="text-muted-foreground" />
+                <div className="flex h-32 w-32 items-center justify-center rounded-full bg-muted shadow-lg ring-4 ring-background">
+                  <HugeiconsIcon
+                    icon={UserIcon}
+                    size={64}
+                    className="text-muted-foreground"
+                  />
                 </div>
               )}
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md hover:bg-primary/90 transition-colors"
+                className="absolute right-0 bottom-0 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-colors hover:bg-primary/90"
               >
                 <HugeiconsIcon icon={Camera01Icon} size={20} />
               </button>
@@ -370,14 +415,14 @@ export default function EditProfilePage() {
             >
               Cancel
             </Button>
-            <Button
-              onClick={handleSave}
-              className="flex-1"
-              disabled={isSaving}
-            >
+            <Button onClick={handleSave} className="flex-1" disabled={isSaving}>
               {isSaving ? (
                 <>
-                  <HugeiconsIcon icon={Loading01Icon} size={16} className="mr-2 animate-spin" />
+                  <HugeiconsIcon
+                    icon={Loading01Icon}
+                    size={16}
+                    className="mr-2 animate-spin"
+                  />
                   Saving...
                 </>
               ) : (
@@ -389,8 +434,11 @@ export default function EditProfilePage() {
       </div>
 
       {/* Crop Dialog */}
-      <Dialog open={showCropDialog} onOpenChange={(open) => !open && handleCropCancel()}>
-        <DialogContent className="sm:max-w-[500px] rounded-3xl border border-border/60 bg-background/90 p-0 shadow-2xl backdrop-blur">
+      <Dialog
+        open={showCropDialog}
+        onOpenChange={(open) => !open && handleCropCancel()}
+      >
+        <DialogContent className="rounded-3xl border border-border/60 bg-background/90 p-0 shadow-2xl backdrop-blur sm:max-w-[500px]">
           <div className="px-6 pt-6">
             <DialogHeader className="space-y-1">
               <DialogTitle className="text-xl tracking-tight">
@@ -402,7 +450,7 @@ export default function EditProfilePage() {
             </DialogHeader>
           </div>
 
-          <div className="px-6 pb-6 pt-4 space-y-4">
+          <div className="space-y-4 px-6 pt-4 pb-6">
             {/* Cropper */}
             {originalImageUrl && (
               <div className="relative overflow-hidden rounded-2xl ring-1 ring-border/60">
@@ -426,7 +474,9 @@ export default function EditProfilePage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Zoom</span>
-                <span className="font-mono text-xs text-muted-foreground">{zoom.toFixed(1)}x</span>
+                <span className="font-mono text-xs text-muted-foreground">
+                  {zoom.toFixed(1)}x
+                </span>
               </div>
               <input
                 type="range"
@@ -464,13 +514,17 @@ export default function EditProfilePage() {
                 onClick={handleCropConfirm}
                 className={cn(
                   "flex-1 rounded-xl",
-                  "bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  "bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600",
                 )}
                 disabled={isUploadingPicture}
               >
                 {isUploadingPicture ? (
                   <>
-                    <HugeiconsIcon icon={Loading01Icon} size={16} className="mr-2 animate-spin" />
+                    <HugeiconsIcon
+                      icon={Loading01Icon}
+                      size={16}
+                      className="mr-2 animate-spin"
+                    />
                     Uploading...
                   </>
                 ) : (
@@ -482,7 +536,10 @@ export default function EditProfilePage() {
         </DialogContent>
       </Dialog>
 
-      <SignInModal showSignInModal={showSignInModal} setShowSignInModal={setShowSignInModal} />
+      <SignInModal
+        showSignInModal={showSignInModal}
+        setShowSignInModal={setShowSignInModal}
+      />
     </div>
   );
 }

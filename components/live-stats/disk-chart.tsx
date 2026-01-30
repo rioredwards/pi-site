@@ -14,8 +14,7 @@ export function DiskChart({ disks }: { disks: any[] }) {
       : freeBytes;
   const usedBytes = totalBytes - freeBytes;
 
-  const tone =
-    usagePercent < 70 ? "good" : usagePercent < 88 ? "warn" : "bad";
+  const tone = usagePercent < 70 ? "good" : usagePercent < 88 ? "warn" : "bad";
   const barColor =
     tone === "good"
       ? "bg-emerald-500"

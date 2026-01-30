@@ -53,10 +53,7 @@ export function LiveStats() {
           error={error}
         />
 
-        <ConnectionSummary
-          connected={connected}
-          effective={effective}
-        />
+        <ConnectionSummary connected={connected} effective={effective} />
       </div>
 
       {/* Top KPI row */}
@@ -71,7 +68,10 @@ export function LiveStats() {
       {/* Lower grid */}
       <div className="relative mt-6 grid gap-4 md:grid-cols-2">
         {/* <DiskChart disks={disks} /> */}
-        <ContainersChart containers={containers} containerSummary={containerSummary} />
+        <ContainersChart
+          containers={containers}
+          containerSummary={containerSummary}
+        />
         <ServicesChart services={services} allHealthy={allHealthy} />
       </div>
 
@@ -82,7 +82,8 @@ export function LiveStats() {
           These stats are updated every 2 seconds.
         </div>
         <div className="text-zinc-500">
-          {connected ? "Streaming" : "Not connected"} • {history.length} samples buffered
+          {connected ? "Streaming" : "Not connected"} • {history.length} samples
+          buffered
         </div>
       </div>
     </div>

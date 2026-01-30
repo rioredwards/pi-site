@@ -92,7 +92,7 @@ const withMDX = createMDX({
 const config =
   process.env.ANALYZE === "true"
     ? import("@next/bundle-analyzer").then(({ default: withBundleAnalyzer }) =>
-        withBundleAnalyzer({ enabled: true })(withMDX(nextConfig))
+        withBundleAnalyzer({ enabled: true })(withMDX(nextConfig)),
       )
     : withMDX(nextConfig);
 

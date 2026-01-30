@@ -14,10 +14,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 768M
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 384M
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
@@ -39,10 +39,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 256M
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 128M
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8787"]
@@ -56,13 +56,19 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 1536M
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 768M
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000')"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000')",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -79,10 +85,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: "1"
           memory: 512M
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 256M
 
   umami:
@@ -96,13 +102,14 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 256M
         reservations:
-          cpus: '0.1'
+          cpus: "0.1"
           memory: 128M
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/heartbeat"]
+      test:
+        ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/heartbeat"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -23,7 +23,10 @@ export function NetworkChart({ history }: { history: HistoryPoint[] }) {
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={history}>
             <CartesianGrid stroke="rgba(255,255,255,0.08)" />
-            <XAxis dataKey="label" tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }} />
+            <XAxis
+              dataKey="label"
+              tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
+            />
             <YAxis
               yAxisId="rx"
               orientation="left"
@@ -46,9 +49,7 @@ export function NetworkChart({ history }: { history: HistoryPoint[] }) {
             />
             <Tooltip
               content={
-                <TooltipBox
-                  formatter={(p) => formatBps(Number(p.value))}
-                />
+                <TooltipBox formatter={(p) => formatBps(Number(p.value))} />
               }
             />
             <Legend

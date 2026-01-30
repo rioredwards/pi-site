@@ -1,4 +1,7 @@
-import type { ServiceHealth, ServiceHealthStats } from "@pi-site/shared/types.js";
+import type {
+  ServiceHealth,
+  ServiceHealthStats,
+} from "@pi-site/shared/types.js";
 import http from "http";
 import net from "net";
 import { config } from "../config.js";
@@ -8,7 +11,7 @@ import { config } from "../config.js";
  */
 async function httpProbe(
   url: string,
-  timeout: number = 5000
+  timeout: number = 5000,
 ): Promise<{ healthy: boolean; responseTimeMs: number; error: string | null }> {
   const startTime = Date.now();
 
@@ -37,7 +40,7 @@ async function httpProbe(
             error: `HTTP ${res.statusCode}`,
           });
         }
-      }
+      },
     );
 
     req.on("error", (err) => {
@@ -67,7 +70,7 @@ async function httpProbe(
 async function tcpProbe(
   host: string,
   port: number,
-  timeout: number = 5000
+  timeout: number = 5000,
 ): Promise<{ healthy: boolean; responseTimeMs: number; error: string | null }> {
   const startTime = Date.now();
 
@@ -107,7 +110,7 @@ async function tcpProbe(
  * Check health of a single service.
  */
 async function checkService(
-  service: (typeof config.services)[number]
+  service: (typeof config.services)[number],
 ): Promise<ServiceHealth> {
   if ("url" in service) {
     // HTTP probe
@@ -157,12 +160,18 @@ function* createValueGenerator<T>(values: T[], offset: number): Generator<T> {
 }
 
 // Create generators for each service with different offsets
-const webResponseTimeGenerator = createValueGenerator(mockWebResponseTimeValues, 0);
+const webResponseTimeGenerator = createValueGenerator(
+  mockWebResponseTimeValues,
+  0,
+);
 const validatorResponseTimeGenerator = createValueGenerator(
   mockValidatorResponseTimeValues,
-  1
+  1,
 );
-const dbResponseTimeGenerator = createValueGenerator(mockDbResponseTimeValues, 2);
+const dbResponseTimeGenerator = createValueGenerator(
+  mockDbResponseTimeValues,
+  2,
+);
 
 /**
  * Get mock service health stats for development.

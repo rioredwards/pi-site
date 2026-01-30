@@ -1,15 +1,14 @@
-"use client"
+"use client";
 
-import { cn } from "@/app/lib/utils"
-import { DogCard, DogCardProps } from "./dog-card/dog-card"
-import { LightboxSlide, useLightbox } from "./lightbox"
-
+import { cn } from "@/app/lib/utils";
+import { DogCard, DogCardProps } from "./dog-card/dog-card";
+import { LightboxSlide, useLightbox } from "./lightbox";
 
 interface PhotoGridProps {
-  photos: DogCardProps[]
-  columns?: 1 | 2 | 3
-  className?: string
-  enableLightbox?: boolean
+  photos: DogCardProps[];
+  columns?: 1 | 2 | 3;
+  className?: string;
+  enableLightbox?: boolean;
 }
 
 function getPriorityIdxs(): number[] | undefined {
@@ -20,15 +19,19 @@ function getPriorityIdxs(): number[] | undefined {
   return [0, 1, 2, 3, 4, 5];
 }
 
-
-export function PhotoGrid({ photos, columns = 3, className, enableLightbox = false }: PhotoGridProps) {
-  const { openGallery } = useLightbox()
+export function PhotoGrid({
+  photos,
+  columns = 3,
+  className,
+  enableLightbox = false,
+}: PhotoGridProps) {
+  const { openGallery } = useLightbox();
 
   const columnClasses = {
     1: "grid-cols-1",
     2: "grid-cols-1 md:grid-cols-2",
     3: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
-  }
+  };
 
   const slides: LightboxSlide[] = photos.map((photo) => ({
     src: photo.src,
@@ -36,11 +39,11 @@ export function PhotoGrid({ photos, columns = 3, className, enableLightbox = fal
     width: 1000,
     height: 1000,
     description: `Uploaded by ${photo.ownerDisplayName || "Anonymous"}`,
-  }))
+  }));
 
   const showLightbox = (index: number) => {
-    openGallery(slides, index)
-  }
+    openGallery(slides, index);
+  };
 
   const priorityIdxs = getPriorityIdxs();
 
@@ -55,5 +58,5 @@ export function PhotoGrid({ photos, columns = 3, className, enableLightbox = fal
         />
       ))}
     </div>
-  )
+  );
 }

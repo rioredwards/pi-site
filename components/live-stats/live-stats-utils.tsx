@@ -1,4 +1,3 @@
-
 /**
  * Parse the timestamp from the effective stats object.
  * @param effective - The effective stats object.

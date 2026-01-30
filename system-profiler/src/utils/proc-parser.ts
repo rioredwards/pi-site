@@ -42,11 +42,7 @@ export async function parseLoadavg(): Promise<[number, number, number] | null> {
   const parts = content.trim().split(/\s+/);
   if (parts.length < 3) return null;
 
-  return [
-    parseFloat(parts[0]),
-    parseFloat(parts[1]),
-    parseFloat(parts[2]),
-  ];
+  return [parseFloat(parts[0]), parseFloat(parts[1]), parseFloat(parts[2])];
 }
 
 /**
@@ -154,7 +150,7 @@ export async function parseNetDev(): Promise<NetDevStats[] | null> {
  */
 export async function parseCpuTemperature(): Promise<number | null> {
   const content = await readFile(
-    `${config.paths.sys}/class/thermal/thermal_zone0/temp`
+    `${config.paths.sys}/class/thermal/thermal_zone0/temp`,
   );
   if (!content) return null;
 

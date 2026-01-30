@@ -1,12 +1,6 @@
 import { Tone } from "./types";
 
-export function StatusPill({
-  label,
-  tone,
-}: {
-  label: string;
-  tone: Tone;
-}) {
+export function StatusPill({ label, tone }: { label: string; tone: Tone }) {
   const base =
     "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold border";
   const toneCls =
@@ -23,11 +17,11 @@ export function StatusPill({
       <span
         className={
           tone === "good"
-            ? "h-2 w-2 rounded-full bg-emerald-400 animate-pulse"
+            ? "h-2 w-2 animate-pulse rounded-full bg-emerald-400"
             : tone === "warn"
-              ? "h-2 w-2 rounded-full bg-amber-400 animate-pulse"
+              ? "h-2 w-2 animate-pulse rounded-full bg-amber-400"
               : tone === "bad"
-                ? "h-2 w-2 rounded-full bg-rose-400 animate-pulse"
+                ? "h-2 w-2 animate-pulse rounded-full bg-rose-400"
                 : "h-2 w-2 rounded-full bg-zinc-400"
         }
       />

@@ -18,9 +18,13 @@ const MIME_TYPES: Record<string, string> = {
 };
 
 // Upload directory from environment (matches where actions.ts uploads files)
-const IMG_UPLOAD_DIR = process.env.IMG_UPLOAD_DIR! || join(process.cwd(), "public", "images");
+const IMG_UPLOAD_DIR =
+  process.env.IMG_UPLOAD_DIR! || join(process.cwd(), "public", "images");
 
-export async function GET(_req: Request, { params }: { params: Promise<{ dir: string[] }> }) {
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ dir: string[] }> },
+) {
   const dirParts = (await params).dir;
   const dir = dirParts.join("/");
   if (!dir) {

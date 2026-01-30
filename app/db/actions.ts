@@ -12,13 +12,17 @@ import { Photo, User } from "../lib/types";
 import { getDb } from "./drizzle";
 import { photos, users } from "./schema";
 
-export type APIResponse<T> = { data: T; error: undefined } | { data: undefined; error: string };
+export type APIResponse<T> =
+  | { data: T; error: undefined }
+  | { data: undefined; error: string };
 
 const IMG_UPLOAD_DIR = process.env.IMG_UPLOAD_DIR!;
 
 const IMAGE_READ_BASE_URL = "/api/assets/images/";
 
-export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo>> {
+export async function uploadPhoto(
+  formData: FormData,
+): Promise<APIResponse<Photo>> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return {
@@ -64,7 +68,9 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
 
       if (!response.ok) {
         // If validator service is unavailable, log but don't block upload
-        devLog("AI validator service unavailable, proceeding without validation");
+        devLog(
+          "AI validator service unavailable, proceeding without validation",
+        );
       } else {
         const analysisResult = await response.json();
 
@@ -72,18 +78,20 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
         if (analysisResult.is_nsfw) {
           return {
             data: undefined,
-            error: "This image cannot be uploaded as it may contain inappropriate content.",
+            error:
+              "This image cannot be uploaded as it may contain inappropriate content.",
           };
         }
 
         if (!analysisResult.is_dog) {
           return {
             data: undefined,
-            error: "This image does not appear to contain a dog. Please upload dog photos only.",
+            error:
+              "This image does not appear to contain a dog. Please upload dog photos only.",
           };
         }
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_error) {
       // If validator fails, block upload
       return {
@@ -107,7 +115,9 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     await writeFile(imgFilePath, buffer);
 
     // Get current photo count to determine order
-    const photoCountResult = await getDb().select({ count: count() }).from(photos);
+    const photoCountResult = await getDb()
+      .select({ count: count() })
+      .from(photos);
     const photoCount = photoCountResult[0]?.count || 0;
 
     // Save metadata to database
@@ -128,7 +138,11 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     }
 
     // Fetch user info to include display name and profile picture
-    const [user] = await getDb().select().from(users).where(eq(users.id, session.user.id)).limit(1);
+    const [user] = await getDb()
+      .select()
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
 
     const metadata: Photo = {
       id: photo.id,
@@ -147,7 +161,8 @@ export async function uploadPhoto(formData: FormData): Promise<APIResponse<Photo
     };
     return response;
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    const errorMsg =
+      error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
   }
 }
@@ -160,7 +175,7 @@ export type PaginatedPhotosResponse = {
 export async function getPhotos(
   limit: number = 12,
   offset: number = 0,
-  seed?: string
+  seed?: string,
 ): Promise<APIResponse<PaginatedPhotosResponse>> {
   try {
     const db = getDb();
@@ -241,13 +256,14 @@ export async function getPhotos(
       data: { photos: photoData, hasMore },
     };
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    const errorMsg =
+      error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
   }
 }
 
 export async function getPhotosByUserId(
-  userId: string
+  userId: string,
 ): Promise<APIResponse<Photo[]>> {
   try {
     const dbPhotos = await getDb()
@@ -282,7 +298,8 @@ export async function getPhotosByUserId(
       data: photoData,
     };
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    const errorMsg =
+      error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
   }
 }
@@ -298,7 +315,11 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
 
   try {
     // Fetch photo from database to verify ownership and get filename
-    const [photo] = await getDb().select().from(photos).where(eq(photos.id, id)).limit(1);
+    const [photo] = await getDb()
+      .select()
+      .from(photos)
+      .where(eq(photos.id, id))
+      .limit(1);
 
     if (!photo) {
       return { data: undefined, error: "Photo not found" };
@@ -320,7 +341,8 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
 
     return { data: undefined, error: undefined };
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    const errorMsg =
+      error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
   }
 }
@@ -341,9 +363,15 @@ function createDirIfNotExists(dir: string): void {
 }
 
 // Get user profile by ID (creates a new profile if it doesn't exist for the current user)
-export async function getUserProfile(userId: string): Promise<APIResponse<User>> {
+export async function getUserProfile(
+  userId: string,
+): Promise<APIResponse<User>> {
   try {
-    const [existingUser] = await getDb().select().from(users).where(eq(users.id, userId)).limit(1);
+    const [existingUser] = await getDb()
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
 
     if (existingUser) {
       return {
@@ -385,13 +413,16 @@ export async function getUserProfile(userId: string): Promise<APIResponse<User>>
     // User not found and requester is not the owner
     return { data: undefined, error: "User not found." };
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    const errorMsg =
+      error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
   }
 }
 
 // Update user profile (display name)
-export async function updateUserProfile(data: { displayName?: string }): Promise<APIResponse<User>> {
+export async function updateUserProfile(data: {
+  displayName?: string;
+}): Promise<APIResponse<User>> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return {
@@ -403,13 +434,20 @@ export async function updateUserProfile(data: { displayName?: string }): Promise
   // Validate display name
   if (data.displayName !== undefined) {
     if (data.displayName.length > 50) {
-      return { data: undefined, error: "Display name must be 50 characters or less." };
+      return {
+        data: undefined,
+        error: "Display name must be 50 characters or less.",
+      };
     }
   }
 
   try {
     // Ensure user exists
-    const [existingUser] = await getDb().select().from(users).where(eq(users.id, session.user.id)).limit(1);
+    const [existingUser] = await getDb()
+      .select()
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
 
     if (!existingUser) {
       // Create user if doesn't exist
@@ -441,7 +479,10 @@ export async function updateUserProfile(data: { displayName?: string }): Promise
     const [updatedUser] = await getDb()
       .update(users)
       .set({
-        displayName: data.displayName !== undefined ? (data.displayName || null) : existingUser.displayName,
+        displayName:
+          data.displayName !== undefined
+            ? data.displayName || null
+            : existingUser.displayName,
       })
       .where(eq(users.id, session.user.id))
       .returning();
@@ -461,13 +502,16 @@ export async function updateUserProfile(data: { displayName?: string }): Promise
       error: undefined,
     };
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    const errorMsg =
+      error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
   }
 }
 
 // Upload profile picture
-export async function uploadProfilePicture(formData: FormData): Promise<APIResponse<{ filename: string }>> {
+export async function uploadProfilePicture(
+  formData: FormData,
+): Promise<APIResponse<{ filename: string }>> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return {
@@ -510,7 +554,11 @@ export async function uploadProfilePicture(formData: FormData): Promise<APIRespo
     const imgFilePath = join(profilePictureDir, uniqueImgFilename);
 
     // Delete old profile picture if exists
-    const [existingUser] = await getDb().select().from(users).where(eq(users.id, session.user.id)).limit(1);
+    const [existingUser] = await getDb()
+      .select()
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
     if (existingUser?.profilePicture) {
       const oldFilePath = join(profilePictureDir, existingUser.profilePicture);
       if (existsSync(oldFilePath)) {
@@ -528,12 +576,10 @@ export async function uploadProfilePicture(formData: FormData): Promise<APIRespo
         .set({ profilePicture: uniqueImgFilename })
         .where(eq(users.id, session.user.id));
     } else {
-      await getDb()
-        .insert(users)
-        .values({
-          id: session.user.id,
-          profilePicture: uniqueImgFilename,
-        });
+      await getDb().insert(users).values({
+        id: session.user.id,
+        profilePicture: uniqueImgFilename,
+      });
     }
 
     return {
@@ -541,7 +587,8 @@ export async function uploadProfilePicture(formData: FormData): Promise<APIRespo
       error: undefined,
     };
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : "Request failed...";
+    const errorMsg =
+      error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
   }
 }

@@ -1,0 +1,14 @@
+{
+  "plugins": ["prettier-plugin-tailwindcss"],
+  "tailwindStylesheet": "./app/globals.css",
+  "tailwindFunctions": [
+    "cn",
+    "clsx",
+    "cva",
+    "cx",
+    "tv",
+    "twMerge",
+    "twJoin",
+    "tw"
+  ]
+}

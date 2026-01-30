@@ -43,6 +43,7 @@ cd ~/pi-site
 ```
 
 This will:
+
 - Install Docker (if needed)
 - Install and configure Nginx
 - Build and start all containers
@@ -66,12 +67,12 @@ This pulls the latest code and rebuilds `web` and `system-profiler`.
 
 To speed up deploys, only frequently-changing services are rebuilt by default:
 
-| Service | Default Build | Notes |
-|---------|---------------|-------|
-| `web` | Yes | Next.js app |
-| `system-profiler` | Yes | Hono API |
-| `ai-img-validator` | No | Uses cached `:stable` image |
-| `db` | No | Uses `postgres:17` image |
+| Service            | Default Build | Notes                       |
+| ------------------ | ------------- | --------------------------- |
+| `web`              | Yes           | Next.js app                 |
+| `system-profiler`  | Yes           | Hono API                    |
+| `ai-img-validator` | No            | Uses cached `:stable` image |
+| `db`               | No            | Uses `postgres:17` image    |
 
 ### Selective Builds
 
@@ -98,6 +99,7 @@ The AI image validator rarely changes, so it uses a cached image. When you do ne
 ```
 
 This builds and tags `pi-site/ai-img-validator:stable`. Run this:
+
 - On first deployment (done automatically by `deploy.sh`)
 - When `ai-img-validator/` code changes
 
@@ -145,12 +147,14 @@ This interactively removes containers, images, and optionally volumes (database 
 ## Nginx Configuration
 
 Nginx runs on the host (not in Docker) and:
+
 - Serves uploaded images directly from the Docker volume
 - Proxies all other requests to the Next.js container
 
 Config file: `nginx/pi-site.conf`
 
 To update nginx config:
+
 ```bash
 # Edit the config
 vim nginx/pi-site.conf

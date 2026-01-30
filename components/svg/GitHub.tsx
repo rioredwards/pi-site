@@ -26,4 +26,3 @@ function GitHub({ width = 20, className }: Props) {
   );
 }
 export default GitHub;
-

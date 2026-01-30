@@ -36,8 +36,12 @@ async function main() {
   const args = process.argv.slice(2);
 
   if (args.length < 2) {
-    console.error("Usage: node scripts/bulk-import-photos.js <source-directory> <user-id>");
-    console.error("Example: node scripts/bulk-import-photos.js ./old-photos admin");
+    console.error(
+      "Usage: node scripts/bulk-import-photos.js <source-directory> <user-id>",
+    );
+    console.error(
+      "Example: node scripts/bulk-import-photos.js ./old-photos admin",
+    );
     process.exit(1);
   }
 
@@ -72,7 +76,7 @@ async function main() {
   }
 
   // Get list of image files
-  const files = fs.readdirSync(sourceDir).filter(file => {
+  const files = fs.readdirSync(sourceDir).filter((file) => {
     const ext = path.extname(file).toLowerCase();
     return ALLOWED_EXTENSIONS.includes(ext);
   });
@@ -95,7 +99,8 @@ async function main() {
 
   // Import the schema (we need to use raw SQL since we can't import TypeScript)
   // Get current max order value
-  const orderResult = await client`SELECT COALESCE(MAX("order"), 0) as max_order FROM photos`;
+  const orderResult =
+    await client`SELECT COALESCE(MAX("order"), 0) as max_order FROM photos`;
   let currentOrder = orderResult[0].max_order;
 
   console.log(`Current max order in database: ${currentOrder}`);
@@ -153,7 +158,7 @@ async function main() {
   console.log(`  Failed: ${errorCount}`);
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error("Fatal error:", error);
   process.exit(1);
 });

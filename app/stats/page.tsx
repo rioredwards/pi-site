@@ -10,14 +10,19 @@ export const metadata: Metadata = {
 
 export default function StatsPage() {
   return (
-    <div className="container mx-auto py-8 px-4 md:pl-24">
+    <div className="container mx-auto px-4 py-8 md:pl-24">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">System Stats</h1>
-        <p className="text-muted-foreground mt-2">
+        <p className="mt-2 text-muted-foreground">
           This site is running on a Raspberry Pi in my bedroom 👾
         </p>
-        <p className="text-muted-foreground mt-2">
-          Check out the <Link href="/about" className="text-blue-500 hover:text-blue-600">about page</Link> if you want to learn more about the project. Also, feel free to reach out! I&apos;m happy to share!
+        <p className="mt-2 text-muted-foreground">
+          Check out the{" "}
+          <Link href="/about" className="text-blue-500 hover:text-blue-600">
+            about page
+          </Link>{" "}
+          if you want to learn more about the project. Also, feel free to reach
+          out! I&apos;m happy to share!
         </p>
       </div>
 
@@ -25,7 +30,12 @@ export default function StatsPage() {
       <RotatingGradientBorder
         borderRadius="24px"
         shadow={false}
-        borderColors={["rgb(151, 11, 11)", "rgb(46, 0, 146)", "rgb(151, 11, 11)", "rgb(46, 0, 146)",]}
+        borderColors={[
+          "rgb(151, 11, 11)",
+          "rgb(46, 0, 146)",
+          "rgb(151, 11, 11)",
+          "rgb(46, 0, 146)",
+        ]}
         spinAnimationSpeed={20}
       >
         <StatsDashboard />

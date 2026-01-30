@@ -6,8 +6,7 @@ import { Maximize2, Pause, Play } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { LightboxSlide, useLightbox } from "./lightbox";
 
-interface LightboxVideoProps
-  extends React.VideoHTMLAttributes<HTMLVideoElement> {
+interface LightboxVideoProps extends React.VideoHTMLAttributes<HTMLVideoElement> {
   src: string;
   poster?: string;
   caption?: string;
@@ -85,9 +84,9 @@ export function LightboxVideo({
     <figure className="my-6">
       <div
         className={cn(
-          "relative overflow-hidden rounded-2xl cursor-pointer",
+          "relative cursor-pointer overflow-hidden rounded-2xl",
           aspectClasses[aspectRatio],
-          containerClassName
+          containerClassName,
         )}
         onClick={handlePlayPause}
         onTouchEnd={handleTouchEnd}
@@ -99,9 +98,9 @@ export function LightboxVideo({
           src={src}
           poster={poster}
           className={cn(
-            "block object-cover my-0! transition-transform duration-300 ease-in-out rounded-2xl",
+            "my-0! block rounded-2xl object-cover transition-transform duration-300 ease-in-out",
             shouldShowOverlay && !isPlaying && "scale-105",
-            className
+            className,
           )}
           playsInline
           muted
@@ -114,29 +113,39 @@ export function LightboxVideo({
         {/* Overlay */}
         <div
           className={cn(
-            "absolute inset-0 bg-foreground/0 transition-colors duration-300 rounded-2xl pointer-events-none",
-            shouldShowOverlay && !isPlaying && "bg-foreground/20"
+            "pointer-events-none absolute inset-0 rounded-2xl bg-foreground/0 transition-colors duration-300",
+            shouldShowOverlay && !isPlaying && "bg-foreground/20",
           )}
         >
           {/* Play/Pause button - animated position */}
           <div
             className={cn(
-              "backdrop-blur-sm bg-background/70 rounded-full shadow-md transition-all duration-300 ease-in-out absolute",
+              "absolute rounded-full bg-background/70 shadow-md backdrop-blur-sm transition-all duration-300 ease-in-out",
               !isPlaying
                 ? "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4"
                 : shouldShowOverlay
                   ? "top-[calc(100%-12px)] left-3 -translate-y-full p-2"
-                  : "top-[calc(100%-12px)] left-3 -translate-y-full p-2 opacity-0"
+                  : "top-[calc(100%-12px)] left-3 -translate-y-full p-2 opacity-0",
             )}
           >
             {!isPlaying ? (
-              <Play className={cn("w-8 h-8 transition-all duration-300 ease-in-out"
-                , shouldShowOverlay ? "fill-primary text-primary" : "text-foreground/40 fill-transparent"
-              )} />
+              <Play
+                className={cn(
+                  "h-8 w-8 transition-all duration-300 ease-in-out",
+                  shouldShowOverlay
+                    ? "fill-primary text-primary"
+                    : "fill-transparent text-foreground/40",
+                )}
+              />
             ) : (
-              <Pause className={cn("w-4 h-4 transition-all duration-300 ease-in-out"
-                , shouldShowOverlay ? "fill-primary text-primary" : "text-foreground/40 fill-transparent"
-              )} />
+              <Pause
+                className={cn(
+                  "h-4 w-4 transition-all duration-300 ease-in-out",
+                  shouldShowOverlay
+                    ? "fill-primary text-primary"
+                    : "fill-transparent text-foreground/40",
+                )}
+              />
             )}
           </div>
         </div>
@@ -145,17 +154,17 @@ export function LightboxVideo({
           <button
             onClick={handleFullscreen}
             className={cn(
-              "invisible opacity-0 backdrop-blur-sm bg-background/70 absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full text-foreground shadow-md transition-all duration-200 ease-in-out hover:bg-primary hover:text-primary-foreground",
-              shouldShowOverlay && "opacity-100 visible"
+              "invisible absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-background/70 text-foreground opacity-0 shadow-md backdrop-blur-sm transition-all duration-200 ease-in-out hover:bg-primary hover:text-primary-foreground",
+              shouldShowOverlay && "visible opacity-100",
             )}
             aria-label="View fullscreen"
           >
-            <Maximize2 className="w-4 h-4" />
+            <Maximize2 className="h-4 w-4" />
           </button>
         )}
       </div>
       {caption && (
-        <figcaption className="mt-2 text-sm text-muted-foreground text-center italic">
+        <figcaption className="mt-2 text-center text-sm text-muted-foreground italic">
           {caption}
         </figcaption>
       )}

@@ -26,9 +26,13 @@ export const authOptions: NextAuthOptions = {
       // Create or update user in database with OAuth profile data
       if (account && profile) {
         const providerAccountId =
-          account.providerAccountId || (profile as any)?.sub || user.id || user.email;
+          account.providerAccountId ||
+          (profile as any)?.sub ||
+          user.id ||
+          user.email;
 
-        const adminUserIds = process.env.ADMIN_USER_IDS?.split(",").map((id) => id.trim()) || [];
+        const adminUserIds =
+          process.env.ADMIN_USER_IDS?.split(",").map((id) => id.trim()) || [];
         const rawUserId = `${account.provider}-${providerAccountId}`;
         const userId = adminUserIds.includes(rawUserId) ? "admin" : rawUserId;
 
@@ -44,7 +48,11 @@ export const authOptions: NextAuthOptions = {
 
         try {
           const db = getDb();
-          const [existingUser] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+          const [existingUser] = await db
+            .select()
+            .from(users)
+            .where(eq(users.id, userId))
+            .limit(1);
 
           if (!existingUser) {
             // Create new user with OAuth data
@@ -53,7 +61,10 @@ export const authOptions: NextAuthOptions = {
               displayName: oauthName,
               profilePicture: oauthImage,
             });
-          } else if (!existingUser.displayName && !existingUser.profilePicture) {
+          } else if (
+            !existingUser.displayName &&
+            !existingUser.profilePicture
+          ) {
             // Update existing user if they don't have profile data yet
             await db
               .update(users)
@@ -76,12 +87,16 @@ export const authOptions: NextAuthOptions = {
         // Create a unique user ID from provider account ID
         // Use account.providerAccountId (sub for Google, id for GitHub) combined with provider name
         const providerAccountId =
-          account.providerAccountId || (profile as any)?.sub || user.id || user.email;
+          account.providerAccountId ||
+          (profile as any)?.sub ||
+          user.id ||
+          user.email;
 
         // Check if this user is an admin (configured via environment variable)
         // ADMIN_USER_IDS should be a comma-separated list of: provider-accountId
         // Example: "github-123456,google-789012"
-        const adminUserIds = process.env.ADMIN_USER_IDS?.split(",").map((id) => id.trim()) || [];
+        const adminUserIds =
+          process.env.ADMIN_USER_IDS?.split(",").map((id) => id.trim()) || [];
         const userId = `${account.provider}-${providerAccountId}`;
 
         // Set userId to "admin" if user is in the admin list

@@ -20,4 +20,3 @@ export default function Confetti({ setShowConfetti }: Props) {
     />
   );
 }
-

@@ -22,24 +22,27 @@ export function HeaderSection({
             Status Dashboard
           </h1>
 
-          <FreshnessStatusPill
-            connected={connected}
-            effective={effective}
-          />
+          <FreshnessStatusPill connected={connected} effective={effective} />
         </div>
 
         <div className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-xs text-zinc-400 md:grid-cols-2">
           <span className="inline-flex items-center gap-2 whitespace-nowrap">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white/30" />
-            Host: <span className="font-semibold text-zinc-200">Raspberry Pi 5 Model B Rev 1.0</span>
+            Host:{" "}
+            <span className="font-semibold text-zinc-200">
+              Raspberry Pi 5 Model B Rev 1.0
+            </span>
           </span>
 
           <span className="inline-flex items-center gap-2 whitespace-nowrap">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white/30" />
-            CPU: <span className="font-semibold text-zinc-200">Cortex-A76 / 4 Cores / 2400MHz</span>
+            CPU:{" "}
+            <span className="font-semibold text-zinc-200">
+              Cortex-A76 / 4 Cores / 2400MHz
+            </span>
           </span>
 
-          <span className="inline-flex items-center gap-2 whitespace-nowrap min-w-[180px]">
+          <span className="inline-flex min-w-[180px] items-center gap-2 whitespace-nowrap">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white/30" />
             OS
             <span className="font-semibold text-zinc-200">
@@ -54,7 +57,6 @@ export function HeaderSection({
               {formatUptime(sys?.uptimeSeconds)}
             </span>
           </span>
-
         </div>
 
         {error ? (

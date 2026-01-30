@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { CombinedStats } from "../../shared/types";
-import { getAgeSeconds, getFreshnessTone, parseEffectiveTimestamp } from "./live-stats-utils";
+import {
+  getAgeSeconds,
+  getFreshnessTone,
+  parseEffectiveTimestamp,
+} from "./live-stats-utils";
 import { StatusPill } from "./status-pill";
 
 export function FreshnessStatusPill({
@@ -30,12 +34,7 @@ export function FreshnessStatusPill({
         ? "LIVE (lagging)"
         : freshnessTone === "bad"
           ? "OFFLINE / STALE"
-          : "LIVE"
+          : "LIVE";
 
-  return (
-    <StatusPill
-      label={label}
-      tone={freshnessTone}
-    />
-  );
+  return <StatusPill label={label} tone={freshnessTone} />;
 }

@@ -2,7 +2,14 @@
 
 import { devLog } from "@/app/lib/utils";
 import { useSession } from "next-auth/react";
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import BounceLoader from "react-spinners/BounceLoader";
 import { deletePhoto as deletePhotoFile, getPhotos } from "../app/actions";
 import { Photo } from "../app/lib/types";
@@ -86,11 +93,16 @@ export function Main() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isFetchingMore && !isLoading) {
+        if (
+          entries[0].isIntersecting &&
+          hasMore &&
+          !isFetchingMore &&
+          !isLoading
+        ) {
           loadMore();
         }
       },
-      { rootMargin: "200px" }
+      { rootMargin: "200px" },
     );
 
     observer.observe(target);
@@ -137,7 +149,7 @@ export function Main() {
   }
 
   return (
-    <div className="md:pl-24 container mx-auto min-h-dvh px-4 py-8">
+    <div className="container mx-auto min-h-dvh px-4 py-8 md:pl-24">
       <Suspense
         fallback={
           <div className="mt-8 flex items-center justify-center">
@@ -172,7 +184,8 @@ export function Main() {
           </div>
           <h2 className="mb-2 text-xl font-semibold">No dogs here yet</h2>
           <p className="mb-6 max-w-sm text-muted-foreground">
-            Be the first to share a photo of your furry friend! Click the upload button above to get started.
+            Be the first to share a photo of your furry friend! Click the upload
+            button above to get started.
           </p>
         </div>
       ) : (

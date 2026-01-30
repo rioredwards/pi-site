@@ -1,6 +1,12 @@
 import { DialogDescription } from "@radix-ui/react-dialog";
 import Image from "next/image";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 
 interface DeleteDogDialogProps {
   open: boolean;
@@ -11,16 +17,20 @@ interface DeleteDogDialogProps {
   alt: string;
 }
 
-
-export function DeleteDogConfirmationDialog({ open, onOpenChange, onDelete, onCancel, src, alt }: DeleteDogDialogProps) {
+export function DeleteDogConfirmationDialog({
+  open,
+  onOpenChange,
+  onDelete,
+  onCancel,
+  src,
+  alt,
+}: DeleteDogDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Delete dog?</DialogTitle>
-          <DialogDescription>
-            This action cannot be undone.
-          </DialogDescription>
+          <DialogDescription>This action cannot be undone.</DialogDescription>
         </DialogHeader>
         <div className="relative aspect-square w-full overflow-hidden rounded-lg">
           <Image

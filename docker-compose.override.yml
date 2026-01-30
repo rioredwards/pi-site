@@ -6,14 +6,14 @@ services:
   web:
     build:
       context: .
-      target: deps  # Stop at deps stage - no production build
+      target: deps # Stop at deps stage - no production build
     env_file:
       - .env.local
     command: sh -c "([ ! -d node_modules ] && npm install || true) && npm run dev:next"
     volumes:
-      - .:/app                    # Mount source code for hot reloading
-      - /app/node_modules         # Preserve container's node_modules
-      - /app/.next               # Preserve build artifacts
+      - .:/app # Mount source code for hot reloading
+      - /app/node_modules # Preserve container's node_modules
+      - /app/.next # Preserve build artifacts
       - ./.data/uploads/images:/data/uploads/images
     # Override entrypoint to skip production entrypoint script
     entrypoint: []
@@ -31,28 +31,28 @@ services:
   system-profiler:
     build:
       context: ./system-profiler
-      target: deps  # Stop at deps stage - no production build
+      target: deps # Stop at deps stage - no production build
     env_file:
       - .env.local
     environment:
-      - MOCK_HOST_STATS=true  # Force mock mode in dev to use mock data
+      - MOCK_HOST_STATS=true # Force mock mode in dev to use mock data
     command: sh -c "([ ! -d node_modules ] && npm install || true) && npm run dev"
     volumes:
-      - ./system-profiler:/app                    # Mount source code for hot reloading
-      - ./shared:/shared                          # Mount shared package for TypeScript path resolution
-      - /app/node_modules                         # Preserve container's node_modules
-      - /var/run/docker.sock:/var/run/docker.sock:ro  # Docker socket (works on Docker Desktop)
+      - ./system-profiler:/app # Mount source code for hot reloading
+      - ./shared:/shared # Mount shared package for TypeScript path resolution
+      - /app/node_modules # Preserve container's node_modules
+      - /var/run/docker.sock:/var/run/docker.sock:ro # Docker socket (works on Docker Desktop)
     ports:
-      - '8787:8787'
+      - "8787:8787"
     # Override entrypoint to skip production entrypoint script
     entrypoint: []
     # Use root user in dev (simpler, and we're not in production)
     user: root
 
   ai-img-validator:
-    build: ./ai-img-validator  # Dev: build from source (prod uses cached image)
+    build: ./ai-img-validator # Dev: build from source (prod uses cached image)
     ports:
-      - '8000:8000'
+      - "8000:8000"
 
   umami:
     ports:
