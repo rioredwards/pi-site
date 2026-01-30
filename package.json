@@ -91,6 +91,6 @@
     "typescript": "^5.7.2"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,mjs}": "eslint --fix --max-warnings=0"
+    "*.{js,jsx,ts,tsx,mjs}": "eslint --fix --max-warnings=0 --no-warn-ignored"
   }
 }
