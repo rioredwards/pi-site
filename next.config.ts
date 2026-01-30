@@ -89,13 +89,11 @@ const withMDX = createMDX({
 });
 
 // Optionally wrap with bundle analyzer (only when ANALYZE=true)
-let config = withMDX(nextConfig);
-
-if (process.env.ANALYZE === "true") {
-  const { default: withBundleAnalyzer } = await import(
-    "@next/bundle-analyzer"
-  );
-  config = withBundleAnalyzer({ enabled: true })(config);
-}
+const config =
+  process.env.ANALYZE === "true"
+    ? import("@next/bundle-analyzer").then(({ default: withBundleAnalyzer }) =>
+        withBundleAnalyzer({ enabled: true })(withMDX(nextConfig))
+      )
+    : withMDX(nextConfig);
 
 export default config;

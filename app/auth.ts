@@ -4,6 +4,7 @@ import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import { getDb } from "./db/drizzle";
 import { users } from "./db/schema";
+import { devLog } from "./lib/utils";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -25,13 +26,9 @@ export const authOptions: NextAuthOptions = {
       // Create or update user in database with OAuth profile data
       if (account && profile) {
         const providerAccountId =
-          account.providerAccountId ||
-          (profile as any)?.sub ||
-          user.id ||
-          user.email;
+          account.providerAccountId || (profile as any)?.sub || user.id || user.email;
 
-        const adminUserIds =
-          process.env.ADMIN_USER_IDS?.split(",").map((id) => id.trim()) || [];
+        const adminUserIds = process.env.ADMIN_USER_IDS?.split(",").map((id) => id.trim()) || [];
         const rawUserId = `${account.provider}-${providerAccountId}`;
         const userId = adminUserIds.includes(rawUserId) ? "admin" : rawUserId;
 
@@ -47,11 +44,7 @@ export const authOptions: NextAuthOptions = {
 
         try {
           const db = getDb();
-          const [existingUser] = await db
-            .select()
-            .from(users)
-            .where(eq(users.id, userId))
-            .limit(1);
+          const [existingUser] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
 
           if (!existingUser) {
             // Create new user with OAuth data
@@ -72,7 +65,7 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (error) {
           // Log but don't block sign-in if database operation fails
-          console.error("Failed to sync user profile:", error);
+          devLog("Failed to sync user profile:", error);
         }
       }
       return true;
@@ -83,16 +76,12 @@ export const authOptions: NextAuthOptions = {
         // Create a unique user ID from provider account ID
         // Use account.providerAccountId (sub for Google, id for GitHub) combined with provider name
         const providerAccountId =
-          account.providerAccountId ||
-          (profile as any)?.sub ||
-          user.id ||
-          user.email;
+          account.providerAccountId || (profile as any)?.sub || user.id || user.email;
 
         // Check if this user is an admin (configured via environment variable)
         // ADMIN_USER_IDS should be a comma-separated list of: provider-accountId
         // Example: "github-123456,google-789012"
-        const adminUserIds =
-          process.env.ADMIN_USER_IDS?.split(",").map((id) => id.trim()) || [];
+        const adminUserIds = process.env.ADMIN_USER_IDS?.split(",").map((id) => id.trim()) || [];
         const userId = `${account.provider}-${providerAccountId}`;
 
         // Set userId to "admin" if user is in the admin list
@@ -121,4 +110,3 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
-

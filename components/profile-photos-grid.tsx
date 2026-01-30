@@ -9,10 +9,9 @@ import { LightboxSlide, useLightbox } from "./lightbox";
 
 interface ProfilePhotosGridProps {
   photos: Photo[];
-  isOwner?: boolean;
 }
 
-export function ProfilePhotosGrid({ photos, isOwner = false }: ProfilePhotosGridProps) {
+export function ProfilePhotosGrid({ photos }: ProfilePhotosGridProps) {
   const { openGallery } = useLightbox();
   const router = useRouter();
   const { toast } = useToast();

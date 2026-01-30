@@ -23,7 +23,8 @@ export function getProfilePictureUrl(filenameOrUrl: string | null): string | nul
 // In production, this becomes a no-op
 export const devLog =
   process.env.NODE_ENV === "production"
-    ? (..._args: unknown[]) => {}
+    ? // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (..._args: unknown[]) => {}
     : (...args: unknown[]) => {
         // eslint-disable-next-line no-console
         console.log(...args);
