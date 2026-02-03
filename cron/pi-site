@@ -1,0 +1,5 @@
+# pi-site cron jobs
+# Installed to /etc/cron.d/pi-site by deploy.sh
+
+# Restart umami daily at 4am to clear memory leak
+0 4 * * * root docker restart pi-site-umami-1 >/dev/null 2>&1

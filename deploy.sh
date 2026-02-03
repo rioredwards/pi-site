@@ -85,6 +85,16 @@ configure_nginx() {
   sudo systemctl reload nginx || sudo systemctl start nginx
 }
 
+configure_cron() {
+  log "Configuring cron jobs..."
+
+  local cron_file="${APP_DIR}/cron/pi-site"
+  [[ -f "$cron_file" ]] || { warn "No cron config found, skipping"; return; }
+
+  sudo cp "$cron_file" /etc/cron.d/pi-site
+  sudo chmod 644 /etc/cron.d/pi-site
+}
+
 # -------------------------
 # Main
 # -------------------------
@@ -96,6 +106,7 @@ install_docker_if_needed
 ensure_docker_running
 install_nginx_if_needed
 configure_nginx
+configure_cron
 
 log "Running deployment..."
 # Delegate to the Compose-focused deployment script

@@ -57,10 +57,10 @@ services:
       resources:
         limits:
           cpus: "2"
-          memory: 1536M
+          memory: 512M
         reservations:
           cpus: "0.5"
-          memory: 768M
+          memory: 384M
     healthcheck:
       test:
         [
