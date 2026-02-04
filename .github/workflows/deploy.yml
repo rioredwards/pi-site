@@ -6,10 +6,11 @@ on:
       - main
   workflow_dispatch: # Allows manual triggering from GitHub UI
   # Explicitly do NOT trigger on pull_request events
+  # Use [skip ci] in commit message to skip for minor changes
 
 jobs:
-  ci:
-    name: Lint, Typecheck & Build
+  deploy:
+    name: Lint, Typecheck & Deploy
     runs-on: [self-hosted, linux, arm64]
     # Security: Only run if:
     # 1. This is a push event (not a PR) OR a manual workflow_dispatch
@@ -41,10 +42,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "npm"
+          # No cache - self-hosted runner uses local npm cache
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install  # Use install (not ci) to preserve local node_modules cache
 
       - name: Lint
         run: npm run lint
@@ -52,22 +53,7 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Build
-        env:
-          NEXT_PUBLIC_SAFE_KEY: ci-placeholder
-          NEXT_PUBLIC_SITE_URL: http://localhost:3000
-        run: npm run build
+      # Skip build - Docker will build during deploy
 
-  deploy:
-    name: Deploy to Pi
-    runs-on: self-hosted
-    needs: ci
-
-    if: |
-      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
-      github.actor == github.repository_owner &&
-      !github.event.repository.fork
-
-    steps:
-      - name: Run production update
+      - name: Deploy
         run: ~/pi-site/scripts/update-prod.sh

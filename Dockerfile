@@ -4,7 +4,8 @@ FROM node:20-alpine AS base
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+# Cache mount persists npm cache across builds, even when package.json changes
+RUN --mount=type=cache,target=/root/.npm npm ci
 
 # Stage 2: Build the application
 FROM base AS builder
@@ -21,7 +22,8 @@ ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_UMAMI_URL=$NEXT_PUBLIC_UMAMI_URL
 ENV NEXT_PUBLIC_UMAMI_WEBSITE_ID=$NEXT_PUBLIC_UMAMI_WEBSITE_ID
 
-RUN npm run build
+# Cache mount persists Next.js build cache for faster incremental builds
+RUN --mount=type=cache,target=/app/.next/cache npm run build
 
 # Stage 3: Production server
 FROM base AS runner
