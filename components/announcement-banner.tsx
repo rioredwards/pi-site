@@ -2,11 +2,9 @@
 
 import { cn } from "@/app/lib/utils";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const BANNER_DISMISSED_KEY = "dogtown-domain-banner-dismissed";
-
-const RICK_ROLL_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 const TIMEOUT_MS = 1500;
 
 type Stage = 0 | 1 | 2;
@@ -18,6 +16,8 @@ export function AnnouncementBanner() {
     return !dismissed;
   });
   const [stage, setStage] = useState<Stage>(0);
+  const [showVideo, setShowVideo] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleDismiss = () => {
     if (stage === 0) {
@@ -35,14 +35,41 @@ export function AnnouncementBanner() {
   };
 
   const handleRickRoll = () => {
-    // Stage 1: rick-roll, then show stage 2
-    window.open(RICK_ROLL_URL, "_blank");
+    // Stage 1: show fullscreen video
+    setShowVideo(true);
     setIsVisible(false);
+
+    // Play video at full volume after a brief delay for DOM to update
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.volume = 1;
+        videoRef.current.play();
+      }
+    }, 50);
+  };
+
+  const handleVideoEnd = () => {
+    setShowVideo(false);
     setTimeout(() => {
       setStage(2);
       setIsVisible(true);
-    }, TIMEOUT_MS);
+    }, 500);
   };
+
+  // Fullscreen video overlay
+  if (showVideo) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black">
+        <video
+          ref={videoRef}
+          src="/videos/rick.mp4"
+          className="h-full w-full object-contain"
+          onEnded={handleVideoEnd}
+          playsInline
+        />
+      </div>
+    );
+  }
 
   if (!isVisible) return null;
 
@@ -69,7 +96,11 @@ export function AnnouncementBanner() {
       className="absolute right-2 rounded-sm p-1 opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-primary-foreground/50 focus:outline-none"
       aria-label="Dismiss announcement"
     >
-      <X className="h-4 w-4 stroke-4" />
+      {stage === 2 ? (
+        <span className="text-sm font-medium">It&apos;s okay</span>
+      ) : (
+        <X className="h-4 w-4 stroke-4" />
+      )}
     </button>
   );
 
