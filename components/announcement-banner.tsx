@@ -2,7 +2,7 @@
 
 import { cn } from "@/app/lib/utils";
 import { X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const BANNER_DISMISSED_KEY = "dogtown-domain-banner-dismissed";
 const TIMEOUT_MS = 1500;
@@ -10,12 +10,15 @@ const TIMEOUT_MS = 1500;
 type Stage = 0 | 1 | 2;
 
 export function AnnouncementBanner() {
-  const [isVisible, setIsVisible] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const dismissed = localStorage.getItem(BANNER_DISMISSED_KEY);
-    return !dismissed;
-  });
+  const [isVisible, setIsVisible] = useState(false);
   const [stage, setStage] = useState<Stage>(0);
+
+  // Check localStorage after hydration to avoid SSR mismatch
+  useEffect(() => {
+    const dismissed = localStorage.getItem(BANNER_DISMISSED_KEY);
+    // eslint-disable-next-line -- Intentional: must read localStorage after hydration
+    setIsVisible(!dismissed);
+  }, []);
   const [showVideo, setShowVideo] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
