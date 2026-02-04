@@ -11,8 +11,9 @@ import {
   useState,
 } from "react";
 import BounceLoader from "react-spinners/BounceLoader";
-import { deletePhoto as deletePhotoFile, getPhotos } from "../app/actions";
+import { getPhotos } from "../app/actions";
 import { Photo } from "../app/lib/types";
+import { useDeletePhoto } from "../hooks/use-delete-photo";
 import { useToast } from "../hooks/use-toast";
 import { PhotoGrid } from "./photo-grid";
 
@@ -44,6 +45,12 @@ export function Main() {
   const { toast } = useToast();
   const { data: session } = useSession();
   const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  const { deletePhoto } = useDeletePhoto({
+    onSuccess: useCallback((id: string) => {
+      setPhotos((prev) => prev.filter((p) => p.id !== id));
+    }, []),
+  });
 
   // Initial fetch
   useEffect(() => {
@@ -111,41 +118,6 @@ export function Main() {
 
   function addPhoto(photo: Photo) {
     setPhotos((prevPhotos) => [photo, ...prevPhotos]);
-  }
-
-  async function deletePhoto(id: string) {
-    if (!session?.user?.id) {
-      toast({
-        title: "Error",
-        description: "You must be signed in to delete photos.",
-        variant: "destructive",
-      });
-      return;
-    }
-    const targetPhoto = photos.find((photo) => photo.id === id) as Photo;
-    if (targetPhoto.userId !== session.user.id && session.user.id !== "admin") {
-      toast({
-        title: "Error",
-        description: "You can only delete your own photos.",
-        variant: "destructive",
-      });
-      return;
-    }
-    const res = await deletePhotoFile(id);
-    if (res.error) {
-      devLog(res.error);
-      toast({
-        title: "Error",
-        description: res.error || "There was a problem deleting your photo.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setPhotos((prevPhotos) => prevPhotos.filter((photo) => photo.id !== id));
-    toast({
-      title: "Success",
-      description: "Your photo has been deleted.",
-    });
   }
 
   return (
