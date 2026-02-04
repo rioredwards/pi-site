@@ -1,3 +1,4 @@
+import { AnnouncementBanner } from "@/components/announcement-banner";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { Providers } from "@/components/providers";
@@ -104,6 +105,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Providers>
+            <AnnouncementBanner />
             <Header />
             <main className="container mx-auto max-w-7xl flex-1 pt-8">
               {children}
