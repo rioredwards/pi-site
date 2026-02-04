@@ -18,5 +18,7 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-  "registries": {}
+  "registries": {
+    "@rio": "http://localhost:3042/r/{name}.json"
+  }
 }
