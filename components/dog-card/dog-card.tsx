@@ -2,11 +2,11 @@
 
 import { Trash2, User02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Maximize2 } from "lucide-react";
+import { ImageOff, Maximize2, RefreshCw } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BounceLoader from "react-spinners/BounceLoader";
 import { cn, getProfilePictureUrl } from "../../app/lib/utils";
 import { useIsMobile } from "../../hooks/use-is-mobile";
@@ -42,8 +42,27 @@ export function DogCard({
   const [showDetail, setShowDetail] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [imageKey, setImageKey] = useState(0);
+  const [profilePicError, setProfilePicError] = useState(false);
+  const MAX_RETRIES = 2;
   const isOwner = session?.user?.id === userId || session?.user?.id === "admin";
   const isMobile = useIsMobile();
+
+  // Automatic retry with exponential backoff
+  useEffect(() => {
+    if (error && retryCount < MAX_RETRIES) {
+      const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s backoff
+      const timer = setTimeout(() => {
+        setRetryCount((prev) => prev + 1);
+        setImageKey((prev) => prev + 1);
+        setLoading(true);
+        setError(false);
+      }, delay);
+      return () => clearTimeout(timer);
+    }
+  }, [error, retryCount]);
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -92,7 +111,27 @@ export function DogCard({
               />
             </div>
           )}
+          {/* Error fallback UI after max retries */}
+          {error && retryCount >= MAX_RETRIES && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-muted/80">
+              <ImageOff className="h-8 w-8 text-muted-foreground" />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setRetryCount(0);
+                  setImageKey((prev) => prev + 1);
+                  setLoading(true);
+                  setError(false);
+                }}
+                className="flex items-center gap-1 text-xs text-muted-foreground underline hover:text-foreground"
+              >
+                <RefreshCw className="h-3 w-3" />
+                Retry
+              </button>
+            </div>
+          )}
           <Image
+            key={imageKey}
             src={src}
             alt={alt}
             fill
@@ -102,8 +141,18 @@ export function DogCard({
               showDetail && "scale-110",
             )}
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            onLoadStart={() => setLoading(true)}
-            onLoad={() => setLoading(false)}
+            onLoadStart={() => {
+              setLoading(true);
+              setError(false);
+            }}
+            onLoad={() => {
+              setLoading(false);
+              setError(false);
+            }}
+            onError={() => {
+              setLoading(false);
+              setError(true);
+            }}
           />
           {/* Overlay */}
           <div
@@ -153,13 +202,14 @@ export function DogCard({
                 )}
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
-                  {ownerProfilePicture ? (
+                  {ownerProfilePicture && !profilePicError ? (
                     <Image
                       src={getProfilePictureUrl(ownerProfilePicture)!}
                       alt={ownerDisplayName || "User"}
                       width={40}
                       height={40}
                       className="h-full w-full object-cover"
+                      onError={() => setProfilePicError(true)}
                     />
                   ) : (
                     <HugeiconsIcon

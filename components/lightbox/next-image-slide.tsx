@@ -1,6 +1,8 @@
 "use client";
 
+import { ImageOff, RefreshCw } from "lucide-react";
 import Image, { StaticImageData } from "next/image";
+import { useState } from "react";
 import {
   isImageFitCover,
   isImageSlide,
@@ -33,6 +35,8 @@ export function NextJsImageSlide({ slide, offset, rect }: RenderSlideProps) {
   } = useLightboxProps();
 
   const { currentIndex } = useLightboxState();
+  const [error, setError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
 
   const cover = isImageSlide(slide) && isImageFitCover(slide, imageFit);
 
@@ -50,9 +54,32 @@ export function NextJsImageSlide({ slide, offset, rect }: RenderSlideProps) {
       )
     : rect.height;
 
+  if (error) {
+    return (
+      <div
+        style={{ width, height }}
+        className="flex flex-col items-center justify-center gap-4 text-white/70"
+      >
+        <ImageOff className="h-12 w-12" />
+        <span>Image failed to load</span>
+        <button
+          onClick={() => {
+            setRetryKey((k) => k + 1);
+            setError(false);
+          }}
+          className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div style={{ position: "relative", width, height }}>
       <Image
+        key={retryKey}
         fill
         alt={slide.alt || ""}
         src={slide}
@@ -67,6 +94,8 @@ export function NextJsImageSlide({ slide, offset, rect }: RenderSlideProps) {
         onClick={
           offset === 0 ? () => click?.({ index: currentIndex }) : undefined
         }
+        onLoad={() => setError(false)}
+        onError={() => setError(true)}
       />
     </div>
   );
