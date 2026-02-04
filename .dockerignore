@@ -123,6 +123,7 @@ cleanup-pi.sh
 # Documentation (not needed in container)
 README.md
 CLAUDE.md
+AGENTS.md
 TODO.md
 TROUBLESHOOTING.md
 IMAGE_SERVING_IMPROVEMENTS.md
