@@ -2,33 +2,21 @@
 
 import { deletePhoto } from "@/app/actions";
 import { Photo } from "@/app/lib/types";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { PhotoGrid } from "./photo-grid";
 import { useToast } from "../hooks/use-toast";
-import { DogCard } from "./dog-card/dog-card";
-import { LightboxSlide, useLightbox } from "./lightbox";
 
 interface ProfilePhotosGridProps {
   photos: Photo[];
 }
 
 export function ProfilePhotosGrid({ photos }: ProfilePhotosGridProps) {
-  const { openGallery } = useLightbox();
+  const { data: session } = useSession();
   const router = useRouter();
   const { toast } = useToast();
 
-  const slides: LightboxSlide[] = photos.map((photo) => ({
-    src: photo.src,
-    alt: photo.alt,
-    width: 1000,
-    height: 1000,
-    description: `Uploaded by ${photo.ownerDisplayName || "Anonymous"}`,
-  }));
-
-  const showLightbox = (index: number) => {
-    openGallery(slides, index);
-  };
-
-  const confirmDelete = async (id: string) => {
+  const handleDelete = async (id: string) => {
     const result = await deletePhoto(id);
     if (result.error) {
       toast({
@@ -46,19 +34,15 @@ export function ProfilePhotosGrid({ photos }: ProfilePhotosGridProps) {
   };
 
   return (
-    <>
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-        {photos.map((photo, index) => (
-          <DogCard
-            key={photo.id}
-            {...photo}
-            deletePhoto={() => confirmDelete(photo.id)}
-            showLightbox={() => showLightbox(index)}
-            priority={true}
-            showInfoPanel={false}
-          />
-        ))}
-      </div>
-    </>
+    <PhotoGrid
+      photos={photos}
+      deletePhoto={handleDelete}
+      currentUserId={session?.user?.id}
+      columns={3}
+      className="grid-cols-2 gap-2 md:grid-cols-3"
+      enableLightbox
+      showInfoPanel={false}
+      priorityStrategy="all"
+    />
   );
 }

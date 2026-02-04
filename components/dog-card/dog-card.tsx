@@ -3,7 +3,6 @@
 import { Trash2, User02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ImageOff, Maximize2, RefreshCw } from "lucide-react";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -11,7 +10,6 @@ import BounceLoader from "react-spinners/BounceLoader";
 import { cn, getProfilePictureUrl } from "../../app/lib/utils";
 import { useIsMobile } from "../../hooks/use-is-mobile";
 import { Card } from "../card";
-import { DeleteDogConfirmationDialog } from "../dialogs/delete-dog-confirmation-dialog";
 
 export interface DogCardProps {
   id: string;
@@ -20,7 +18,8 @@ export interface DogCardProps {
   userId: string;
   ownerDisplayName?: string | null;
   ownerProfilePicture?: string | null;
-  deletePhoto: (id: string) => void;
+  isOwner: boolean;
+  onDeleteClick: () => void;
   priority?: boolean;
   showLightbox?: () => void;
   showInfoPanel?: boolean;
@@ -33,21 +32,19 @@ export function DogCard({
   userId,
   ownerDisplayName,
   ownerProfilePicture,
-  deletePhoto,
+  isOwner,
+  onDeleteClick,
   priority = false,
   showLightbox,
   showInfoPanel = true,
 }: DogCardProps) {
-  const { data: session } = useSession();
   const [showDetail, setShowDetail] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [imageKey, setImageKey] = useState(0);
   const [profilePicError, setProfilePicError] = useState(false);
   const MAX_RETRIES = 2;
-  const isOwner = session?.user?.id === userId || session?.user?.id === "admin";
   const isMobile = useIsMobile();
 
   // Automatic retry with exponential backoff
@@ -66,21 +63,12 @@ export function DogCard({
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowConfirm(true);
+    onDeleteClick();
   };
 
   const handleFullscreen = (e: React.MouseEvent) => {
     e.stopPropagation();
     showLightbox?.();
-  };
-
-  const confirmDelete = () => {
-    deletePhoto(id);
-    setShowConfirm(false);
-  };
-
-  const cancelDelete = () => {
-    setShowConfirm(false);
   };
 
   const handleClick = () => {
@@ -92,16 +80,16 @@ export function DogCard({
   };
 
   return (
-    <>
-      <Card
-        className={cn(
-          "group relative aspect-square cursor-pointer overflow-hidden rounded-2xl transition-all duration-200 ease-in-out",
-        )}
-        onClick={handleClick}
-        onMouseEnter={() => setShowDetail(true)}
-        onMouseLeave={() => setShowDetail(false)}
-      >
-        <div className="absolute inset-0 transition-all duration-200 ease-in-out">
+    <Card
+      className={cn(
+        "group relative aspect-square cursor-pointer overflow-hidden rounded-2xl transition-all duration-200 ease-in-out",
+      )}
+      onClick={handleClick}
+      onMouseEnter={() => setShowDetail(true)}
+      onMouseLeave={() => setShowDetail(false)}
+      data-photo-id={id}
+    >
+      <div className="absolute inset-0 transition-all duration-200 ease-in-out">
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center">
               <BounceLoader
@@ -228,16 +216,7 @@ export function DogCard({
               </Link>
             )}
           </div>
-        </div>
-      </Card>
-      <DeleteDogConfirmationDialog
-        open={showConfirm}
-        onOpenChange={setShowConfirm}
-        onDelete={confirmDelete}
-        onCancel={cancelDelete}
-        src={src}
-        alt={alt}
-      />
-    </>
+      </div>
+    </Card>
   );
 }

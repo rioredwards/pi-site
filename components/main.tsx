@@ -28,7 +28,7 @@ function PhotoGridSkeleton() {
           key={i}
           className="aspect-square overflow-hidden rounded-2xl border border-border/60 bg-muted/40"
         >
-          <div className="h-full w-full animate-pulse bg-gradient-to-br from-muted/80 via-muted/40 to-muted/80" />
+          <div className="h-full w-full animate-pulse bg-linear-to-br from-muted/80 via-muted/40 to-muted/80" />
         </div>
       ))}
     </div>
@@ -191,11 +191,11 @@ export function Main() {
       ) : (
         <>
           <PhotoGrid
-            photos={photos.map((photo) => ({
-              ...photo,
-              deletePhoto: () => deletePhoto(photo.id),
-            }))}
+            photos={photos}
+            deletePhoto={deletePhoto}
+            currentUserId={session?.user?.id}
             enableLightbox
+            showInfoPanel
           />
           {/* Infinite scroll sentinel */}
           <div ref={loadMoreRef} className="h-4" />
