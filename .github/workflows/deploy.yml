@@ -22,6 +22,11 @@ jobs:
       !github.event.repository.fork
 
     steps:
+      - name: Fix git config for self-hosted runner
+        run: |
+          mkdir -p "$HOME"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Checkout code
         uses: actions/checkout@v4
         # Additional security: only checkout from the main repository
