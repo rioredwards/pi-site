@@ -5,14 +5,16 @@ import remarkGfm from "remark-gfm";
 
 const isDev = process.env.NODE_ENV !== "production";
 const umamiUrl = process.env.NEXT_PUBLIC_UMAMI_URL;
-const umamiScriptOrigin = (() => {
-  if (!umamiUrl) return null;
+const getOrigin = (url?: string) => {
+  if (!url) return null;
   try {
-    return new URL(umamiUrl).origin;
+    return new URL(url).origin;
   } catch {
     return null;
   }
-})();
+};
+
+const umamiScriptOrigin = getOrigin(umamiUrl);
 
 const scriptSrcParts = [
   "'self'",
@@ -33,7 +35,6 @@ const connectSrcParts = [
 const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
-  "form-action 'self'",
   "frame-ancestors 'none'",
   "object-src 'none'",
   `script-src ${scriptSrcParts.join(" ")}`,
