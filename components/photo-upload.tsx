@@ -1,5 +1,4 @@
 "use client";
-import { cn, devLog } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { cn, devLog } from "@/lib/utils";
 import { CropIcon, UploadCircle02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { LucideDog } from "lucide-react";
@@ -371,10 +371,8 @@ export default function PhotoUpload({ addPhoto }: Props) {
     processingState === "failure";
 
   return (
-    <section className="container pb-12">
+    <section className="flex h-full items-center justify-center pb-12">
       {showConfetti && <Confetti setShowConfetti={setShowConfetti} />}
-
-      <div className="flex justify-center">
         <RotatingGradientBorder
           borderRadius="9999px"
           containerClassName="group"
@@ -399,7 +397,6 @@ export default function PhotoUpload({ addPhoto }: Props) {
             </GradientText>
           </Button>
         </RotatingGradientBorder>
-      </div>
 
       <Dialog
         open={showUploadDialog}

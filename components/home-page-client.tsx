@@ -1,10 +1,14 @@
 "use client";
 
+import { getPhotos } from "@/app/actions";
+import { Photo } from "@/app/lib/types";
+import { type LightboxSlide } from "@/components/lightbox-image/index";
+import { useDeletePhoto } from "@/hooks/use-delete-photo";
+import { useToast } from "@/hooks/use-toast";
 import { devLog } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import {
-  lazy,
-  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -12,19 +16,21 @@ import {
   useState,
 } from "react";
 import BounceLoader from "react-spinners/BounceLoader";
-import { getPhotos } from "@/app/actions";
-import { Photo } from "@/app/lib/types";
-import { useDeletePhoto } from "@/hooks/use-delete-photo";
-import { useToast } from "@/hooks/use-toast";
-import { DogCard } from "./dog-card/dog-card";
-import { DeleteContext } from "./dog-card/delete-context";
-import { GalleryContext } from "./gallery-context";
 import { DeleteDogConfirmationDialog } from "./dialogs/delete-dog-confirmation-dialog";
-import { type LightboxSlide } from "@/components/lightbox-image/index";
+import { DeleteContext } from "./dog-card/delete-context";
+import { DogCard } from "./dog-card/dog-card";
+import { GalleryContext } from "./gallery-context";
 
 const PAGE_SIZE = 12;
 
-export const PhotoUpload = lazy(() => import("@/components/photo-upload"));
+const PhotoUpload = dynamic(() => import("@/components/photo-upload"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center pb-12">
+      <BounceLoader color={"oklch(0.75 0.15 55)"} loading={true} size={25} />
+    </div>
+  ),
+});
 
 function buildSlide(photo: Photo): LightboxSlide {
   return {
@@ -163,19 +169,10 @@ export function HomePageClient({
 
   return (
     <div className="container mx-auto min-h-dvh px-4 py-8 md:pl-24">
-      <Suspense
-        fallback={
-          <div className="mt-8 flex items-center justify-center">
-            <BounceLoader
-              color={"oklch(0.75 0.15 55)"}
-              loading={true}
-              size={25}
-            />
-          </div>
-        }
-      >
-        {typeof window !== "undefined" && <PhotoUpload addPhoto={addPhoto} />}
-      </Suspense>
+      {/* Fixed height wrapper prevents layout shift when PhotoUpload loads */}
+      <div className="h-[114px]">
+        <PhotoUpload addPhoto={addPhoto} />
+      </div>
 
       {allPhotos.length === 0 ? (
         <div className="mt-16 flex flex-col items-center justify-center text-center">
