@@ -307,7 +307,7 @@
 
 /* Prose images */
 .prose img {
-  @apply my-6 rounded-lg;
+  @apply rounded-lg;
 }
 
 /* Prose tables */

@@ -2,11 +2,10 @@
 
 import { Photo } from "@/app/lib/types";
 import { cn } from "@/app/lib/utils";
-import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useState } from "react";
 import { DogCard } from "./dog-card/dog-card";
 import { DeleteDogConfirmationDialog } from "./dialogs/delete-dog-confirmation-dialog";
-import { LightboxSlide, useLightbox } from "./lightbox";
+import { type LightboxSlide } from "@/components/lightbox-image/index";
 
 function getPriorityIndices(): number[] | undefined {
   if (typeof window === "undefined") return undefined;
@@ -39,8 +38,6 @@ export function PhotoGrid({
   showInfoPanel = true,
   priorityStrategy = "first",
 }: PhotoGridProps) {
-  const { openGallery } = useLightbox();
-  const isMobile = useIsMobile();
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const columnClasses = {
@@ -56,10 +53,6 @@ export function PhotoGrid({
     height: 1000,
     description: `Uploaded by ${p.ownerDisplayName || "Anonymous"}`,
   }));
-
-  const openLightboxAt = (index: number) => {
-    openGallery(slides, index);
-  };
 
   const priorityIndices = priorityStrategy === "first" ? getPriorityIndices() : undefined;
   const confirmPhoto = deleteConfirmId
@@ -95,17 +88,12 @@ export function PhotoGrid({
               ownerProfilePicture={photo.ownerProfilePicture}
               isOwner={isOwner}
               onDeleteClick={() => setDeleteConfirmId(photo.id)}
-              showLightbox={
-                enableLightbox ? () => openLightboxAt(index) : undefined
-              }
               showInfoPanel={showInfoPanel}
               priority={priority}
-              onCardClick={
-                enableLightbox && !isMobile
-                  ? () => openLightboxAt(index)
-                  : undefined
-              }
-              toggleOverlayOnClick={isMobile}
+              slide={slides[index]}
+              gallery={enableLightbox ? slides : undefined}
+              galleryIndex={index}
+              enableLightbox={enableLightbox}
             />
           );
         })}

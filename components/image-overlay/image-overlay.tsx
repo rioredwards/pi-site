@@ -12,6 +12,9 @@ export interface ImageOverlayProps extends ImageOverlayClientProps {
   priority?: boolean;
   overlayClassName?: string;
   zoomOnHover?: boolean;
+  onLoad?: () => void;
+  onError?: () => void;
+  onLoadStart?: () => void;
 }
 
 function ImageOverlay({
@@ -22,6 +25,9 @@ function ImageOverlay({
   className,
   overlayClassName,
   zoomOnHover = true,
+  onLoad,
+  onError,
+  onLoadStart,
   children,
   ...clientProps
 }: ImageOverlayProps) {
@@ -54,6 +60,9 @@ function ImageOverlay({
           zoomOnHover &&
             "group-active/overlay:scale-[100%]! group-data-[active=true]:scale-[102%]",
         )}
+        onLoad={onLoad}
+        onError={onError}
+        onLoadStart={onLoadStart}
       />
 
       {children && (

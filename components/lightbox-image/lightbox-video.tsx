@@ -1,10 +1,11 @@
 "use client";
 
 import { cn, devLog } from "@/app/lib/utils";
+import type { LightboxSlide } from "@/components/lightbox-image/types";
+import { useLightbox } from "@/components/lightbox-image/lightbox-provider";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { Maximize2, Pause, Play } from "lucide-react";
 import React, { useRef, useState } from "react";
-import { LightboxSlide, useLightbox } from "./lightbox";
 
 interface LightboxVideoProps extends React.VideoHTMLAttributes<HTMLVideoElement> {
   src: string;
@@ -53,7 +54,6 @@ export function LightboxVideo({
   const handleVideoPause = () => setIsPlaying(false);
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    // Prevent simulated mouse events which cause timing issues on mobile
     e.preventDefault();
     handlePlayPause();
   };
@@ -110,14 +110,12 @@ export function LightboxVideo({
           onPause={handleVideoPause}
           {...props}
         />
-        {/* Overlay */}
         <div
           className={cn(
             "pointer-events-none absolute inset-0 rounded-2xl bg-foreground/0 transition-colors duration-300",
             shouldShowOverlay && !isPlaying && "bg-foreground/20",
           )}
         >
-          {/* Play/Pause button - animated position */}
           <div
             className={cn(
               "absolute rounded-full bg-background/70 shadow-md backdrop-blur-sm transition-all duration-300 ease-in-out",
@@ -149,7 +147,6 @@ export function LightboxVideo({
             )}
           </div>
         </div>
-        {/* Fullscreen button - top right */}
         {enableLightbox && (
           <button
             onClick={handleFullscreen}
