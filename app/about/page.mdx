@@ -188,18 +188,17 @@ Eventually, work got busy, and the project went on the back burner for about a y
 Highlights from Phase 1:
 
 - <span className="inline">
-    I built this component that wraps anything in a
-  </span>
-  <RotatingGradientBorder
+    {`I built this component that wraps anything in a`}
+    <RotatingGradientBorder
     backgroundColor="transparent"
     borderRadius="12px"
     containerClassName="mx-1 inline-block align-middle bg-background"
   >
-    <span className="rounded-full bg-background px-2">{`Glowing Gradient Border`}</span>
-  </RotatingGradientBorder>
-  <span className="inline">
-    {". "}Might release it as an npm package someday.
+    <span className="inline rounded-full bg-background px-2">{`Glowing Gradient Border`}</span>
+  </RotatingGradientBorder> 
+  {". Might release it as an npm package someday."}
   </span>
+  
 - I wrote a Bash script for auto-updating the app and restarting the server. This was my first step into DevOps for this project.
 
 - I built a browser-based image compression/conversion service to deal with large images and the HEIC file format, which is the default for iPhone images. As it turns out, there's essentially [no browser support for them 🤔](https://caniuse.com/?search=heif).
