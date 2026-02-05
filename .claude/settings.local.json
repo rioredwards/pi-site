@@ -14,7 +14,8 @@
       "Bash(npx tsc:*)",
       "Bash(npm run typecheck:*)",
       "Bash(npx husky init)",
-      "Bash(xargs sed:*)"
+      "Bash(xargs sed:*)",
+      "Bash(timeout 15 npm run dev:next:*)"
     ]
   }
 }
