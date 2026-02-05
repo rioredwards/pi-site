@@ -1,6 +1,6 @@
 "use client";
 
-import { cn, devLog } from "@/app/lib/utils";
+import { cn, devLog } from "@/lib/utils";
 import type { LightboxSlide } from "@/components/lightbox-image/types";
 import { useLightbox } from "@/components/lightbox-image/lightbox-provider";
 import { useIsMobile } from "@/hooks/use-is-mobile";

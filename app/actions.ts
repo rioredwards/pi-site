@@ -1,6 +1,6 @@
 "use server";
 
-import { devLog } from "@/app/lib/utils";
+import { devLog } from "@/lib/utils";
 import {
   deletePhoto,
   getPhotos,

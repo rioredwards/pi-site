@@ -7,7 +7,7 @@ import {
 } from "@/app/db/actions";
 import { reduceFileSize } from "@/app/lib/imgCompress";
 import { User as UserType } from "@/app/lib/types";
-import { cn, devLog, getProfilePictureUrl } from "@/app/lib/utils";
+import { cn, devLog, getProfilePictureUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

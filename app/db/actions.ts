@@ -1,7 +1,7 @@
 "use server";
 
 import { authOptions } from "@/app/auth";
-import { devLog } from "@/app/lib/utils";
+import { devLog } from "@/lib/utils";
 import { count, desc, eq, sql } from "drizzle-orm";
 import { existsSync, mkdirSync, unlinkSync } from "fs";
 import { writeFile } from "fs/promises";

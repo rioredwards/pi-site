@@ -1,6 +1,6 @@
 import { authOptions } from "@/app/auth";
 import { getPhotosByUserId, getUserProfile } from "@/app/db/actions";
-import { getProfilePictureUrl } from "@/app/lib/utils";
+import { getProfilePictureUrl } from "@/lib/utils";
 import { ProfilePhotosGrid } from "@/components/profile-photos-grid";
 import { Button } from "@/components/ui/button";
 import { PencilEdit01Icon, UserIcon } from "@hugeicons/core-free-icons";

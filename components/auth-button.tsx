@@ -2,7 +2,7 @@
 
 import { getUserProfile } from "@/app/db/actions";
 import { User as UserType } from "@/app/lib/types";
-import { cn, getProfilePictureUrl } from "@/app/lib/utils";
+import { cn, getProfilePictureUrl } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,

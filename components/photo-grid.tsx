@@ -1,7 +1,7 @@
 "use client";
 
 import { Photo } from "@/app/lib/types";
-import { cn } from "@/app/lib/utils";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { DogCard } from "./dog-card/dog-card";
 import { DeleteDogConfirmationDialog } from "./dialogs/delete-dog-confirmation-dialog";

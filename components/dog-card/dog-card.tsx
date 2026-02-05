@@ -4,13 +4,13 @@ import { Trash2 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ImageOff, Maximize2, RefreshCw } from "lucide-react";
 import BounceLoader from "react-spinners/BounceLoader";
-import { cn } from "@/app/lib/utils";
+import { cn } from "@/lib/utils";
 import { useImageLoadState } from "@/hooks/use-image-load-state";
-import type { LightboxSlide } from "@/components/lightbox-image/types";
 import { ImageOverlay } from "@/components/image-overlay/image-overlay";
 import {
   LightboxImageClient,
   LightboxTrigger,
+  type LightboxSlide,
 } from "@/components/lightbox-image/index";
 import { Card } from "../card";
 import { PhotoCardOwnerPanel } from "../photo-card-owner-panel";

@@ -1,5 +1,5 @@
 "use client";
-import { cn, devLog } from "@/app/lib/utils";
+import { cn, devLog } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

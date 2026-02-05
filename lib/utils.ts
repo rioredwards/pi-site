@@ -1,4 +1,3 @@
-// Re-export for registry components that use @/lib/utils
+// Standard import path for utils - all components should use @/lib/utils
+// The actual implementation lives in @/app/lib/utils
 export { cn, devLog, getProfilePictureUrl, isMobile } from "@/app/lib/utils";
-
-// TODO: decide whether we need this. We should probably just have one utils file.

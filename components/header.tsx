@@ -1,5 +1,5 @@
 "use client";
-import { cn } from "@/app/lib/utils";
+import { cn } from "@/lib/utils";
 import { AuthButton } from "@/components/auth-button";
 import LogoImage from "@/public/logo.png";
 import { BarChart3, Home, Info } from "lucide-react";

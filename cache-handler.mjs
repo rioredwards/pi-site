@@ -1,4 +1,4 @@
-import { devLog } from "@/app/lib/utils";
+import { devLog } from "@/lib/utils";
 import chalk from "chalk";
 import { promises as fs } from "fs";
 import path from "path";

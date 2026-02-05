@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { CombinedStats } from "@/shared/types";
-import { devLog } from "@/app/lib/utils";
+import { devLog } from "@/lib/utils";
 import { HistoryPoint, HISTORY_MAX } from "./types";
 import { formatTimeLabel } from "./utils";
 

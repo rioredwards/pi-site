@@ -1,6 +1,6 @@
 "use client";
 
-import { devLog } from "@/app/lib/utils";
+import { devLog } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import {
   lazy,
