@@ -3,6 +3,49 @@ import type { NextConfig } from "next";
 import remarkGfm from "remark-gfm";
 // import path from 'path';
 
+const isDev = process.env.NODE_ENV !== "production";
+const umamiUrl = process.env.NEXT_PUBLIC_UMAMI_URL;
+const umamiScriptOrigin = (() => {
+  if (!umamiUrl) return null;
+  try {
+    return new URL(umamiUrl).origin;
+  } catch {
+    return null;
+  }
+})();
+
+const scriptSrcParts = [
+  "'self'",
+  "'unsafe-inline'",
+  "'unsafe-eval'",
+  "https:",
+  ...(isDev ? ["http:"] : []),
+  ...(umamiScriptOrigin ? [umamiScriptOrigin] : []),
+];
+
+const connectSrcParts = [
+  "'self'",
+  "https:",
+  "wss:",
+  ...(isDev ? ["http:", "ws:"] : []),
+];
+
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "object-src 'none'",
+  `script-src ${scriptSrcParts.join(" ")}`,
+  "style-src 'self' 'unsafe-inline' https:",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data: https:",
+  `connect-src ${connectSrcParts.join(" ")}`,
+  "media-src 'self' data: blob:",
+  "worker-src 'self' blob:",
+  "trusted-types default nextjs nextjs#bundler",
+].join("; ");
+
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
   async headers() {
@@ -21,6 +64,22 @@ const nextConfig: NextConfig = {
           {
             key: "Referrer-Policy",
             value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin",
+          },
+          ...(!isDev
+            ? [
+                {
+                  key: "Strict-Transport-Security",
+                  value: "max-age=63072000; includeSubDomains; preload",
+                },
+              ]
+            : []),
+          {
+            key: "Content-Security-Policy",
+            value: contentSecurityPolicy,
           },
         ],
       },

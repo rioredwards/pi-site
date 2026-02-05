@@ -1,13 +1,19 @@
 "use client";
 
-import { NextJsImageSlide } from "@/components/lightbox-image/next-image-slide";
-import type { LightboxContextValue } from "@/components/lightbox-image/types";
+import type {
+  LightboxContextValue,
+  LightboxSlide,
+} from "@/components/lightbox-image/types";
+import dynamic from "next/dynamic";
 import { createContext, useCallback, useContext, useState } from "react";
-import Lightbox, { type Slide } from "yet-another-react-lightbox";
-import Captions from "yet-another-react-lightbox/plugins/captions";
-import "yet-another-react-lightbox/plugins/captions.css";
-import Video from "yet-another-react-lightbox/plugins/video";
-import "yet-another-react-lightbox/styles.css";
+
+const LightboxModal = dynamic(
+  () =>
+    import("@/components/lightbox-image/lightbox-modal").then(
+      (module) => module.LightboxModal,
+    ),
+  { ssr: false },
+);
 
 const LightboxContext = createContext<LightboxContextValue | null>(null);
 
@@ -21,16 +27,16 @@ export function useLightbox(): LightboxContextValue {
 
 export function LightboxProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [slides, setSlides] = useState<Slide[]>([]);
+  const [slides, setSlides] = useState<LightboxSlide[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const openSingle = useCallback((slide: Slide) => {
+  const openSingle = useCallback((slide: LightboxSlide) => {
     setSlides([slide]);
     setCurrentIndex(0);
     setIsOpen(true);
   }, []);
 
-  const openGallery = useCallback((newSlides: Slide[], index: number) => {
+  const openGallery = useCallback((newSlides: LightboxSlide[], index: number) => {
     setSlides(newSlides);
     setCurrentIndex(index);
     setIsOpen(true);
@@ -45,26 +51,14 @@ export function LightboxProvider({ children }: { children: React.ReactNode }) {
       value={{ openSingle, openGallery, close, isOpen }}
     >
       {children}
-      <Lightbox
-        open={isOpen}
-        close={close}
-        slides={slides}
-        index={currentIndex}
-        plugins={[Video, Captions]}
-        render={{
-          slide: NextJsImageSlide,
-        }}
-        video={{
-          controls: true,
-          autoPlay: true,
-        }}
-        carousel={{
-          finite: slides.length === 1,
-        }}
-        controller={{
-          closeOnBackdropClick: true,
-        }}
-      />
+      {isOpen && (
+        <LightboxModal
+          open={isOpen}
+          slides={slides}
+          index={currentIndex}
+          onClose={close}
+        />
+      )}
     </LightboxContext.Provider>
   );
 }

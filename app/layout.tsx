@@ -61,10 +61,18 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
   manifest: "/manifest.json",
+  formatDetection: {
+    telephone: false,
+    date: false,
+    email: false,
+    address: false,
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: "#09090b",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -81,14 +89,6 @@ export default function RootLayout({
       className={`${inter.variable} ${comfortaa.variable} scroll-smooth antialiased`}
       suppressHydrationWarning
     >
-      <meta
-        name="format-detection"
-        content="telephone=no, date=no, email=no, address=no"
-      />
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1.0"
-      ></meta>
       {umamiWebsiteId && umamiUrl && (
         <Script
           defer
