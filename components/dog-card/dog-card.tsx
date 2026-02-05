@@ -44,6 +44,7 @@ export function DogCard({
       data-photo-id={id}
     >
       <DogCardClient
+        id={id}
         slide={slide}
         gallery={gallery}
         galleryIndex={galleryIndex}

@@ -10,6 +10,7 @@ import {
 } from "@/components/lightbox-image/index";
 import { PhotoCardOwnerPanel } from "../photo-card-owner-panel";
 import { useDeleteContext } from "./delete-context";
+import { useGalleryContext } from "../gallery-context";
 
 interface DogCardOverlayContentProps {
   id: string;
@@ -19,6 +20,7 @@ interface DogCardOverlayContentProps {
   ownerProfilePicture?: string | null;
   showInfoPanel?: boolean;
   slide: LightboxSlide;
+  /** Gallery can be passed as props OR provided via GalleryContext */
   gallery?: LightboxSlide[];
   galleryIndex?: number;
   enableLightbox?: boolean;
@@ -32,11 +34,16 @@ export function DogCardOverlayContent({
   ownerProfilePicture,
   showInfoPanel = true,
   slide,
-  gallery,
-  galleryIndex = 0,
+  gallery: galleryProp,
+  galleryIndex: galleryIndexProp,
   enableLightbox = false,
 }: DogCardOverlayContentProps) {
   const deleteContext = useDeleteContext();
+  const galleryContext = useGalleryContext();
+
+  // Use props if provided, otherwise fall back to context
+  const gallery = galleryProp ?? galleryContext?.slides;
+  const galleryIndex = galleryIndexProp ?? galleryContext?.getIndex(id) ?? 0;
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
