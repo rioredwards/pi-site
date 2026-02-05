@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { DogCard } from "./dog-card/dog-card";
 import { DeleteDogConfirmationDialog } from "./dialogs/delete-dog-confirmation-dialog";
+import { DeleteContext } from "./dog-card/delete-context";
 import { type LightboxSlide } from "@/components/lightbox-image/index";
 
 function getPriorityIndices(): number[] | undefined {
@@ -67,7 +68,7 @@ export function PhotoGrid({
   };
 
   return (
-    <>
+    <DeleteContext.Provider value={{ onDeleteClick: setDeleteConfirmId }}>
       <div className={cn("grid gap-3", columnClasses[columns], className)}>
         {photos.map((photo, index) => {
           const isOwner =
@@ -87,7 +88,6 @@ export function PhotoGrid({
               ownerDisplayName={photo.ownerDisplayName}
               ownerProfilePicture={photo.ownerProfilePicture}
               isOwner={isOwner}
-              onDeleteClick={() => setDeleteConfirmId(photo.id)}
               showInfoPanel={showInfoPanel}
               priority={priority}
               slide={slides[index]}
@@ -106,6 +106,6 @@ export function PhotoGrid({
         src={confirmPhoto?.src ?? ""}
         alt={confirmPhoto?.alt ?? ""}
       />
-    </>
+    </DeleteContext.Provider>
   );
 }

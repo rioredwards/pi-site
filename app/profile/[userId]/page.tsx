@@ -1,7 +1,9 @@
 import { authOptions } from "@/app/auth";
 import { getPhotosByUserId, getUserProfile } from "@/app/db/actions";
 import { getProfilePictureUrl } from "@/lib/utils";
-import { ProfilePhotosGrid } from "@/components/profile-photos-grid";
+import { ProfilePhotosGridClient } from "@/components/profile-photos-grid-client";
+import { DogCard } from "@/components/dog-card/dog-card";
+import { type LightboxSlide } from "@/components/lightbox-image/index";
 import { Button } from "@/components/ui/button";
 import { PencilEdit01Icon, UserIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -52,8 +54,23 @@ export default async function ProfilePage({ params }: Props) {
 
   const profile = profileResult.data;
   const photos = photosResult.data || [];
-  const isOwner = session?.user?.id === decodedUserId;
+  const currentUserId = session?.user?.id;
+  const isOwner = currentUserId === decodedUserId;
   const profilePictureUrl = getProfilePictureUrl(profile.profilePicture);
+
+  // Build slides for lightbox gallery
+  const slides: LightboxSlide[] = photos.map((p) => ({
+    src: p.src,
+    alt: p.alt,
+    width: 1000,
+    height: 1000,
+    description: `Uploaded by ${p.ownerDisplayName || "Anonymous"}`,
+  }));
+
+  // Build lookup for delete confirmation dialog
+  const photoLookup = Object.fromEntries(
+    photos.map((p) => [p.id, { src: p.src, alt: p.alt }])
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -115,7 +132,32 @@ export default async function ProfilePage({ params }: Props) {
               : `${profile.displayName || "User"}'s Posts`}
           </h2>
           {photos.length > 0 ? (
-            <ProfilePhotosGrid photos={photos} />
+            <ProfilePhotosGridClient photoLookup={photoLookup}>
+              {photos.map((photo, index) => {
+                const photoIsOwner =
+                  currentUserId != null &&
+                  (currentUserId === photo.userId || currentUserId === "admin");
+
+                return (
+                  <DogCard
+                    key={photo.id}
+                    id={photo.id}
+                    src={photo.src}
+                    alt={photo.alt}
+                    userId={photo.userId}
+                    ownerDisplayName={photo.ownerDisplayName}
+                    ownerProfilePicture={photo.ownerProfilePicture}
+                    isOwner={photoIsOwner}
+                    showInfoPanel={false}
+                    priority={true}
+                    slide={slides[index]}
+                    gallery={slides}
+                    galleryIndex={index}
+                    enableLightbox={true}
+                  />
+                );
+              })}
+            </ProfilePhotosGridClient>
           ) : (
             <div className="rounded-lg border border-border bg-card p-6 text-center">
               <p className="text-muted-foreground">
