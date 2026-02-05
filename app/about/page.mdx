@@ -1,4 +1,8 @@
-import { LightboxImage, LightboxVideo } from "@/components/lightbox-image/index";
+import {
+  LightboxGallery,
+  LightboxImage,
+  LightboxVideo,
+} from "@/components/lightbox-image/index";
 import BlueSky from "@/components/svg/Bluesky";
 import GitHub from "@/components/svg/GitHub";
 import LinkedIn from "@/components/svg/LinkedIn";
@@ -23,54 +27,7 @@ export const metadata = {
     "Learn about Rio, this site, and the Raspberry Pi powering it all.",
 };
 
-export const aboutGallery = [
-  {
-    ...ImgMyPi,
-    alt: "A Raspberry Pi",
-    description: "The Raspberry Pi powering this site",
-  },
-  {
-    ...ImgTechForDummies,
-    alt: "Diagram showing how this website gets from my raspberry pi to your computer/phone",
-    description: "The noob diagram (not to scale)",
-  },
-  {
-    ...ImgTechStack,
-    alt: "Diagram showing the tech stack powering this site",
-    description: "The stack",
-  },
-  {
-    ...ImgPi3D,
-    alt: "A 3D model of a Raspberry Pi",
-    description: "A 3D model of a Raspberry Pi",
-  },
-  {
-    ...ImgPiDepth,
-    alt: "A depth map of a Raspberry Pi",
-    description: "A depth map of a Raspberry Pi",
-  },
-  {
-    ...ImgFzfCmd,
-    alt: "fzf-cmd",
-    description: "fzf-cmd",
-  },
-  {
-    ...ImgTheSetupOg,
-    alt: "My Raspberry Pi setup",
-    description: "The setup with laptop, pi, tv and Suki ☁️",
-  },
-  {
-    type: "video",
-    sources: [{ src: "/videos/DogBot-Demo.mp4", type: "video/mp4" }],
-    description: "apparently hammers are not dogs... thanks DogBot!",
-  },
-  {
-    ...ImgLogoProg,
-    alt: "Logo progression",
-    description: "Logo progression",
-  },
-];
-
+<LightboxGallery>
 <article className="prose container mx-auto max-w-2xl px-4 py-12">
 
 <div className="not-prose mb-12 flex flex-col items-center text-center">
@@ -96,9 +53,6 @@ export const aboutGallery = [
     src={ImgMyPi}
     alt="A Raspberry Pi"
     caption="The Raspberry Pi powering this site"
-    enableLightbox
-    gallery={aboutGallery}
-    galleryIndex={0}
   />
 </div>
 
@@ -135,9 +89,6 @@ Along the way, I learned a ton about networking, Linux, process management, Dock
     src={ImgTechForDummies}
     alt="Diagram showing how this website gets from my raspberry pi to your computer/phone"
     caption="The noob diagram (not to scale)"
-    enableLightbox
-    gallery={aboutGallery}
-    galleryIndex={1}
   />
 </div>
 
@@ -187,9 +138,6 @@ Want a deeper dive? Check out my article: [What is the Backend?](https://medium.
     src={ImgTechStack}
     alt="Diagram showing the tech stack powering this site"
     caption="The stack"
-    enableLightbox
-    gallery={aboutGallery}
-    galleryIndex={2}
   />
 </div>
 
@@ -232,9 +180,6 @@ I started building it over the holidays and had it connected to the TV, so my fa
         </Link>
       </div>
     }
-    enableLightbox
-    gallery={aboutGallery}
-    galleryIndex={3}
   />
 </div>
 
@@ -295,9 +240,6 @@ It runs on a [**FastAPI**](https://fastapi.tiangolo.com/) server, processing ima
   src="/videos/DogBot-Demo.mp4#t=0.001"
   caption="apparently hammers are not dogs... thanks DogBot!"
   className="w-full rounded-lg"
-  gallery={aboutGallery}
-  galleryIndex={4}
-  enableLightbox
 />
 
 #### Docker Woes & Wins
@@ -349,9 +291,6 @@ I spent more time learning Docker/Docker Compose than anything else in this proj
         </Link>
       </div>
     }
-    enableLightbox
-    gallery={aboutGallery}
-    galleryIndex={5}
   />
 </div>
 
@@ -390,17 +329,11 @@ It works by using the lightness of the pixels in the depth map to determine how 
     src={ImgPi3D}
     alt="2D image of a Raspberry Pi"
     caption="2D image of a Raspberry Pi"
-    enableLightbox
-    gallery={aboutGallery}
-    galleryIndex={6}
   />
   <LightboxImage
     src={ImgPiDepth}
     alt="Depth map generated using MiDaS"
     caption="Depth map of the Raspberry Pi image"
-    enableLightbox
-    gallery={aboutGallery}
-    galleryIndex={7}
   />
 </div>
 
@@ -425,9 +358,6 @@ As with most of my projects, I designed the DogTown logo using Figma. I love giv
     src={ImgLogoProg}
     alt="Logo progression"
     caption="Logo progression"
-    enableLightbox
-    gallery={aboutGallery}
-    galleryIndex={8}
   />
 </div>
 
@@ -477,3 +407,4 @@ Feel free to reach out if you have questions, feedback, or just want to chat!
 </div>
 
 </article>
+</LightboxGallery>
