@@ -33,7 +33,7 @@ export function DogCard({
   showInfoPanel = true,
   slide,
   gallery,
-  galleryIndex = 0,
+  galleryIndex,
   enableLightbox = false,
 }: DogCardProps) {
   return (
