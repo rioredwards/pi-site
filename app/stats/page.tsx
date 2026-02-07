@@ -6,6 +6,24 @@ import { RotatingGradientBorder } from "../../components/ui/RotatingGradientBord
 export const metadata: Metadata = {
   title: "System Stats | DogTown",
   description: "Live system statistics from the Raspberry Pi server",
+  openGraph: {
+    title: "System Stats | DogTown",
+    description: "Live system statistics from the Raspberry Pi server",
+    images: [
+      {
+        url: "/images/dashboard-screenshot.jpg",
+        width: 1200,
+        height: 630,
+        alt: "DogTown system stats dashboard",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "System Stats | DogTown",
+    description: "Live system statistics from the Raspberry Pi server",
+    images: ["/images/dashboard-screenshot.jpg"],
+  },
 };
 
 export default function StatsPage() {
