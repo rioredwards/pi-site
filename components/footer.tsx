@@ -1,9 +1,6 @@
 import { PawPrint } from "lucide-react";
 import Link from "next/link";
-import BlueSky from "./svg/Bluesky";
-import GitHub from "./svg/GitHub";
-import LinkedIn from "./svg/LinkedIn";
-import YouTube from "./svg/YouTube";
+import { SocialLinks } from "./SocialLinks";
 
 export default function Footer() {
   return (
@@ -131,36 +128,7 @@ export default function Footer() {
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} DogTown. All rights reserved.
           </p>
-          <div className="flex gap-4">
-            <Link
-              href="https://www.linkedin.com/in/rio-edwards/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <LinkedIn className="w-8" />
-            </Link>
-            <Link
-              href="https://bsky.app/profile/rioredwards.bsky.social"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <BlueSky className="w-8" />
-            </Link>
-            <Link
-              href="https://www.youtube.com/channel/UCZdVYjS_Os_4e7DZAZSRxBQ"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <YouTube className="w-8" />
-            </Link>
-            <Link
-              href="https://github.com/rioredwards/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <GitHub className="w-8" />
-            </Link>
-          </div>
+          <SocialLinks iconClassName="w-8" />
         </div>
       </div>
     </footer>

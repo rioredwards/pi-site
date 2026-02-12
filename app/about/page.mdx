@@ -3,13 +3,11 @@ import {
   LightboxImage,
   LightboxVideo,
 } from "@/components/lightbox-image/index";
-import BlueSky from "@/components/svg/Bluesky";
-import GitHub from "@/components/svg/GitHub";
-import LinkedIn from "@/components/svg/LinkedIn";
+import { SocialLinks } from "@/components/SocialLinks";
 import RaspberryPi from "@/components/svg/RaspberryPi";
-import YouTube from "@/components/svg/YouTube";
 import { RotatingGradientBorder } from "@/components/ui/RotatingGradientBorder";
 import Link from "next/link";
+import Image from "next/image";
 
 import ImgFzfCmd from "@/public/images/fzf-cmd.jpg";
 import ImgLogoProg from "@/public/images/Logo-Prog.jpg";
@@ -37,11 +35,12 @@ export const metadata = {
     placeholder="blur"
     src={ImgMeWithPups}
     alt="Rio with dogs"
-    className="mb-6 max-w-96 shadow-lg"
+    className="max-w-96 shadow-lg"
   />
-  <div className="mt-2 text-muted-foreground">
+  <div className="text-muted-foreground">
     Software developer and dog enthusiast based in Portland, OR.
   </div>
+  <SocialLinks className="not-prose mt-6 flex gap-4" />
 </div>
 
 ---
@@ -384,26 +383,7 @@ That's all. Thanks for reading! ❤️
 
 Feel free to reach out if you have questions, feedback, or just want to chat!
 
-<div className="not-prose mt-6 flex gap-4">
-  <Link href="https://www.linkedin.com/in/rio-edwards/" aria-label="LinkedIn">
-    <LinkedIn className="w-8 text-foreground/70 transition-colors hover:text-foreground" />
-  </Link>
-  <Link
-    href="https://bsky.app/profile/rioedwards.bsky.social"
-    aria-label="Bluesky"
-  >
-    <BlueSky className="w-8 text-foreground/70 transition-colors hover:text-foreground" />
-  </Link>
-  <Link
-    href="https://www.youtube.com/channel/UCZdVYjS_Os_4e7DZAZSRxBQ"
-    aria-label="YouTube"
-  >
-    <YouTube className="w-8 text-foreground/70 transition-colors hover:text-foreground" />
-  </Link>
-  <Link href="https://github.com/rioedwards/" aria-label="GitHub">
-    <GitHub className="w-8 text-foreground/70 transition-colors hover:text-foreground" />
-  </Link>
-</div>
+<SocialLinks className="not-prose mt-6 flex gap-4" />
 
 </article>
 </LightboxGallery>

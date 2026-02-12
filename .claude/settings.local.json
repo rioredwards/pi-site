@@ -15,7 +15,10 @@
       "Bash(npm run typecheck:*)",
       "Bash(npx husky init)",
       "Bash(xargs sed:*)",
-      "Bash(timeout 15 npm run dev:next:*)"
+      "Bash(timeout 15 npm run dev:next:*)",
+      "Bash(git show:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix\\(config\\): use same-origin-allow-popups for COOP to fix OAuth\n\nThe same-origin COOP policy was breaking OAuth flows by severing\nthe connection between the app window and OAuth provider redirects.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }
