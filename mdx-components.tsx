@@ -3,6 +3,7 @@ import Image, { ImageProps } from "next/image";
 import Link from "next/link";
 import React from "react";
 import { highlight } from "sugar-high";
+import { HeadingLink } from "@/components/mdx-heading-link";
 
 function slugify(str: string): string {
   return str
@@ -16,20 +17,12 @@ function slugify(str: string): string {
 }
 
 function createHeading(level: number) {
-  const Heading = ({ children }: { children: React.ReactNode }) => {
-    const text = typeof children === "string" ? children : "";
-    const slug = slugify(text);
+  const Heading = ({ children }: { children?: React.ReactNode }) => {
+    const slug = slugify(children?.toString() ?? "");
     return React.createElement(
       `h${level}`,
-      { id: slug },
-      [
-        React.createElement("a", {
-          href: `#${slug}`,
-          key: `link-${slug}`,
-          className: "anchor",
-        }),
-      ],
-      children,
+      { id: slug, className: "group relative scroll-mt-24" },
+      <HeadingLink slug={slug}>{children}</HeadingLink>,
     );
   };
   Heading.displayName = `Heading${level}`;
