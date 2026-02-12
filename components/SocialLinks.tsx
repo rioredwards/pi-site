@@ -50,7 +50,7 @@ export function SocialLinks({
       >
         <YouTube className={iconClassName} />
       </Link>
-      <Link href="https://github.com/rioedwards/" aria-label="GitHub" {...linkProps}>
+      <Link href="https://github.com/rioredwards/" aria-label="GitHub" {...linkProps}>
         <GitHub className={iconClassName} />
       </Link>
     </div>
