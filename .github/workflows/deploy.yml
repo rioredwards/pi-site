@@ -60,5 +60,11 @@ jobs:
 
       # Skip build - Docker will build during deploy
 
+      # Pinned hostnames in /etc/hosts (idempotent) so registry-1.docker.io and friends
+      # use IPv4 — avoids Docker Hub pulls failing with EAFNOSUPPORT on this runner.
+      # Needs NOPASSWD for this script (or tee + /etc/hosts) in sudoers for the runner user.
+      - name: Pin Docker Hub hostnames to IPv4
+        run: sudo bash "$GITHUB_WORKSPACE/scripts/fix-docker-ipv6-auto.sh"
+
       - name: Deploy
         run: ~/pi-site/scripts/update-prod.sh

@@ -9,7 +9,8 @@ if [ $# -eq 0 ]; then
 fi
 
 DOMAIN=$1
-IPV4=$(getent ahosts $DOMAIN | grep STREAM | head -1 | awk '{print $1}')
+# Prefer a dotted-decimal address; getent ahosts can list IPv6 first
+IPV4=$(getent ahosts "$DOMAIN" | awk '$1 ~ /^[0-9]+\./ {print $1; exit}')
 
 if [ -z "$IPV4" ]; then
     echo "Could not resolve $DOMAIN to IPv4"
