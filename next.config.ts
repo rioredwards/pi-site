@@ -90,6 +90,12 @@ const nextConfig: NextConfig = {
   // Docker image size by 80%+
   output: "standalone",
   serverExternalPackages: ["postgres"],
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "2mb",
+      allowedOrigins: ["dogtown.dog", "www.dogtown.dog", "pi.rioedwards.com"],
+    },
+  },
   // Optional: bring your own cache handler
   // cacheHandler: path.resolve('./cache-handler.mjs'),
   // cacheMaxMemorySize: 0, // Disable default in-memory caching
@@ -113,7 +119,6 @@ const nextConfig: NextConfig = {
         hostname: "avatars.githubusercontent.com",
         port: "",
         pathname: "/**",
-        search: "",
       },
       {
         protocol: "https",

@@ -17,7 +17,6 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Cropper, { Area } from "react-easy-crop";
-import { uploadPhoto } from "../app/actions";
 import { reduceFileSize } from "../app/lib/imgCompress";
 import { Photo } from "../app/lib/types";
 import Confetti from "./Confetti";
@@ -321,7 +320,13 @@ export default function PhotoUpload({ addPhoto }: Props) {
     const formData = new FormData();
     formData.append("file", resizedImg);
     devLog("[photo-upload] startTime:", Date.now());
-    const res = await uploadPhoto(formData);
+    const uploadResponse = await fetch("/api/photos/upload", {
+      method: "POST",
+      body: formData,
+    });
+    const res = (await uploadResponse.json()) as
+      | { data: Photo; error: undefined }
+      | { data: undefined; error: string };
     devLog("[photo-upload] endTime:", Date.now());
     devLog("[photo-upload] elapsedTime:", Date.now() - startTime);
 
