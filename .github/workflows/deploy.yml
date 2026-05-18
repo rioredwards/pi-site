@@ -2,69 +2,168 @@ name: CI & Deploy
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch: # Allows manual triggering from GitHub UI
-  # Explicitly do NOT trigger on pull_request events
-  # Use [skip ci] in commit message to skip for minor changes
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  deploy:
-    name: Lint, Typecheck & Deploy
-    runs-on: [self-hosted, linux, arm64]
-    # Security: Only run if:
-    # 1. This is a push event (not a PR) OR a manual workflow_dispatch
-    # 2. The actor is the repository owner (you)
-    # 3. The repository is not a fork
-    if: |
-      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
-      github.actor == github.repository_owner &&
-      !github.event.repository.fork
-
+  check:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
     steps:
-      - name: Fix git config for self-hosted runner
-        run: |
-          mkdir -p "$HOME"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - uses: actions/checkout@v4
 
-      - name: Checkout code
-        uses: actions/checkout@v4
-        # Additional security: only checkout from the main repository
-        with:
-          ref: ${{ github.ref }}
-
-      - name: Verify repository ownership
-        run: |
-          echo "Repository: ${{ github.repository }}"
-          echo "Actor: ${{ github.actor }}"
-          echo "Owner: ${{ github.repository_owner }}"
-          if [ "${{ github.actor }}" != "${{ github.repository_owner }}" ]; then
-            echo "❌ Security check failed: Actor is not repository owner"
-            exit 1
-          fi
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
-          # No cache - self-hosted runner uses local npm cache
+          cache: npm
 
-      - name: Install dependencies
-        run: npm install  # Use install (not ci) to preserve local node_modules cache
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
 
-      - name: Lint
-        run: npm run lint
+  deploy:
+    name: Build & Deploy
+    needs: check
+    runs-on: ubuntu-latest
+    if: |
+      github.actor == github.repository_owner &&
+      !github.event.repository.fork
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Typecheck
-        run: npm run typecheck
+      - name: Detect changed services
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            web:
+              - 'app/**'
+              - 'components/**'
+              - 'public/**'
+              - 'shared/**'
+              - 'Dockerfile'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'next.config.ts'
+              - 'tailwind.config.ts'
+              - 'tsconfig.json'
+              - 'postcss.config.mjs'
+              - 'mdx-components.tsx'
+              - 'scripts/docker-entrypoint.sh'
+              - 'scripts/run-migrations.js'
+            system-profiler:
+              - 'system-profiler/**'
 
-      # Skip build - Docker will build during deploy
+      - name: Check if images need building
+        id: should-build
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || \
+             [[ "${{ steps.changes.outputs.web }}" == "true" ]] || \
+             [[ "${{ steps.changes.outputs.system-profiler }}" == "true" ]]; then
+            echo "any=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "any=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      # Pinned hostnames in /etc/hosts (idempotent) so registry-1.docker.io and friends
-      # use IPv4 — avoids Docker Hub pulls failing with EAFNOSUPPORT on this runner.
-      # Needs NOPASSWD for this script (or tee + /etc/hosts) in sudoers for the runner user.
-      - name: Pin Docker Hub hostnames to IPv4
-        run: sudo bash "$GITHUB_WORKSPACE/scripts/fix-docker-ipv6-auto.sh"
+      # ARM64 cross-compilation via QEMU (builds Pi-compatible images on x86_64 runner)
+      # For faster builds, switch runs-on to an ARM64 runner and remove QEMU/platforms steps
+      - name: Set up QEMU
+        if: steps.should-build.outputs.any == 'true'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
 
-      - name: Deploy
-        run: ~/pi-site/scripts/update-prod.sh
+      - name: Set up Docker Buildx
+        if: steps.should-build.outputs.any == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TS_AUTHKEY }}
+
+      - name: Setup SSH key
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/deploy_key
+          echo "${{ secrets.PI_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+
+      - name: Build web image
+        if: steps.changes.outputs.web == 'true' || github.event_name == 'workflow_dispatch'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/arm64
+          push: false
+          tags: pi-site-web:deploy
+          build-args: |
+            NEXT_PUBLIC_SAFE_KEY=${{ vars.NEXT_PUBLIC_SAFE_KEY }}
+            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_UMAMI_URL=${{ vars.NEXT_PUBLIC_UMAMI_URL }}
+            NEXT_PUBLIC_UMAMI_WEBSITE_ID=${{ vars.NEXT_PUBLIC_UMAMI_WEBSITE_ID }}
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,scope=web,mode=max
+          outputs: type=docker,dest=/tmp/web.tar
+
+      - name: Build system-profiler image
+        if: steps.changes.outputs.system-profiler == 'true' || github.event_name == 'workflow_dispatch'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./system-profiler
+          platforms: linux/arm64
+          push: false
+          tags: pi-site-system-profiler:deploy
+          cache-from: type=gha,scope=system-profiler
+          cache-to: type=gha,scope=system-profiler,mode=max
+          outputs: type=docker,dest=/tmp/system-profiler.tar
+
+      - name: Ship images to Pi
+        if: steps.should-build.outputs.any == 'true'
+        run: |
+          SSH_OPTS="-o StrictHostKeyChecking=no -i ~/.ssh/deploy_key"
+          PI="rioredwards@rio-raspberry-pi"
+          if [[ -f /tmp/web.tar ]]; then
+            echo "▶ Shipping web image ($(du -h /tmp/web.tar | cut -f1))..."
+            gzip -c /tmp/web.tar | ssh $SSH_OPTS "$PI" 'docker load'
+          fi
+          if [[ -f /tmp/system-profiler.tar ]]; then
+            echo "▶ Shipping system-profiler image ($(du -h /tmp/system-profiler.tar | cut -f1))..."
+            gzip -c /tmp/system-profiler.tar | ssh $SSH_OPTS "$PI" 'docker load'
+          fi
+
+      - name: Deploy on Pi
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key rioredwards@rio-raspberry-pi bash -s << 'DEPLOY'
+          set -euo pipefail
+          cd ~/pi-site
+
+          echo "▶ Pulling latest code..."
+          git fetch origin main
+          git reset --hard origin/main
+
+          echo "▶ Tagging deployed images..."
+          docker image inspect pi-site-web:deploy &>/dev/null && \
+            docker tag pi-site-web:deploy pi-site-web:latest && \
+            echo "  Tagged pi-site-web:latest" || true
+          docker image inspect pi-site-system-profiler:deploy &>/dev/null && \
+            docker tag pi-site-system-profiler:deploy pi-site-system-profiler:latest && \
+            echo "  Tagged pi-site-system-profiler:latest" || true
+
+          echo "▶ Updating nginx..."
+          sudo cp nginx/pi-site.conf /etc/nginx/sites-available/pi-site
+          sudo nginx -t && sudo systemctl reload nginx
+
+          echo "▶ Starting services..."
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build
+
+          echo "▶ Waiting for health checks..."
+          sleep 10
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
+
+          echo "▶ Cleaning up..."
+          docker image prune -f --filter "dangling=true"
+          echo "✅ Deploy complete"
+          DEPLOY

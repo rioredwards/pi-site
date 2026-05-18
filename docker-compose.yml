@@ -6,6 +6,7 @@
 
 services:
   web:
+    image: pi-site-web:latest
     build:
       context: .
       args:
@@ -26,6 +27,7 @@ services:
       - "com.rioredwards.stack=pi-site"
 
   system-profiler:
+    image: pi-site-system-profiler:latest
     build: ./system-profiler
     labels:
       - "com.rioredwards.stack=pi-site"
