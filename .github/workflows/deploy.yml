@@ -28,7 +28,7 @@ jobs:
   deploy:
     name: Build & Deploy
     needs: check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     if: |
       github.actor == github.repository_owner &&
       !github.event.repository.fork
@@ -69,18 +69,6 @@ jobs:
             echo "any=false" >> "$GITHUB_OUTPUT"
           fi
 
-      # ARM64 cross-compilation via QEMU (builds Pi-compatible images on x86_64 runner)
-      # For faster builds, switch runs-on to an ARM64 runner and remove QEMU/platforms steps
-      - name: Set up QEMU
-        if: steps.should-build.outputs.any == 'true'
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-
-      - name: Set up Docker Buildx
-        if: steps.should-build.outputs.any == 'true'
-        uses: docker/setup-buildx-action@v3
-
       - name: Connect to Tailscale
         uses: tailscale/github-action@v2
         with:
@@ -93,32 +81,21 @@ jobs:
 
       - name: Build web image
         if: steps.changes.outputs.web == 'true' || github.event_name == 'workflow_dispatch'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          platforms: linux/arm64
-          push: false
-          tags: pi-site-web:deploy
-          build-args: |
-            NEXT_PUBLIC_SAFE_KEY=${{ vars.NEXT_PUBLIC_SAFE_KEY }}
-            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
-            NEXT_PUBLIC_UMAMI_URL=${{ vars.NEXT_PUBLIC_UMAMI_URL }}
-            NEXT_PUBLIC_UMAMI_WEBSITE_ID=${{ vars.NEXT_PUBLIC_UMAMI_WEBSITE_ID }}
-          cache-from: type=gha,scope=web
-          cache-to: type=gha,scope=web,mode=max
-          outputs: type=docker,dest=/tmp/web.tar
+        run: |
+          docker build \
+            --build-arg NEXT_PUBLIC_SAFE_KEY=${{ vars.NEXT_PUBLIC_SAFE_KEY }} \
+            --build-arg NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }} \
+            --build-arg NEXT_PUBLIC_UMAMI_URL=${{ vars.NEXT_PUBLIC_UMAMI_URL }} \
+            --build-arg NEXT_PUBLIC_UMAMI_WEBSITE_ID=${{ vars.NEXT_PUBLIC_UMAMI_WEBSITE_ID }} \
+            -t pi-site-web:deploy \
+            -f Dockerfile .
+          docker save pi-site-web:deploy -o /tmp/web.tar
 
       - name: Build system-profiler image
         if: steps.changes.outputs.system-profiler == 'true' || github.event_name == 'workflow_dispatch'
-        uses: docker/build-push-action@v6
-        with:
-          context: ./system-profiler
-          platforms: linux/arm64
-          push: false
-          tags: pi-site-system-profiler:deploy
-          cache-from: type=gha,scope=system-profiler
-          cache-to: type=gha,scope=system-profiler,mode=max
-          outputs: type=docker,dest=/tmp/system-profiler.tar
+        run: |
+          docker build -t pi-site-system-profiler:deploy ./system-profiler
+          docker save pi-site-system-profiler:deploy -o /tmp/system-profiler.tar
 
       - name: Ship images to Pi
         if: steps.should-build.outputs.any == 'true'
