@@ -5,7 +5,8 @@ Keep local credentials in `.env.local`; never copy production data or secrets.
 For Next running on the host, configure these local endpoints:
 
 ```dotenv
-DATABASE_URL=postgres://<POSTGRES_USER>:<POSTGRES_PASSWORD>@127.0.0.1:5432/<POSTGRES_DB>
+POSTGRES_PORT=55432
+DATABASE_URL=postgres://<POSTGRES_USER>:<POSTGRES_PASSWORD>@127.0.0.1:55432/<POSTGRES_DB>
 SYSTEM_PROFILER_BASE_URL=http://127.0.0.1:8787
 PUBLIC_IMG_VALIDATOR_BASE_URL=http://127.0.0.1:8000
 IMG_UPLOAD_DIR=./.data/uploads/images
