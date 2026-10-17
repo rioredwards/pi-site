@@ -4,6 +4,7 @@ import { test } from "node:test";
 import { Hono } from "hono";
 
 process.env.SYSTEM_PROFILER_AUTH_TOKEN = "test-only-token";
+process.env.MOCK_HOST_STATS = "true";
 const { authMiddleware } = await import("./middleware/auth.js");
 const { routes } = await import("./routes/index.js");
 
