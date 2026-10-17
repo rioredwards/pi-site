@@ -100,7 +100,6 @@ export async function analyzeRaster(
       value <= 1;
     if (
       !result ||
-      typeof result.filename !== "string" ||
       typeof result.is_nsfw !== "boolean" ||
       typeof result.is_dog !== "boolean" ||
       !probability(result.nsfw_score) ||

@@ -9,7 +9,6 @@ import sharp from "sharp";
 import { normalizeImage, saveImageUpload } from "../image-security";
 
 const clean = {
-  filename: "image.webp",
   nsfw_score: 0,
   is_nsfw: false,
   dog_probability: 1,
@@ -145,7 +144,7 @@ test("validator failures leave no stored file, including an actual timeout", asy
   }
 });
 
-test("stored filenames cannot carry traversal and validator receives the stored raster", async () => {
+test("validator scores without a filename permit safe storage and receive the stored raster", async () => {
   const root = await mkdtemp(join(tmpdir(), "image-security-"));
   let analyzed: Buffer | undefined;
   const server = createServer(async (req, res) => {
