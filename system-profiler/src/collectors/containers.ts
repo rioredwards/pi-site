@@ -66,7 +66,7 @@ export async function getContainerStatsReal(): Promise<ContainerStats> {
           image: container.Image,
           status: container.Status,
           state: mapState(container.State),
-          health: mapHealth(container.Status.match(/\((healthy|unhealthy|starting)\)/)?.[1]),
+          health: mapHealth(container.Status.match(/\((?:health: )?(healthy|unhealthy|starting)\)/)?.[1]),
           restartCount: 0,
           cpuPercent,
           memoryUsageBytes: memoryUsage,
