@@ -56,7 +56,7 @@ services:
     read_only: true
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
-    tmpfs: [/tmp:size=16m,noexec,nosuid]
+    tmpfs: ["/tmp:size=16m,noexec,nosuid"]
     depends_on: [docker-proxy]
     labels:
       - "com.rioredwards.stack=pi-site"
@@ -68,7 +68,7 @@ services:
     read_only: true
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
-    tmpfs: [/tmp:size=64m,noexec,nosuid]
+    tmpfs: ["/tmp:size=64m,noexec,nosuid"]
     labels:
       - "com.rioredwards.stack=pi-site"
 
