@@ -59,3 +59,13 @@ services:
 
 volumes:
   postgres_data_dev:
+
+# Host-run Next needs the loopback ports published by these dev services.
+# Docker suppresses published ports when a service has only internal networks.
+networks:
+  data:
+    internal: false
+  validation:
+    internal: false
+  metrics:
+    internal: false
