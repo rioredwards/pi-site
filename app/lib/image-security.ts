@@ -10,6 +10,27 @@ export const MAX_MULTIPART_BYTES = MAX_PHOTO_BYTES + 64 * 1024;
 const INVALID_IMAGE =
   "Upload a valid JPEG, PNG, or WebP image within the size limit.";
 
+export function rasterContentType(
+  bytes: Buffer,
+  allowGif = false,
+): string | null {
+  // Reject other decoders, including SVG, before invoking a native image parser.
+  if (bytes.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff])))
+    return "image/jpeg";
+  if (
+    bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
+  )
+    return "image/png";
+  if (
+    bytes.toString("ascii", 0, 4) === "RIFF" &&
+    bytes.toString("ascii", 8, 12) === "WEBP"
+  )
+    return "image/webp";
+  if (allowGif && ["GIF87a", "GIF89a"].includes(bytes.toString("ascii", 0, 6)))
+    return "image/gif";
+  return null;
+}
+
 export async function normalizeImage(
   file: File,
   maxBytes: number,
@@ -18,17 +39,7 @@ export async function normalizeImage(
     throw new Error(INVALID_IMAGE);
   }
   const bytes = Buffer.from(await file.arrayBuffer());
-  // Reject other decoders, including SVG, before invoking a native image parser.
-  const mime = bytes.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))
-    ? "image/jpeg"
-    : bytes
-          .subarray(0, 8)
-          .equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
-      ? "image/png"
-      : bytes.toString("ascii", 0, 4) === "RIFF" &&
-          bytes.toString("ascii", 8, 12) === "WEBP"
-        ? "image/webp"
-        : null;
+  const mime = rasterContentType(bytes);
   if (!mime || file.type !== mime || bytes.length > maxBytes)
     throw new Error(INVALID_IMAGE);
   try {

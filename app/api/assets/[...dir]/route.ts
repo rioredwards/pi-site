@@ -1,17 +1,14 @@
 import { constants } from "node:fs";
 import { open } from "node:fs/promises";
-import { extname } from "node:path";
 import { Readable } from "node:stream";
 import { NextResponse } from "next/server";
-import { imageDirectory, storedImagePath } from "../../../lib/image-security";
-
-const MIME_TYPES: Record<string, string> = {
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".png": "image/png",
-  ".webp": "image/webp",
-  ".gif": "image/gif", // Existing gallery images remain readable.
-};
+import sharp from "sharp";
+import {
+  imageDirectory,
+  MAX_PHOTO_BYTES,
+  rasterContentType,
+  storedImagePath,
+} from "../../../lib/image-security";
 
 export async function GET(
   _req: Request,
@@ -23,11 +20,9 @@ export async function GET(
     (parts[0] === "images" && parts[1] === "profiles");
   const expectedLength = profile && parts[0] === "images" ? 3 : 2;
   const filename = parts.at(-1) ?? "";
-  const contentType = MIME_TYPES[extname(filename).toLowerCase()];
   if (
     !["images", "profiles"].includes(parts[0]) ||
-    parts.length !== expectedLength ||
-    !contentType
+    parts.length !== expectedLength
   ) {
     return new NextResponse(null, { status: 404 });
   }
@@ -39,17 +34,30 @@ export async function GET(
       storedImagePath(directory, filename),
       constants.O_RDONLY | constants.O_NOFOLLOW,
     );
-    const stats = await file.stat();
-    if (!stats.isFile()) {
+    let bytes: Buffer;
+    try {
+      const stats = await file.stat();
+      if (!stats.isFile() || stats.size > MAX_PHOTO_BYTES)
+        throw new Error("Invalid asset");
+      bytes = await file.readFile();
+    } finally {
       await file.close();
-      return new NextResponse(null, { status: 404 });
     }
+    // Older uploads may end in -blob. Trust raster contents, never the extension.
+    const contentType = rasterContentType(bytes, true);
+    if (!contentType) throw new Error("Invalid raster asset");
+    const metadata = await sharp(bytes, {
+      limitInputPixels: 25_000_000,
+      failOn: "warning",
+    }).metadata();
+    if (`image/${metadata.format}` !== contentType)
+      throw new Error("Invalid raster asset");
     return new NextResponse(
-      Readable.toWeb(file.createReadStream()) as ReadableStream,
+      Readable.toWeb(Readable.from([bytes])) as ReadableStream,
       {
         headers: {
           "Content-Type": contentType,
-          "Content-Length": stats.size.toString(),
+          "Content-Length": bytes.length.toString(),
           "Cache-Control": "public, max-age=31536000, immutable",
           "X-Content-Type-Options": "nosniff",
           "Content-Security-Policy": "default-src 'none'; sandbox",

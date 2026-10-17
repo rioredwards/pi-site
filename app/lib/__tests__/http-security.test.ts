@@ -3,6 +3,7 @@ import { mkdtemp, mkdir, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import sharp from "sharp";
 import { GET } from "../../api/assets/[...dir]/route";
 import { safeAuthRedirect } from "../auth-redirect";
 import { MAX_MULTIPART_BYTES } from "../image-security";
@@ -59,16 +60,33 @@ test("asset route serves legacy rasters with isolation headers and rejects activ
   const get = (dir: string[]) =>
     GET(new Request("http://assets"), { params: Promise.resolve({ dir }) });
   try {
-    await writeFile(join(root, "old-photo.jpg"), "legacy raster fixture");
+    const raster = sharp({
+      create: { width: 8, height: 6, channels: 3, background: "red" },
+    });
+    const jpeg = await raster.clone().jpeg().toBuffer();
+    const png = await raster.clone().png().toBuffer();
+    await writeFile(join(root, "old-photo.jpg"), jpeg);
+    await writeFile(join(root, "legacy-jpeg-blob"), jpeg);
+    await writeFile(join(root, "legacy-png-blob"), png);
+    await writeFile(
+      join(root, "active-blob"),
+      '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+    );
+    await writeFile(
+      join(root, "fake.png"),
+      "<!doctype html><script>alert(1)</script>",
+    );
     await writeFile(join(root, "active.svg"), "<svg/>");
     await mkdir(join(root, "profiles"));
     await writeFile(
       join(root, "profiles", "portrait.webp"),
-      "portrait fixture",
+      await raster.clone().webp().toBuffer(),
     );
     await symlink(join(root, "old-photo.jpg"), join(root, "link.jpg"));
     for (const dir of [
       ["images", "active.svg"],
+      ["images", "active-blob"],
+      ["images", "fake.png"],
       ["images", "..", "old-photo.jpg"],
       ["images", "../old-photo.jpg"],
       ["images", "link.jpg"],
@@ -77,7 +95,21 @@ test("asset route serves legacy rasters with isolation headers and rejects activ
       assert.equal((await get(dir)).status, 404);
     const response = await get(["images", "old-photo.jpg"]);
     assert.equal(response.status, 200);
-    assert.equal(await response.text(), "legacy raster fixture");
+    assert.deepEqual(Buffer.from(await response.arrayBuffer()), jpeg);
+    for (const [name, bytes, mime] of [
+      ["legacy-jpeg-blob", jpeg, "image/jpeg"],
+      ["legacy-png-blob", png, "image/png"],
+    ] as const) {
+      const legacy = await get(["images", name]);
+      assert.equal(legacy.status, 200);
+      assert.equal(legacy.headers.get("content-type"), mime);
+      assert.equal(legacy.headers.get("x-content-type-options"), "nosniff");
+      assert.equal(
+        legacy.headers.get("content-security-policy"),
+        "default-src 'none'; sandbox",
+      );
+      assert.deepEqual(Buffer.from(await legacy.arrayBuffer()), bytes);
+    }
     assert.equal(response.headers.get("content-type"), "image/jpeg");
     assert.equal(response.headers.get("x-content-type-options"), "nosniff");
     assert.equal(
