@@ -1,6 +1,6 @@
 # Host containment
 
-The origin accepts HTTP only on loopback behind the tunnel. SSH is reachable through Tailscale with verified host keys. Password, keyboard-interactive and root SSH logins are disabled. Host and Docker egress to private networks is denied except DNS, NTP, DHCP, Tailscale transport, internal container traffic and replies to incoming maintenance sessions.
+The origin accepts HTTP only on loopback behind the tunnel. Public HTTP redirects to HTTPS using the scheme header from the trusted loopback tunnel; local health requests without that header remain HTTP 200. SSH is reachable through Tailscale with verified host keys. Password, keyboard-interactive and root SSH logins are disabled. Host and Docker egress to private networks is denied except DNS, NTP, DHCP, Tailscale transport, internal container traffic and replies to incoming maintenance sessions.
 
 ## Apply or recover
 
