@@ -136,3 +136,11 @@ __tests__
 # Data directories (will be mounted as volumes)
 .data
 uploads
+
+# Never include deployment credentials or private keys in build context.
+**/.env*
+!.env.example
+**/*.pem
+**/*.key
+**/id_rsa*
+**/id_ed25519*

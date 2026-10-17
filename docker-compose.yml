@@ -14,8 +14,26 @@ services:
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
         NEXT_PUBLIC_UMAMI_URL: ${NEXT_PUBLIC_UMAMI_URL}
         NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+    environment:
+      DATABASE_URL: ${CONTAINER_DATABASE_URL:?Container database URL required}
+      AUTH_SECRET: ${AUTH_SECRET:?Auth secret required}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:?Auth URL required}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      ADMIN_USER_IDS: ${ADMIN_USER_IDS:-}
+      SYSTEM_PROFILER_AUTH_TOKEN: ${SYSTEM_PROFILER_AUTH_TOKEN}
+      SYSTEM_PROFILER_BASE_URL: http://system-profiler:8787
+      PUBLIC_IMG_VALIDATOR_BASE_URL: http://ai-img-validator:8000
+      IMG_UPLOAD_DIR: /data/uploads/images
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-}
+      NEXT_PUBLIC_UMAMI_URL: ${NEXT_PUBLIC_UMAMI_URL:-}
+      NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID:-}
+    networks: [edge, data, validation, metrics]
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       db:
         condition: service_healthy
@@ -28,17 +46,40 @@ services:
 
   system-profiler:
     image: pi-site-system-profiler:latest
-    build: ./system-profiler
+    build:
+      context: .
+      dockerfile: system-profiler/Dockerfile
+    environment:
+      SYSTEM_PROFILER_AUTH_TOKEN: ${SYSTEM_PROFILER_AUTH_TOKEN:?Profiler token required}
+      DOCKER_HOST: http://docker-proxy:2375
+    networks: [metrics, data, validation, docker-metrics]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/tmp:size=16m,noexec,nosuid"]
+    depends_on: [docker-proxy]
     labels:
       - "com.rioredwards.stack=pi-site"
 
   ai-img-validator:
     image: pi-site/ai-img-validator:stable
+    build: ./ai-img-validator
+    networks: [validation]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/tmp:size=64m,noexec,nosuid"]
     labels:
       - "com.rioredwards.stack=pi-site"
 
   db:
     image: postgres:17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Database user required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Database password required}
+      POSTGRES_DB: ${POSTGRES_DB:?Database name required}
+    networks: [data]
+    security_opt: [no-new-privileges:true]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
@@ -49,8 +90,39 @@ services:
 
   umami:
     image: ghcr.io/umami-software/umami:postgresql-latest
+    networks: [edge, data]
+    environment:
+      DATABASE_URL: ${UMAMI_DATABASE_URL:?Analytics database URL required}
+      APP_SECRET: ${UMAMI_APP_SECRET:-}
+      TZ: America/Los_Angeles
+    security_opt: [no-new-privileges:true]
     depends_on:
       db:
         condition: service_healthy
     labels:
       - "com.rioredwards.stack=pi-site"
+
+  # This is the only service allowed to open the Docker socket.
+  docker-proxy:
+    image: haproxy:3.4.2-alpine
+    user: "0:0"
+    entrypoint: [haproxy, -W, -db, -f, /usr/local/etc/haproxy/haproxy.cfg]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./system-profiler/docker-proxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks: [docker-metrics]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+
+networks:
+  edge:
+  data:
+    internal: true
+  validation:
+    internal: true
+  metrics:
+    internal: true
+  docker-metrics:
+    internal: true

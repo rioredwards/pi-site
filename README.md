@@ -144,7 +144,9 @@ pi-site/
 POSTGRES_USER=myuser
 POSTGRES_PASSWORD=your-password
 POSTGRES_DB=mydatabase
-DATABASE_URL=postgres://myuser:password@db:5432/mydatabase
+DATABASE_URL=postgres://myuser:your-password@127.0.0.1:55432/mydatabase
+CONTAINER_DATABASE_URL=postgres://myuser:your-password@db:5432/mydatabase
+UMAMI_DATABASE_URL=postgres://myuser:your-password@db:5432/umami
 
 # NextAuth
 AUTH_SECRET=your-secret-here
@@ -167,13 +169,18 @@ SYSTEM_PROFILER_BASE_URL=http://system-profiler:8787  # prod
 SYSTEM_PROFILER_AUTH_TOKEN=your-auth-token
 ```
 
+Percent-encode user, password, and database URI components; retain any connection
+query options. Compose requires both container URLs in each environment.
+
 ### Development vs Production
 
-| Variable                        | Development              | Production                     |
-| ------------------------------- | ------------------------ | ------------------------------ |
-| `DATABASE_URL`                  | `...@localhost:5432/...` | `...@db:5432/...`              |
-| `PUBLIC_IMG_VALIDATOR_BASE_URL` | `http://localhost:8000`  | `http://ai-img-validator:8000` |
-| `IMG_UPLOAD_DIR`                | `./.data/uploads/images` | `/data/uploads/images`         |
+| Variable                        | Development               | Production                     |
+| ------------------------------- | ------------------------- | ------------------------------ |
+| `DATABASE_URL`                  | `...@127.0.0.1:55432/...` | Host tools only                |
+| `CONTAINER_DATABASE_URL`        | `...@db:5432/...`         | `...@db:5432/...`              |
+| `UMAMI_DATABASE_URL`            | `...@db:5432/umami`       | `...@db:5432/umami`            |
+| `PUBLIC_IMG_VALIDATOR_BASE_URL` | `http://localhost:8000`   | `http://ai-img-validator:8000` |
+| `IMG_UPLOAD_DIR`                | `./.data/uploads/images`  | `/data/uploads/images`         |
 
 ### Optional
 
@@ -255,7 +262,7 @@ ssh your-server
 cd ~/pi-site
 
 # Access database
-docker compose exec db psql -U myuser -d mydatabase
+docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml exec db psql -U myuser -d mydatabase
 ```
 
 ## OAuth Setup
@@ -301,9 +308,9 @@ Admins can delete any photo; regular users can only delete their own.
 
 ### Database Connection Issues
 
-- Ensure DATABASE_URL uses `db` as hostname in production (Docker network)
+- Ensure `CONTAINER_DATABASE_URL` and `UMAMI_DATABASE_URL` use `db:5432`.
 - Use `localhost` only in development
-- Restart containers: `docker compose down && docker compose up -d`
+- Restart development containers: `npm run dev:stop && npm run dev`
 
 ### Auth Issues
 

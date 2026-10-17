@@ -1,5 +1,6 @@
 import { authOptions } from "@/app/auth";
 import { uploadPhotoForUser } from "@/app/db/photo-upload";
+import { readUploadForm } from "@/app/lib/upload-request";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
@@ -12,10 +13,18 @@ export async function POST(request: Request) {
     );
   }
 
-  const formData = await request.formData();
+  let formData: FormData;
+  try {
+    formData = await readUploadForm(request);
+  } catch {
+    return NextResponse.json(
+      { error: "Invalid or oversized upload request." },
+      { status: 413 },
+    );
+  }
   const file = formData.get("file");
 
-  if (!(file instanceof File)) {
+  if (!(file instanceof File) || formData.getAll("file").length !== 1) {
     return NextResponse.json(
       { data: undefined, error: "No file uploaded" },
       { status: 400 },

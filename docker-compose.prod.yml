@@ -1,13 +1,17 @@
 # Production configuration
-# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# Usage: docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 services:
   web:
-    env_file:
-      - .env.prod
     environment:
       NODE_ENV: production
       HOSTNAME: "0.0.0.0"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid
+      - /app/.next/cache:uid=1001,gid=1001,size=128m,noexec,nosuid
     volumes:
       - uploads_data:/data/uploads/images
     restart: unless-stopped
@@ -27,14 +31,17 @@ services:
       start_period: 40s
 
   system-profiler:
-    env_file:
-      - .env.prod
     volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /:/host/root:ro
-      - /var/lib/docker:/host/var/lib/docker:ro
+      - /proc/stat:/host/proc/stat:ro
+      - /proc/meminfo:/host/proc/meminfo:ro
+      - /proc/loadavg:/host/proc/loadavg:ro
+      - /proc/uptime:/host/proc/uptime:ro
+      - /proc/cpuinfo:/host/proc/cpuinfo:ro
+      - /proc/version:/host/proc/version:ro
+      - /proc/net/dev:/host/proc/net/dev:ro
+      - /sys/class/thermal/thermal_zone0/temp:/host/sys/class/thermal/thermal_zone0/temp:ro
+      # statfs on a harmless regular file reports root capacity without directory access.
+      - /etc/hostname:/host/disk:ro
     restart: unless-stopped
     deploy:
       resources:
@@ -75,8 +82,6 @@ services:
       start_period: 60s
 
   db:
-    env_file:
-      - .env.prod
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
@@ -95,8 +100,7 @@ services:
     ports:
       - "127.0.0.1:3001:3000"
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/umami
-      APP_SECRET: ${UMAMI_APP_SECRET}
+      APP_SECRET: ${UMAMI_APP_SECRET:?Analytics secret required}
       TZ: America/Los_Angeles
     restart: unless-stopped
     deploy:

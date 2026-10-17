@@ -19,22 +19,20 @@ const umamiScriptOrigin = getOrigin(umamiUrl);
 const scriptSrcParts = [
   "'self'",
   "'unsafe-inline'",
-  "'unsafe-eval'",
-  "https:",
-  ...(isDev ? ["http:"] : []),
+  ...(isDev ? ["'unsafe-eval'", "http:"] : []),
   ...(umamiScriptOrigin ? [umamiScriptOrigin] : []),
 ];
 
 const connectSrcParts = [
   "'self'",
-  "https:",
-  "wss:",
+  ...(umamiScriptOrigin ? [umamiScriptOrigin] : []),
   ...(isDev ? ["http:", "ws:"] : []),
 ];
 
 const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
+  "form-action 'self'",
   "frame-ancestors 'none'",
   "object-src 'none'",
   `script-src ${scriptSrcParts.join(" ")}`,
@@ -84,6 +82,15 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source: "/api/assets/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'none'; sandbox",
+          },
+        ],
+      },
     ];
   },
   // Recommended: this will reduce output
@@ -92,7 +99,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["postgres"],
   experimental: {
     serverActions: {
-      bodySizeLimit: "2mb",
+      bodySizeLimit: "6mb",
       allowedOrigins: ["dogtown.dog", "www.dogtown.dog", "pi.rioedwards.com"],
     },
   },

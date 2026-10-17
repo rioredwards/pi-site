@@ -1,13 +1,15 @@
 "use server";
 
 import { authOptions } from "@/app/auth";
-import { devLog } from "@/lib/utils";
 import { desc, eq, sql } from "drizzle-orm";
-import { existsSync, mkdirSync, unlinkSync } from "fs";
-import { writeFile } from "fs/promises";
+import { unlink } from "node:fs/promises";
+import {
+  cleanupUploadFile,
+  MAX_PROFILE_BYTES,
+  removeStoredImage,
+  saveImageUpload,
+} from "../lib/image-security";
 import { getServerSession } from "next-auth";
-import { join } from "path";
-import { v4 as uuidv4 } from "uuid";
 import { Photo, User } from "../lib/types";
 import { getDb } from "./drizzle";
 import { uploadPhotoForUser, type APIResponse } from "./photo-upload";
@@ -26,8 +28,8 @@ export async function uploadPhoto(
     };
   }
 
-  const file = formData.get("file") as File;
-  if (!file) {
+  const file = formData.get("file");
+  if (!(file instanceof File)) {
     return { data: undefined, error: "No file uploaded" };
   }
 
@@ -201,31 +203,13 @@ export async function deletePhoto(id: string): Promise<APIResponse<undefined>> {
     await getDb().delete(photos).where(eq(photos.id, id));
 
     // Delete the image file from filesystem
-    const imgFilePath = join(IMG_UPLOAD_DIR, photo.imgFilename);
-    if (existsSync(imgFilePath)) {
-      unlinkSync(imgFilePath);
-    }
+    await removeStoredImage(IMG_UPLOAD_DIR, photo.imgFilename);
 
     return { data: undefined, error: undefined };
   } catch (error) {
     const errorMsg =
       error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
-  }
-}
-
-// Helper function to create a directory if it doesn't exist
-function createDirIfNotExists(dir: string): void {
-  try {
-    if (!existsSync(dir)) {
-      devLog(`Directory doesn't exist, creating: ${dir}`);
-      mkdirSync(dir, { recursive: true });
-      devLog(`Successfully created upload directory: ${dir}`);
-    }
-  } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : "Unknown error";
-    devLog(`Failed to create directory "${dir}". Error:`, error);
-    throw new Error(`Failed to create upload directory "${dir}": ${errorMsg}`);
   }
 }
 
@@ -387,54 +371,25 @@ export async function uploadProfilePicture(
     };
   }
 
-  const file = formData.get("file") as File;
-  if (!file) {
+  const file = formData.get("file");
+  if (!(file instanceof File)) {
     return { data: undefined, error: "No file uploaded" };
   }
 
-  // Validate file type
-  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-  if (!allowedTypes.includes(file.type)) {
-    return {
-      data: undefined,
-      error: "Invalid file type. Only JPEG, PNG, and WebP images are allowed.",
-    };
-  }
-
-  // Validate file size (max 2MB for profile pictures)
-  const maxSize = 2 * 1024 * 1024; // 2MB
-  if (file.size > maxSize) {
-    return { data: undefined, error: "File size exceeds 2MB limit." };
-  }
-
+  let stored: Awaited<ReturnType<typeof saveImageUpload>> | undefined;
+  let persisted = false;
   try {
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    const imgFilename = file.name.replaceAll(" ", "_");
-    const imgId = uuidv4();
-    const uniqueImgFilename = `${imgId}-${imgFilename}`;
-
-    // Store profile pictures in a separate directory
-    const profilePictureDir = join(IMG_UPLOAD_DIR, "profiles");
-    createDirIfNotExists(profilePictureDir);
-    const imgFilePath = join(profilePictureDir, uniqueImgFilename);
-
-    // Delete old profile picture if exists
+    stored = await saveImageUpload(file, IMG_UPLOAD_DIR, {
+      maxBytes: MAX_PROFILE_BYTES,
+      requireDog: false,
+      profile: true,
+    });
+    const uniqueImgFilename = stored.filename;
     const [existingUser] = await getDb()
       .select()
       .from(users)
       .where(eq(users.id, session.user.id))
       .limit(1);
-    if (existingUser?.profilePicture) {
-      const oldFilePath = join(profilePictureDir, existingUser.profilePicture);
-      if (existsSync(oldFilePath)) {
-        unlinkSync(oldFilePath);
-      }
-    }
-
-    // Write the image file
-    await writeFile(imgFilePath, buffer);
 
     // Update or create user record
     if (existingUser) {
@@ -449,11 +404,23 @@ export async function uploadProfilePicture(
       });
     }
 
+    persisted = true;
+    // OAuth URLs are not local files. Remove old uploads only after the replacement is saved.
+    const oldProfilePicture = existingUser?.profilePicture;
+    if (oldProfilePicture && !/^https?:\/\//.test(oldProfilePicture)) {
+      await cleanupUploadFile(() =>
+        removeStoredImage(IMG_UPLOAD_DIR, oldProfilePicture, true),
+      );
+    }
     return {
       data: { filename: uniqueImgFilename },
       error: undefined,
     };
   } catch (error) {
+    if (stored && !persisted) {
+      const storedPath = stored.path;
+      await cleanupUploadFile(() => unlink(storedPath));
+    }
     const errorMsg =
       error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };

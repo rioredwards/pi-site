@@ -25,7 +25,7 @@ export function ContainersChart({
       cpu: Number(c?.cpuPercent ?? 0),
       health: String(c?.health ?? c?.state ?? "—"),
       state: String(c?.state ?? "—"),
-      restart: Number(c?.restartCount ?? 0),
+      restart: c?.restartCount ?? null,
       image: String(c?.image ?? ""),
     }))
     .sort((a, b) => b.cpu - a.cpu)
@@ -111,7 +111,7 @@ export function ContainersChart({
                   {c.name}
                 </div>
                 <div className="truncate text-[11px] text-zinc-500">
-                  restarts: {c.restart}
+                  restarts: {c.restart ?? "Unavailable"}
                 </div>
               </div>
               <div className="flex items-center gap-3">

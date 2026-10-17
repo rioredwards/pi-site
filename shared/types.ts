@@ -74,7 +74,7 @@ export interface ContainerInfo {
   status: string;
   state: "running" | "exited" | "paused" | "restarting" | "dead" | "created";
   health: "healthy" | "unhealthy" | "starting" | "none";
-  restartCount: number;
+  restartCount: number | null;
   cpuPercent: number | null;
   memoryUsageBytes: number | null;
   memoryLimitBytes: number | null;

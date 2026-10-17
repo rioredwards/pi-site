@@ -136,7 +136,10 @@ Schema is defined in `app/db/schema.ts` using Drizzle ORM:
 
 The app uses environment-based connection strings:
 
-- **`DATABASE_URL`**: Used when running inside Docker (points to `db` service)
+- **`DATABASE_URL`**: Host-run Next and database tools (`127.0.0.1:55432` locally).
+- **`CONTAINER_DATABASE_URL`**: Required by Compose for web (`db:5432`).
+- **`UMAMI_DATABASE_URL`**: Required by Compose for analytics (`db:5432/umami`).
+- Percent-encode URI components; preserve connection query options.
 
 ### Authentication System
 
@@ -194,7 +197,7 @@ The `/stats` page (`app/stats/`) displays live system metrics:
 - **Service Health**: Container status and health checks
 - **Charts**: ReCharts-powered visualizations
 
-Metrics are gathered by a separate system-profiler service that reads from `/proc`, `/sys`, and the Docker socket.
+The profiler reads selected host metric files and an allowlisted Docker metrics proxy, without host-root or Docker socket access.
 
 ### About Page
 
@@ -216,22 +219,18 @@ Service URL is configured via `PUBLIC_IMG_VALIDATOR_BASE_URL` env var:
 - Development: `http://localhost:8000`
 - Production: `http://ai-img-validator:8000`
 
-The validation runs before file processing in `uploadPhoto()` server action.
+Uploads are decoded to canonical WebP, then validated before storage.
 
 ### Static Asset Serving
 
 Images use the path `/api/assets/images/{filename}` in all environments.
 
-**Production**: Nginx intercepts `/api/assets/images/` requests and serves files directly from the Docker volume (`/var/lib/docker/volumes/pi-site_uploads_data/_data/`) with aggressive caching (1 year). This bypasses Node.js entirely.
-
-**Development**: The Next.js API route at `app/api/assets/[...dir]/route.ts` serves files with streaming and proper caching headers.
+The Next.js route at `app/api/assets/[...dir]/route.ts` verifies raster contents, rejects symlinks, and adds isolation and cache headers. Production Nginx proxies uploads to this route, including legacy extensionless images.
 
 Photos are stored in:
 
 - **Upload path**: `process.env.IMG_UPLOAD_DIR` (dev: `./.data/uploads/images`, prod: `/data/uploads/images`)
 - **Read path**: `/api/assets/images/{filename}` (both environments)
-
-This architecture prevents 503 errors by keeping image requests off the Node.js event loop in production.
 
 ## Environment Variables
 
@@ -242,7 +241,9 @@ Required for local development (`.env.local`):
 POSTGRES_USER=myuser
 POSTGRES_PASSWORD=mypassword
 POSTGRES_DB=mydatabase
-DATABASE_URL=postgres://myuser:mypassword@localhost:5432/mydatabase
+DATABASE_URL=postgres://myuser:mypassword@127.0.0.1:55432/mydatabase
+CONTAINER_DATABASE_URL=postgres://myuser:mypassword@db:5432/mydatabase
+UMAMI_DATABASE_URL=postgres://myuser:mypassword@db:5432/umami
 
 # NextAuth
 NEXTAUTH_URL=http://localhost:3000
@@ -274,7 +275,7 @@ NEXT_PUBLIC_UMAMI_URL=https://your-umami-instance.com
 
 For production (`.env.prod`), key differences:
 
-- `DATABASE_URL` uses `db` hostname instead of `localhost`
+- `CONTAINER_DATABASE_URL` and `UMAMI_DATABASE_URL` use `db:5432`.
 - `PUBLIC_IMG_VALIDATOR_BASE_URL=http://ai-img-validator:8000`
 - `IMG_UPLOAD_DIR=/data/uploads/images`
 

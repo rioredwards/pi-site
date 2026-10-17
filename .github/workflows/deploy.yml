@@ -4,21 +4,26 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
 
 concurrency:
   group: deploy-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   check:
     name: Lint & Typecheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: "22"
+          node-version: "24"
           cache: npm
 
       - run: npm ci
@@ -30,15 +35,54 @@ jobs:
     needs: check
     runs-on: ubuntu-24.04-arm
     if: |
+      github.ref == 'refs/heads/main' &&
       github.actor == github.repository_owner &&
       !github.event.repository.fork
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4
+        with:
+          authkey: ${{ secrets.TS_AUTHKEY }}
+
+      - name: Setup SSH key
+        env:
+          PI_SSH_PRIVATE_KEY: ${{ secrets.PI_SSH_PRIVATE_KEY }}
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/deploy_key
+          printf '%s\n' "$PI_SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          install -m 600 .github/pi_known_hosts ~/.ssh/known_hosts
+
+      - name: Read successful deployment SHA
+        id: deployed
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          deployed_sha="$(ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -i ~/.ssh/deploy_key rioredwards@rio-raspberry-pi 'cd ~/pi-site && marker=$(git rev-parse --git-path deployed-sha) && if test -f "$marker"; then cat "$marker"; fi')"
+          if [[ -n "$deployed_sha" && ! "$deployed_sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'Invalid successful deployment SHA'; exit 1
+          fi
+          if [[ -z "$deployed_sha" || "$EVENT_NAME" == workflow_dispatch ]]; then
+            echo 'Building all images: first tracked deployment or manual run'
+            echo 'all=true' >> "$GITHUB_OUTPUT"
+          else
+            git fetch --no-tags origin "$deployed_sha"
+            git cat-file -e "$deployed_sha^{commit}"
+            git merge-base --is-ancestor "$deployed_sha" HEAD || { echo 'Deployed SHA is not an ancestor; run a manual deployment'; exit 1; }
+            echo "sha=$deployed_sha" >> "$GITHUB_OUTPUT"
+            echo 'all=false' >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Detect changed services
         id: changes
-        uses: dorny/paths-filter@v4
+        if: steps.deployed.outputs.all != 'true' && steps.deployed.outputs.sha != github.sha
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4
         with:
+          base: ${{ steps.deployed.outputs.sha }}
+          ref: ${{ github.sha }}
           filters: |
             web:
               - 'app/**'
@@ -46,6 +90,7 @@ jobs:
               - 'public/**'
               - 'shared/**'
               - 'Dockerfile'
+              - '.dockerignore'
               - 'package.json'
               - 'package-lock.json'
               - 'next.config.ts'
@@ -57,30 +102,25 @@ jobs:
               - 'scripts/run-migrations.js'
             system-profiler:
               - 'system-profiler/**'
+              - 'shared/**'
+              - '.dockerignore'
+            ai:
+              - 'ai-img-validator/**'
 
       - name: Check if images need building
         id: should-build
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || \
+          if [[ "${{ steps.deployed.outputs.all }}" == "true" ]] || \
              [[ "${{ steps.changes.outputs.web }}" == "true" ]] || \
-             [[ "${{ steps.changes.outputs.system-profiler }}" == "true" ]]; then
+             [[ "${{ steps.changes.outputs.system-profiler }}" == "true" ]] || \
+             [[ "${{ steps.changes.outputs.ai }}" == "true" ]]; then
             echo "any=true" >> "$GITHUB_OUTPUT"
           else
             echo "any=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v2
-        with:
-          authkey: ${{ secrets.TS_AUTHKEY }}
-
-      - name: Setup SSH key
-        run: |
-          install -m 600 -D /dev/null ~/.ssh/deploy_key
-          echo "${{ secrets.PI_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-
       - name: Build web image
-        if: steps.changes.outputs.web == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.changes.outputs.web == 'true' || steps.deployed.outputs.all == 'true'
         run: |
           docker build \
             --build-arg NEXT_PUBLIC_SAFE_KEY=${{ vars.NEXT_PUBLIC_SAFE_KEY }} \
@@ -92,55 +132,66 @@ jobs:
           docker save pi-site-web:deploy -o /tmp/web.tar
 
       - name: Build system-profiler image
-        if: steps.changes.outputs.system-profiler == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.changes.outputs.system-profiler == 'true' || steps.deployed.outputs.all == 'true'
         run: |
-          docker build -t pi-site-system-profiler:deploy ./system-profiler
+          docker build -t pi-site-system-profiler:deploy -f system-profiler/Dockerfile .
           docker save pi-site-system-profiler:deploy -o /tmp/system-profiler.tar
+
+      - name: Build AI validator image
+        if: steps.changes.outputs.ai == 'true' || steps.deployed.outputs.all == 'true'
+        run: |
+          docker build -t pi-site/ai-img-validator:deploy ./ai-img-validator
+          docker save pi-site/ai-img-validator:deploy -o /tmp/ai.tar
 
       - name: Ship images to Pi
         if: steps.should-build.outputs.any == 'true'
         run: |
-          SSH_OPTS="-o StrictHostKeyChecking=no -i ~/.ssh/deploy_key"
+          SSH_OPTS=(-o BatchMode=yes -o StrictHostKeyChecking=yes -i ~/.ssh/deploy_key)
           PI="rioredwards@rio-raspberry-pi"
           if [[ -f /tmp/web.tar ]]; then
             echo "▶ Shipping web image ($(du -h /tmp/web.tar | cut -f1))..."
-            gzip -c /tmp/web.tar | ssh $SSH_OPTS "$PI" 'docker load'
+            gzip -c /tmp/web.tar | ssh "${SSH_OPTS[@]}" "$PI" 'docker load'
+          fi
+          if [[ -f /tmp/ai.tar ]]; then
+            gzip -c /tmp/ai.tar | ssh "${SSH_OPTS[@]}" "$PI" 'docker load'
           fi
           if [[ -f /tmp/system-profiler.tar ]]; then
             echo "▶ Shipping system-profiler image ($(du -h /tmp/system-profiler.tar | cut -f1))..."
-            gzip -c /tmp/system-profiler.tar | ssh $SSH_OPTS "$PI" 'docker load'
+            gzip -c /tmp/system-profiler.tar | ssh "${SSH_OPTS[@]}" "$PI" 'docker load'
           fi
 
       - name: Deploy on Pi
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key rioredwards@rio-raspberry-pi bash -s << 'DEPLOY'
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -i ~/.ssh/deploy_key rioredwards@rio-raspberry-pi bash -s -- "${{ github.sha }}" "${{ steps.changes.outputs.web }}" "${{ steps.changes.outputs.system-profiler }}" "${{ steps.changes.outputs.ai }}" "${{ steps.deployed.outputs.all }}" << 'DEPLOY'
           set -euo pipefail
           cd ~/pi-site
 
-          echo "▶ Pulling latest code..."
-          git fetch origin main
-          git reset --hard origin/main
-
-          echo "▶ Tagging deployed images..."
-          docker image inspect pi-site-web:deploy &>/dev/null && \
-            docker tag pi-site-web:deploy pi-site-web:latest && \
-            echo "  Tagged pi-site-web:latest" || true
-          docker image inspect pi-site-system-profiler:deploy &>/dev/null && \
-            docker tag pi-site-system-profiler:deploy pi-site-system-profiler:latest && \
-            echo "  Tagged pi-site-system-profiler:latest" || true
+          test -z "$(git status --porcelain)" || { echo 'Pi checkout has local changes'; exit 1; }
+          git fetch origin "$1"
+          git checkout --detach "$1"
+          if [[ "$2" == true || "$5" == true ]]; then
+            docker tag pi-site-web:deploy pi-site-web:latest
+          fi
+          if [[ "$3" == true || "$5" == true ]]; then
+            docker tag pi-site-system-profiler:deploy pi-site-system-profiler:latest
+          fi
+          if [[ "$4" == true || "$5" == true ]]; then
+            docker tag pi-site/ai-img-validator:deploy pi-site/ai-img-validator:stable
+          fi
 
           echo "▶ Updating nginx..."
+          sudo cp nginx/nginx.conf /etc/nginx/nginx.conf
           sudo cp nginx/pi-site.conf /etc/nginx/sites-available/pi-site
           sudo nginx -t && sudo systemctl reload nginx
 
           echo "▶ Starting services..."
-          docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build
+          docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build --wait --wait-timeout 180
 
           echo "▶ Waiting for health checks..."
-          sleep 10
-          docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
+          docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml ps
 
-          echo "▶ Cleaning up..."
-          docker image prune -f --filter "dangling=true"
+          marker="$(git rev-parse --git-path deployed-sha)"
+          printf '%s\n' "$1" > "$marker.next"
+          mv "$marker.next" "$marker"
           echo "✅ Deploy complete"
           DEPLOY

@@ -24,7 +24,7 @@ die() { printf "\nERROR: %s\n" "$*" >&2; exit 1; }
 # -------------------------
 APP_DIR="${APP_DIR:-${HOME}/pi-site}"
 BRANCH="${BRANCH:-main}"
-COMPOSE_FILES=(-f docker-compose.yml -f docker-compose.prod.yml)
+COMPOSE_FILES=(--env-file "$APP_DIR/.env.prod" -f docker-compose.yml -f docker-compose.prod.yml)
 
 # Default services to build (excludes ai-img-validator which uses cached image)
 DEFAULT_BUILD_SERVICES=("web" "system-profiler")
