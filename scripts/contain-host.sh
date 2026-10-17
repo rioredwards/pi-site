@@ -56,9 +56,10 @@ case "${1:-}" in
     cat > /etc/systemd/system/dogtown-containment.service <<'UNIT'
 [Unit]
 Description=DogTown host and container network containment
-After=network-pre.target
-Before=network.target docker.service tailscaled.service
+DefaultDependencies=no
+Before=network-pre.target network.target docker.service tailscaled.service shutdown.target
 Wants=network-pre.target
+Conflicts=shutdown.target
 [Service]
 Type=oneshot
 ExecStart=/usr/local/sbin/dogtown-containment load
@@ -72,6 +73,9 @@ UNIT
     echo 'Containment persists at boot; rollback timer canceled.'
     ;;
   rollback)
+    if systemctl is-active --quiet dogtown-firewall-rollback.timer; then
+      systemctl stop dogtown-firewall-rollback.timer
+    fi
     systemctl disable dogtown-containment.service || true
     nft delete table inet dogtown_containment
     ;;
