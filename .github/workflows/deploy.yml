@@ -23,7 +23,7 @@ jobs:
 
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: "22"
+          node-version: "24"
           cache: npm
 
       - run: npm ci
@@ -160,10 +160,9 @@ jobs:
           sudo nginx -t && sudo systemctl reload nginx
 
           echo "▶ Starting services..."
-          docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build
+          docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build --wait --wait-timeout 180
 
           echo "▶ Waiting for health checks..."
-          sleep 10
           docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml ps
 
           echo "✅ Deploy complete"
