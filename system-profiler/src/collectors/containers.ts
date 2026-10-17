@@ -67,7 +67,7 @@ export async function getContainerStatsReal(): Promise<ContainerStats> {
           status: container.Status,
           state: mapState(container.State),
           health: mapHealth(container.Status.match(/\((?:health: )?(healthy|unhealthy|starting)\)/)?.[1]),
-          restartCount: 0,
+          restartCount: null,
           cpuPercent,
           memoryUsageBytes: memoryUsage,
           memoryLimitBytes: memoryLimit,
@@ -82,7 +82,7 @@ export async function getContainerStatsReal(): Promise<ContainerStats> {
           status: container.Status,
           state: mapState(container.State),
           health: "none",
-          restartCount: 0,
+          restartCount: null,
           cpuPercent: null,
           memoryUsageBytes: null,
           memoryLimitBytes: null,
@@ -216,7 +216,7 @@ export function getMockContainerStats(): ContainerStats {
         status: "Up 2 hours",
         state: "running",
         health: "healthy",
-        restartCount: 0,
+        restartCount: null,
         cpuPercent: cpuPercentGenerators[0].next().value!,
         memoryUsageBytes: memoryUsageBytesGenerators[0].next().value!,
         memoryLimitBytes: 8217448448, // Match sample data
@@ -229,7 +229,7 @@ export function getMockContainerStats(): ContainerStats {
         status: "Up 2 hours",
         state: "running",
         health: "healthy",
-        restartCount: 0,
+        restartCount: null,
         cpuPercent: cpuPercentGenerators[1].next().value!,
         memoryUsageBytes: memoryUsageBytesGenerators[1].next().value!,
         memoryLimitBytes: 8217448448, // Match sample data
@@ -242,7 +242,7 @@ export function getMockContainerStats(): ContainerStats {
         status: "Up 2 hours",
         state: "running",
         health: "healthy",
-        restartCount: 0,
+        restartCount: null,
         cpuPercent: cpuPercentGenerators[2].next().value!,
         memoryUsageBytes: memoryUsageBytesGenerators[2].next().value!,
         memoryLimitBytes: 8217448448, // Match sample data
@@ -255,7 +255,7 @@ export function getMockContainerStats(): ContainerStats {
         status: "Up 2 hours",
         state: "running",
         health: "healthy",
-        restartCount: 0,
+        restartCount: null,
         cpuPercent: cpuPercentGenerators[3].next().value!,
         memoryUsageBytes: memoryUsageBytesGenerators[3].next().value!,
         memoryLimitBytes: 8217448448, // Match sample data

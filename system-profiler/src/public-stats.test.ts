@@ -46,6 +46,7 @@ test("public stream hides infrastructure data, caps clients and cleans up aborts
     const stats = JSON.parse(payload.slice(6).trim());
     assert.equal(stats.host.system.hostname, "DogTown");
     assert.equal(stats.containers.containers[0].name, "web");
+    assert.equal(stats.containers.containers[0].restartCount, null);
     assert.equal(stats.host.cpu.cores, data.host.cpu.cores);
     for (let i = 1; i < 32; i++) {
       const abort = new AbortController();

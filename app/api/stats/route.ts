@@ -20,7 +20,7 @@ function publicStats(stats: CombinedStats): CombinedStats {
     if (!role) return [];
     return [{
       id: role, name: role, image: "", status: c.state, state: c.state,
-      health: c.health, restartCount: 0, cpuPercent: c.cpuPercent,
+      health: c.health, restartCount: null, cpuPercent: c.cpuPercent,
       memoryUsageBytes: c.memoryUsageBytes, memoryLimitBytes: c.memoryLimitBytes,
       memoryPercent: c.memoryPercent,
     }];
