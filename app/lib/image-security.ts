@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, realpath, unlink, writeFile } from "node:fs/promises";
+import { mkdir, realpath, statfs, unlink, writeFile } from "node:fs/promises";
 import { basename, dirname, resolve } from "node:path";
 import sharp from "sharp";
 import type { AnalysisResult } from "./imgValidatorTypes";
@@ -165,10 +165,24 @@ export async function saveImageUpload(
   if (options.requireDog && !analysis.is_dog)
     throw new Error("Please upload a photo containing a dog.");
   // No filesystem or database writes occur until decoding and validation both pass.
-  await mkdir(root, { recursive: true });
+  let storageRoot: string;
+  try {
+    storageRoot = await realpath(root);
+    const filesystem = await statfs(storageRoot, { bigint: true });
+    if (
+      filesystem.bavail * filesystem.bsize <
+      BigInt(512 * 1024 * 1024 + bytes.length)
+    ) {
+      throw new Error("Insufficient storage reserve");
+    }
+  } catch {
+    throw new Error(
+      "Image uploads are temporarily unavailable. Please try again later.",
+    );
+  }
   if (options.profile)
-    await mkdir(resolve(root, "profiles"), { recursive: true });
-  const directory = await imageDirectory(root, options.profile);
+    await mkdir(resolve(storageRoot, "profiles"), { recursive: true });
+  const directory = await imageDirectory(storageRoot, options.profile);
   const id = randomUUID();
   const filename = `${id}.webp`;
   const path = storedImagePath(directory, filename);

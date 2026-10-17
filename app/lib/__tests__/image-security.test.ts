@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
 import { createServer } from "node:http";
 import { mkdtemp, readdir, readFile, rm, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -209,5 +210,44 @@ test("profiles allow a safe non-dog portrait and reject a directory symlink esca
   } finally {
     await rm(root, { recursive: true, force: true });
     await rm(outside, { recursive: true, force: true });
+  }
+});
+
+test("storage exhaustion or an unavailable disk measurement rejects before any file write", async (context) => {
+  const root = await mkdtemp(join(tmpdir(), "image-storage-"));
+  try {
+    await withValidator(
+      async (validatorUrl) => {
+        for (const unavailable of [false, true]) {
+          const measurement = context.mock.method(fs, "statfs", async () => {
+            if (unavailable)
+              throw new Error("private storage measurement failure");
+            return {
+              bavail: BigInt(0),
+              bsize: BigInt(4096),
+            } as import("node:fs").BigIntStatsFs;
+          });
+          try {
+            await assert.rejects(
+              saveImageUpload(file(await png()), root, {
+                validatorUrl,
+                requireDog: true,
+                maxBytes: 1024,
+              }),
+              {
+                message:
+                  "Image uploads are temporarily unavailable. Please try again later.",
+              },
+            );
+            assert.deepEqual(await readdir(root), []);
+          } finally {
+            measurement.mock.restore();
+          }
+        }
+      },
+      (res) => res.end(JSON.stringify(clean)),
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
   }
 });
