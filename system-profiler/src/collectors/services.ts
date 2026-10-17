@@ -213,10 +213,5 @@ export async function collectServiceHealth(): Promise<ServiceHealthStats> {
     return getMockServiceHealth();
   }
 
-  try {
-    return await getServiceHealthReal();
-  } catch (err) {
-    console.error("Service health check error, using mock data:", err);
-    return getMockServiceHealth();
-  }
+  return getServiceHealthReal();
 }

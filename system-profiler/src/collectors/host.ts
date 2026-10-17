@@ -58,7 +58,6 @@ export async function getHostStats(): Promise<HostStats> {
     kernelVersion,
     cpuCount,
     rootDisk,
-    dockerDisk,
   ] = await Promise.all([
     parseMeminfo(),
     parseLoadavg(),
@@ -69,7 +68,6 @@ export async function getHostStats(): Promise<HostStats> {
     parseKernelVersion(),
     parseCpuCount(),
     getDiskStats("/", config.paths.rootFs),
-    getDiskStats("/var/lib/docker", config.paths.dockerVolumes),
   ]);
 
   // Calculate CPU usage from delta
@@ -84,46 +82,26 @@ export async function getHostStats(): Promise<HostStats> {
   // Build disk array
   const disks: DiskStats[] = [];
   if (rootDisk) disks.push(rootDisk);
-  if (dockerDisk) disks.push(dockerDisk);
 
-  // Fallback values for when /proc isn't available
-  const fallbackCores = os.cpus().length;
-  const fallbackLoadavg = os.loadavg() as [number, number, number];
-  const fallbackUptime = os.uptime();
-  const fallbackTotalMem = os.totalmem();
-  const fallbackFreeMem = os.freemem();
+  if (!meminfo?.MemTotal || !meminfo.MemAvailable || !loadavg || uptime === null ||
+      !cpuTimes || !cpuCount || !rootDisk || !netDev) {
+    throw new Error("Required host metrics are unavailable");
+  }
 
   return {
     cpu: {
       usagePercent: cpuUsagePercent,
-      loadAverage: loadavg ?? fallbackLoadavg,
-      cores: cpuCount ?? fallbackCores,
+      loadAverage: loadavg,
+      cores: cpuCount,
     },
     memory: {
-      totalBytes: meminfo?.MemTotal ?? fallbackTotalMem,
-      usedBytes:
-        meminfo && meminfo.MemTotal && meminfo.MemAvailable
-          ? meminfo.MemTotal - meminfo.MemAvailable
-          : fallbackTotalMem - fallbackFreeMem,
-      freeBytes: meminfo?.MemFree ?? fallbackFreeMem,
-      availableBytes: meminfo?.MemAvailable ?? fallbackFreeMem,
-      usagePercent:
-        meminfo && meminfo.MemTotal && meminfo.MemAvailable
-          ? ((meminfo.MemTotal - meminfo.MemAvailable) / meminfo.MemTotal) * 100
-          : ((fallbackTotalMem - fallbackFreeMem) / fallbackTotalMem) * 100,
+      totalBytes: meminfo.MemTotal,
+      usedBytes: meminfo.MemTotal - meminfo.MemAvailable,
+      freeBytes: meminfo.MemFree,
+      availableBytes: meminfo.MemAvailable,
+      usagePercent: ((meminfo.MemTotal - meminfo.MemAvailable) / meminfo.MemTotal) * 100,
     },
-    disks:
-      disks.length > 0
-        ? disks
-        : [
-            {
-              mountPoint: "/",
-              totalBytes: 0,
-              usedBytes: 0,
-              freeBytes: 0,
-              usagePercent: 0,
-            },
-          ],
+    disks,
     temperature: {
       cpuCelsius: temperature,
       available: temperature !== null,
@@ -138,7 +116,7 @@ export async function getHostStats(): Promise<HostStats> {
       hostname: os.hostname(),
       platform: os.platform(),
       arch: os.arch(),
-      uptimeSeconds: uptime ?? fallbackUptime,
+      uptimeSeconds: uptime,
       kernelVersion,
     },
   };

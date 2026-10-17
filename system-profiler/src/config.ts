@@ -1,11 +1,14 @@
 import os from "os";
 
+const authToken = process.env.SYSTEM_PROFILER_AUTH_TOKEN;
+if (!authToken?.trim()) throw new Error("SYSTEM_PROFILER_AUTH_TOKEN is required");
+
 export const config = {
   // Server
   port: process.env.PORT ? parseInt(process.env.PORT) : 8787,
 
   // Auth
-  authToken: process.env.SYSTEM_PROFILER_AUTH_TOKEN || null,
+  authToken: authToken,
 
   // Mock mode - use mock data when not on Linux (e.g., macOS dev)
   mockHostStats:
@@ -15,12 +18,11 @@ export const config = {
   paths: {
     proc: "/host/proc",
     sys: "/host/sys",
-    rootFs: "/host/root",
-    dockerVolumes: "/host/var/lib/docker",
+    rootFs: "/host/disk",
   },
 
   // Docker socket
-  dockerSocket: "/var/run/docker.sock",
+  dockerUrl: process.env.DOCKER_HOST || "http://docker-proxy:2375",
 
   // Stack label for filtering containers
   stackLabel: "com.rioredwards.stack",

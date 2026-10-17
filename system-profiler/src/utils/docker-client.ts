@@ -13,7 +13,8 @@ export async function dockerRequest<T>(
   return new Promise((resolve, reject) => {
     const req = http.request(
       {
-        socketPath: config.dockerSocket,
+        hostname: new URL(config.dockerUrl).hostname,
+        port: new URL(config.dockerUrl).port,
         path,
         method: "GET",
         headers: {
@@ -21,13 +22,21 @@ export async function dockerRequest<T>(
         },
       },
       (res) => {
+        if (res.statusCode !== 200) {
+          res.resume();
+          reject(new Error(`Docker metrics HTTP ${res.statusCode}`));
+          return;
+        }
         let data = "";
-        res.on("data", (chunk) => (data += chunk));
+        res.on("data", (chunk) => {
+          data += chunk;
+          if (data.length > 2_000_000) req.destroy(new Error("Docker response too large"));
+        });
         res.on("end", () => {
           try {
             resolve(JSON.parse(data) as T);
           } catch {
-            reject(new Error(`Failed to parse Docker response: ${data}`));
+            reject(new Error("Invalid Docker metrics response"));
           }
         });
       },
@@ -56,25 +65,6 @@ export interface DockerContainer {
   State: string;
   Status: string;
   Labels: Record<string, string>;
-}
-
-/**
- * Docker container inspect response (partial - only fields we need).
- */
-export interface DockerContainerInspect {
-  Id: string;
-  Name: string;
-  State: {
-    Status: string;
-    Running: boolean;
-    Paused: boolean;
-    Restarting: boolean;
-    Dead: boolean;
-    Health?: {
-      Status: string;
-    };
-  };
-  RestartCount: number;
 }
 
 /**
@@ -113,15 +103,6 @@ export async function listContainers(): Promise<DockerContainer[]> {
   return dockerRequest<DockerContainer[]>(
     `/containers/json?all=true&filters=${filter}`,
   );
-}
-
-/**
- * Get container details (for health and restart count).
- */
-export async function inspectContainer(
-  id: string,
-): Promise<DockerContainerInspect> {
-  return dockerRequest<DockerContainerInspect>(`/containers/${id}/json`);
 }
 
 /**

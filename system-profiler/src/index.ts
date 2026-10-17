@@ -40,8 +40,5 @@ serve(
     if (config.mockHostStats) {
       console.log("Running in mock mode (non-Linux or MOCK_HOST_STATS=true)");
     }
-    if (!config.authToken) {
-      console.log("Warning: No PROFILER_AUTH_TOKEN set - auth disabled");
-    }
   },
 );

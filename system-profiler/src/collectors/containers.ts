@@ -3,7 +3,6 @@ import { config } from "../config.js";
 import {
   calculateCpuPercent,
   getContainerStats,
-  inspectContainer,
   listContainers,
 } from "../utils/docker-client.js";
 
@@ -48,13 +47,10 @@ export async function getContainerStatsReal(): Promise<ContainerStats> {
       const name = container.Names[0]?.replace(/^\//, "") || "unknown";
 
       try {
-        // Fetch inspect and stats in parallel
-        const [inspect, stats] = await Promise.all([
-          inspectContainer(container.Id),
-          container.State === "running"
-            ? getContainerStats(container.Id)
-            : Promise.resolve(null),
-        ]);
+        // Inspect is deliberately unavailable: its response contains secrets.
+        const stats = container.State === "running"
+          ? await getContainerStats(container.Id)
+          : null;
 
         const cpuPercent = stats ? calculateCpuPercent(stats) : null;
         const memoryUsage = stats?.memory_stats.usage ?? null;
@@ -69,9 +65,9 @@ export async function getContainerStatsReal(): Promise<ContainerStats> {
           name,
           image: container.Image,
           status: container.Status,
-          state: mapState(inspect.State.Status),
-          health: mapHealth(inspect.State.Health?.Status),
-          restartCount: inspect.RestartCount,
+          state: mapState(container.State),
+          health: mapHealth(container.Status.match(/\((healthy|unhealthy|starting)\)/)?.[1]),
+          restartCount: 0,
           cpuPercent,
           memoryUsageBytes: memoryUsage,
           memoryLimitBytes: memoryLimit,
@@ -283,11 +279,5 @@ export async function collectContainerStats(): Promise<ContainerStats> {
     return getMockContainerStats();
   }
 
-  try {
-    return await getContainerStatsReal();
-  } catch (err) {
-    // Fall back to mock if Docker socket unavailable
-    console.error("Docker socket error, using mock data:", err);
-    return getMockContainerStats();
-  }
+  return getContainerStatsReal();
 }

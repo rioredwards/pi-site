@@ -7,8 +7,6 @@ services:
     build:
       context: .
       target: deps # Stop at deps stage - no production build
-    env_file:
-      - .env.local
     command: sh -c "([ ! -d node_modules ] && npm install || true) && npm run dev:next"
     volumes:
       - .:/app # Mount source code for hot reloading
@@ -21,29 +19,26 @@ services:
     user: root
 
   db:
-    env_file:
-      - .env.local
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
 
   system-profiler:
+    read_only: false
     build:
-      context: ./system-profiler
+      context: .
+      dockerfile: system-profiler/Dockerfile
       target: deps # Stop at deps stage - no production build
-    env_file:
-      - .env.local
     environment:
-      - MOCK_HOST_STATS=true # Force mock mode in dev to use mock data
+      MOCK_HOST_STATS: "true" # Force mock mode in dev to use mock data
     command: sh -c "([ ! -d node_modules ] && npm install || true) && npm run dev"
     volumes:
       - ./system-profiler:/app # Mount source code for hot reloading
       - ./shared:/shared # Mount shared package for TypeScript path resolution
       - /app/node_modules # Preserve container's node_modules
-      - /var/run/docker.sock:/var/run/docker.sock:ro # Docker socket (works on Docker Desktop)
     ports:
-      - "8787:8787"
+      - "127.0.0.1:8787:8787"
     # Override entrypoint to skip production entrypoint script
     entrypoint: []
     # Use root user in dev (simpler, and we're not in production)
@@ -52,7 +47,7 @@ services:
   ai-img-validator:
     build: ./ai-img-validator # Dev: build from source (prod uses cached image)
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
 
   umami:
     ports:
@@ -61,8 +56,6 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/umami
       APP_SECRET: dev-secret-change-in-prod
       TZ: America/Los_Angeles
-    env_file:
-      - .env.local
 
 volumes:
   postgres_data_dev:

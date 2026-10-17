@@ -1,173 +1,107 @@
-"""
-FastAPI backend exposing NSFW + dog detection via OpenNSFW and ImageNet.
-
-This service is intended to run alongside the Next.js app as `ai-img-validator`.
-"""
+"""Bounded raster validation with the original NSFW and ImageNet dog classifiers."""
+from contextlib import asynccontextmanager
+from io import BytesIO
+import logging
+import math
+import warnings
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-
-from opennsfw_standalone import OpenNSFWInferenceRunner
-
-from io import BytesIO
-from PIL import Image
-import logging
-
+from PIL import Image, UnidentifiedImageError
 import torch
-from torchvision import models, transforms
+from torchvision import models
+from nsfw import OpenNSFWInferenceRunner
 
-logging.basicConfig(level=logging.INFO)
+MAX_FILE_BYTES = 10 * 1024 * 1024
+MAX_PIXELS = 25_000_000
+Image.MAX_IMAGE_PIXELS = MAX_PIXELS
+warnings.simplefilter("error", Image.DecompressionBombWarning)
 logger = logging.getLogger(__name__)
-
-app = FastAPI(title="NSFW + Dog Filter API", version="1.0.0")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # tighten in production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+runner = None
+dog_model = None
+preprocess = None
 
 
-runner: OpenNSFWInferenceRunner | None = None
-dog_model: torch.nn.Module | None = None
-preprocess: transforms.Compose | None = None
+@asynccontextmanager
+async def lifespan(app):
+    global runner, dog_model, preprocess
+    torch.set_num_threads(2)
+    runner = OpenNSFWInferenceRunner()
+    weights = models.MobileNet_V2_Weights.DEFAULT
+    dog_model = models.mobilenet_v2(weights=weights).eval()
+    preprocess = weights.transforms()
+    yield
 
 
-def load_nsfw_model() -> None:
-    """Load the NSFW model once at startup."""
-    global runner
-    logger.info("Loading OpenNSFW model...")
-    runner = OpenNSFWInferenceRunner.load()
-    logger.info("OpenNSFW model loaded.")
+app = FastAPI(title="NSFW + Dog Filter API", lifespan=lifespan, docs_url=None, redoc_url=None)
 
 
-def load_dog_model() -> None:
-    """Load the ImageNet dog classifier (MobileNetV2) and preprocessing."""
-    global dog_model, preprocess
+class BodyLimit:
+    """Enforce the bound before multipart parsing can spool unbounded data."""
+    def __init__(self, app):
+        self.app = app
 
-    logger.info("Loading dog detection model (MobileNetV2)...")
-    dog_model = models.mobilenet_v2(weights="DEFAULT")
-    dog_model.eval()
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        size = 0
 
-    preprocess = transforms.Compose(
-        [
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225],
-            ),
-        ]
-    )
+        async def bounded_receive():
+            nonlocal size
+            message = await receive()
+            size += len(message.get("body", b""))
+            if size > MAX_FILE_BYTES + 1024 * 1024:
+                raise HTTPException(413, "Image too large")
+            return message
 
-    logger.info("Dog detection model loaded.")
+        await self.app(scope, bounded_receive, send)
 
 
-@app.on_event("startup")
-async def startup_event() -> None:
-    load_nsfw_model()
-    load_dog_model()
+app.add_middleware(BodyLimit)
+
+
+def decode_image(data: bytes) -> Image.Image:
+    try:
+        with Image.open(BytesIO(data)) as image:
+            if image.format not in {"JPEG", "PNG", "WEBP"} or getattr(image, "n_frames", 1) != 1:
+                raise HTTPException(400, "Use a single JPEG, PNG or WebP image")
+            if image.width * image.height > MAX_PIXELS:
+                raise HTTPException(400, "Image dimensions too large")
+            image.load()
+            return image.convert("RGB")
+    except (UnidentifiedImageError, OSError, ValueError, Image.DecompressionBombError, Image.DecompressionBombWarning) as error:
+        raise HTTPException(400, "Invalid image file") from error
 
 
 @app.get("/")
-async def root():
-    return {
-        "status": "ok",
-        "service": "NSFW + Dog Filter API",
-        "nsfw_model_loaded": runner is not None,
-        "dog_model_loaded": dog_model is not None,
-    }
-
-
-def analyze_nsfw(image_bytes: bytes) -> tuple[bool, float]:
-    """Run NSFW detection and return (is_nsfw, score)."""
-    if runner is None:
-        raise RuntimeError("NSFW model not loaded")
-
-    try:
-        Image.open(BytesIO(image_bytes)).verify()
-    except Exception as e:
-        logger.error(f"Invalid image data: {e}")
-        raise HTTPException(status_code=400, detail="Invalid image file") from e
-
-    score = runner.infer(image_bytes)
-    is_nsfw = bool(score > 0.5)
-    return is_nsfw, float(score)
-
-
-def analyze_dog(image_bytes: bytes, threshold: float = 0.2) -> tuple[bool, float]:
-    """Analyze if image contains a dog using ImageNet classes."""
-    if dog_model is None or preprocess is None:
-        raise RuntimeError("Dog model not loaded")
-
-    try:
-        img = Image.open(BytesIO(image_bytes)).convert("RGB")
-    except Exception as e:
-        logger.error(f"Invalid image data for dog analysis: {e}")
-        raise HTTPException(status_code=400, detail="Invalid image file") from e
-
-    input_tensor = preprocess(img).unsqueeze(0)
-
-    with torch.no_grad():
-        logits = dog_model(input_tensor)
-        probs = torch.softmax(logits, dim=1)[0]
-
-    # ImageNet dog class range ≈ 151–268
-    dog_prob = probs[151:269].sum().item()
-    return dog_prob > threshold, float(dog_prob)
+def root():
+    if runner is None or dog_model is None:
+        raise HTTPException(503, "Models unavailable")
+    return {"status": "ok", "nsfw_model_loaded": True, "dog_model_loaded": True}
 
 
 @app.post("/analyze")
-async def analyze_image(file: UploadFile = File(...)):
-    """
-    Analyze an uploaded image for NSFW content and dog probability.
-
-    Response:
-    - filename
-    - nsfw_score (0.0–1.0)
-    - is_nsfw (bool)
-    - dog_probability (0.0–1.0)
-    - is_dog (bool)
-    """
-    if runner is None:
-        raise HTTPException(status_code=503, detail="NSFW model not loaded")
-    if dog_model is None:
-        raise HTTPException(status_code=503, detail="Dog model not loaded")
-
-    if not file.content_type or not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="File must be an image")
-
-    image_bytes = await file.read()
-    if not image_bytes:
-        raise HTTPException(status_code=400, detail="Empty file")
-
+def analyze_image(file: UploadFile = File(...)):
+    if runner is None or dog_model is None or preprocess is None:
+        raise HTTPException(503, "Models unavailable")
     try:
-        is_nsfw, nsfw_score = analyze_nsfw(image_bytes)
-        is_dog, dog_prob = analyze_dog(image_bytes)
+        data = file.file.read(MAX_FILE_BYTES + 1)
+        if not data or len(data) > MAX_FILE_BYTES:
+            raise HTTPException(413 if data else 400, "Image size invalid")
+        image = decode_image(data)
+        nsfw_score = runner.infer(image)
+        with torch.inference_mode():
+            probs = torch.softmax(dog_model(preprocess(image).unsqueeze(0)), dim=1)[0]
+        dog_prob = float(probs[151:269].sum().item())
+        if not all(math.isfinite(n) and 0 <= n <= 1 for n in (nsfw_score, dog_prob)):
+            raise RuntimeError("Invalid classifier result")
+        return {
+            "nsfw_score": round(nsfw_score, 4), "is_nsfw": nsfw_score > 0.5,
+            "dog_probability": round(dog_prob, 4), "is_dog": dog_prob > 0.2,
+        }
     except HTTPException:
         raise
-    except Exception as e:
-        logger.error(f"Error during analysis: {e}")
-        raise HTTPException(status_code=500, detail="Error processing image") from e
-
-    return JSONResponse(
-        {
-            "filename": file.filename,
-            "nsfw_score": round(nsfw_score, 4),
-            "is_nsfw": bool(is_nsfw),
-            "dog_probability": round(dog_prob, 4),
-            "is_dog": bool(is_dog),
-        }
-    )
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
+    except Exception:
+        logger.exception("Image classifier failed")
+        raise HTTPException(503, "Image analysis unavailable") from None
+    finally:
+        file.file.close()

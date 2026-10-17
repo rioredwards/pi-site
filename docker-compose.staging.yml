@@ -3,25 +3,37 @@
 
 services:
   web:
-    env_file:
-      - .env.staging
     environment:
       NODE_ENV: production
+      HOSTNAME: "0.0.0.0"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid
+      - /app/.next/cache:uid=1001,gid=1001,size=128m,noexec,nosuid
     volumes:
       - uploads_data:/data/uploads/images
     restart: unless-stopped
 
   system-profiler:
-    env_file:
-      - .env.staging
+    volumes:
+      - /proc/stat:/host/proc/stat:ro
+      - /proc/meminfo:/host/proc/meminfo:ro
+      - /proc/loadavg:/host/proc/loadavg:ro
+      - /proc/uptime:/host/proc/uptime:ro
+      - /proc/cpuinfo:/host/proc/cpuinfo:ro
+      - /proc/version:/host/proc/version:ro
+      - /proc/net/dev:/host/proc/net/dev:ro
+      - /sys/class/thermal/thermal_zone0/temp:/host/sys/class/thermal/thermal_zone0/temp:ro
+      # statfs on a harmless regular file reports root capacity without directory access.
+      - /etc/hostname:/host/disk:ro
     restart: unless-stopped
 
   ai-img-validator:
     restart: unless-stopped
 
   db:
-    env_file:
-      - .env.staging
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
