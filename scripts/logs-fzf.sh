@@ -15,13 +15,13 @@ get_compose_cmd() {
   case "$1" in
     dev)
       # override.yml is auto-loaded
-      echo "docker compose"
+      echo "docker compose --env-file .env.local"
       ;;
     staging)
-      echo "docker compose -f docker-compose.yml -f docker-compose.staging.yml"
+      echo "docker compose --env-file .env.staging -f docker-compose.yml -f docker-compose.staging.yml"
       ;;
     prod)
-      echo "docker compose -f docker-compose.yml -f docker-compose.prod.yml"
+      echo "docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml"
       ;;
     *)
       echo "Unknown profile: $1" >&2

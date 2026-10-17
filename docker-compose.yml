@@ -15,7 +15,7 @@ services:
         NEXT_PUBLIC_UMAMI_URL: ${NEXT_PUBLIC_UMAMI_URL}
         NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER:?Database user required}:${POSTGRES_PASSWORD:?Database password required}@db:5432/${POSTGRES_DB:?Database name required}
+      DATABASE_URL: ${CONTAINER_DATABASE_URL:?Container database URL required}
       AUTH_SECRET: ${AUTH_SECRET:?Auth secret required}
       NEXTAUTH_URL: ${NEXTAUTH_URL:?Auth URL required}
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
@@ -92,7 +92,7 @@ services:
     image: ghcr.io/umami-software/umami:postgresql-latest
     networks: [edge, data]
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/umami
+      DATABASE_URL: ${UMAMI_DATABASE_URL:?Analytics database URL required}
       APP_SECRET: ${UMAMI_APP_SECRET:-}
       TZ: America/Los_Angeles
     security_opt: [no-new-privileges:true]

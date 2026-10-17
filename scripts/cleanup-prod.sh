@@ -45,16 +45,16 @@ if ! confirm "Continue with cleanup?"; then
 fi
 
 log "Stopping and removing containers..."
-docker compose -f docker-compose.yml -f docker-compose.prod.yml down --remove-orphans
+docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml down --remove-orphans
 
 if confirm "Remove project images? (will need to rebuild on next deploy)"; then
   log "Removing images..."
-  docker compose -f docker-compose.yml -f docker-compose.prod.yml down --rmi local
+  docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml down --rmi local
 fi
 
 if confirm "Remove volumes? WARNING: This DELETES DATABASE DATA!"; then
   log "Removing volumes..."
-  docker compose -f docker-compose.yml -f docker-compose.prod.yml down -v
+  docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml down -v
 fi
 
 log "Pruning unused Docker resources..."

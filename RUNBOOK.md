@@ -6,7 +6,9 @@ For Next running on the host, configure these local endpoints:
 
 ```dotenv
 POSTGRES_PORT=55432
-DATABASE_URL=postgres://<POSTGRES_USER>:<POSTGRES_PASSWORD>@127.0.0.1:55432/<POSTGRES_DB>
+DATABASE_URL=postgres://myuser:mypassword@127.0.0.1:55432/mydatabase
+CONTAINER_DATABASE_URL=postgres://myuser:mypassword@db:5432/mydatabase
+UMAMI_DATABASE_URL=postgres://myuser:mypassword@db:5432/umami
 SYSTEM_PROFILER_BASE_URL=http://127.0.0.1:8787
 PUBLIC_IMG_VALIDATOR_BASE_URL=http://127.0.0.1:8000
 IMG_UPLOAD_DIR=./.data/uploads/images
@@ -35,6 +37,11 @@ Stop supporting services with
 Stop the HTTP server with `dev-lease stop <lease>` using the token from `dev-up`.
 
 For Next running in Docker, use `npm run dev` and stop with `npm run dev:stop`.
-Compose derives the web container's database URL from `POSTGRES_USER`,
-`POSTGRES_PASSWORD`, and `POSTGRES_DB` at `db:5432` in every environment.
-The `.env.local` `DATABASE_URL` remains the host URL for Drizzle and host-run Next.
+Compose requires `CONTAINER_DATABASE_URL` for web and `UMAMI_DATABASE_URL` for
+analytics in every environment, both using `db:5432`. `DATABASE_URL` remains the
+host URL for Drizzle and host-run Next. Use the same credentials as `POSTGRES_USER`
+and `POSTGRES_PASSWORD`; percent-encode each URI component, including the database
+name. Keep connection query options in the complete URL. Missing container URLs
+stop Compose before startup. Before updating an existing deployment, add both keys
+to its env file; an existing encoded `DATABASE_URL` using `db:5432` can be copied
+for `CONTAINER_DATABASE_URL`. Set `UMAMI_DATABASE_URL` to the analytics database.

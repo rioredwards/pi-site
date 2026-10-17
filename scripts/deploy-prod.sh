@@ -78,7 +78,8 @@ validate_env() {
   require_env_key POSTGRES_USER
   require_env_key POSTGRES_PASSWORD
   require_env_key POSTGRES_DB
-  require_env_key DATABASE_URL
+  require_env_key CONTAINER_DATABASE_URL
+  require_env_key UMAMI_DATABASE_URL
 
   # Auth
   require_env_key NEXTAUTH_URL
@@ -104,7 +105,7 @@ validate_env() {
 # -------------------------
 # Docker Compose
 # -------------------------
-COMPOSE_FILES=(-f docker-compose.yml -f docker-compose.prod.yml)
+COMPOSE_FILES=(--env-file "$APP_DIR/.env.prod" -f docker-compose.yml -f docker-compose.prod.yml)
 DEFAULT_BUILD_SERVICES=(web system-profiler)
 
 ensure_stable_images() {
@@ -165,10 +166,10 @@ main() {
   cat <<'EOM'
 
 Services running. Check status with:
-  cd $APP_DIR && docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
+  cd $APP_DIR && docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml ps
 
 View logs with:
-  cd $APP_DIR && docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f
+  cd $APP_DIR && docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml logs -f
 
 EOM
 }

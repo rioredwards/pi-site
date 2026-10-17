@@ -136,7 +136,10 @@ Schema is defined in `app/db/schema.ts` using Drizzle ORM:
 
 The app uses environment-based connection strings:
 
-- **`DATABASE_URL`**: Used when running inside Docker (points to `db` service)
+- **`DATABASE_URL`**: Host-run Next and database tools (`127.0.0.1:55432` locally).
+- **`CONTAINER_DATABASE_URL`**: Required by Compose for web (`db:5432`).
+- **`UMAMI_DATABASE_URL`**: Required by Compose for analytics (`db:5432/umami`).
+- Percent-encode URI components; preserve connection query options.
 
 ### Authentication System
 
@@ -238,7 +241,9 @@ Required for local development (`.env.local`):
 POSTGRES_USER=myuser
 POSTGRES_PASSWORD=mypassword
 POSTGRES_DB=mydatabase
-DATABASE_URL=postgres://myuser:mypassword@localhost:5432/mydatabase
+DATABASE_URL=postgres://myuser:mypassword@127.0.0.1:55432/mydatabase
+CONTAINER_DATABASE_URL=postgres://myuser:mypassword@db:5432/mydatabase
+UMAMI_DATABASE_URL=postgres://myuser:mypassword@db:5432/umami
 
 # NextAuth
 NEXTAUTH_URL=http://localhost:3000
@@ -270,7 +275,7 @@ NEXT_PUBLIC_UMAMI_URL=https://your-umami-instance.com
 
 For production (`.env.prod`), key differences:
 
-- `DATABASE_URL` uses `db` hostname instead of `localhost`
+- `CONTAINER_DATABASE_URL` and `UMAMI_DATABASE_URL` use `db:5432`.
 - `PUBLIC_IMG_VALIDATOR_BASE_URL=http://ai-img-validator:8000`
 - `IMG_UPLOAD_DIR=/data/uploads/images`
 
