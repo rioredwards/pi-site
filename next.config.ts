@@ -82,6 +82,15 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source: "/api/assets/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'none'; sandbox",
+          },
+        ],
+      },
     ];
   },
   // Recommended: this will reduce output
