@@ -24,7 +24,7 @@ need_cmd() {
 # -------------------------
 # Config
 # -------------------------
-REPO_URL="git@github.com:rioredwards/pi-site.git"
+REPO_URL="https://github.com/rioredwards/pi-site.git"
 APP_DIR="${APP_DIR:-${HOME}/pi-site}"
 BRANCH="${BRANCH:-main}"
 ENV_FILE="$APP_DIR/.env.prod"

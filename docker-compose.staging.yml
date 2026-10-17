@@ -1,5 +1,5 @@
 # Staging configuration
-# Usage: docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
+# Usage: docker compose --env-file .env.staging -f docker-compose.yml -f docker-compose.staging.yml up -d
 
 services:
   web:

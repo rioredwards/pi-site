@@ -262,7 +262,7 @@ ssh your-server
 cd ~/pi-site
 
 # Access database
-docker compose exec db psql -U myuser -d mydatabase
+docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml exec db psql -U myuser -d mydatabase
 ```
 
 ## OAuth Setup
@@ -310,7 +310,7 @@ Admins can delete any photo; regular users can only delete their own.
 
 - Ensure `CONTAINER_DATABASE_URL` and `UMAMI_DATABASE_URL` use `db:5432`.
 - Use `localhost` only in development
-- Restart containers: `docker compose down && docker compose up -d`
+- Restart development containers: `npm run dev:stop && npm run dev`
 
 ### Auth Issues
 
