@@ -201,3 +201,15 @@ export async function removeStoredImage(
     },
   );
 }
+
+// Cleanup cannot change whether the upload was persisted.
+export async function cleanupUploadFile(
+  remove: () => Promise<void>,
+): Promise<void> {
+  try {
+    await remove();
+  } catch {
+    // eslint-disable-next-line no-console -- Cleanup failures need a production signal without private paths.
+    console.error("Image cleanup failed; a stored file may need removal.");
+  }
+}

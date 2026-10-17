@@ -4,6 +4,7 @@ import { authOptions } from "@/app/auth";
 import { desc, eq, sql } from "drizzle-orm";
 import { unlink } from "node:fs/promises";
 import {
+  cleanupUploadFile,
   MAX_PROFILE_BYTES,
   removeStoredImage,
   saveImageUpload,
@@ -405,14 +406,10 @@ export async function uploadProfilePicture(
 
     persisted = true;
     // OAuth URLs are not local files. Remove old uploads only after the replacement is saved.
-    if (
-      existingUser?.profilePicture &&
-      !/^https?:\/\//.test(existingUser.profilePicture)
-    ) {
-      await removeStoredImage(
-        IMG_UPLOAD_DIR,
-        existingUser.profilePicture,
-        true,
+    const oldProfilePicture = existingUser?.profilePicture;
+    if (oldProfilePicture && !/^https?:\/\//.test(oldProfilePicture)) {
+      await cleanupUploadFile(() =>
+        removeStoredImage(IMG_UPLOAD_DIR, oldProfilePicture, true),
       );
     }
     return {
@@ -420,7 +417,10 @@ export async function uploadProfilePicture(
       error: undefined,
     };
   } catch (error) {
-    if (stored && !persisted) await unlink(stored.path);
+    if (stored && !persisted) {
+      const storedPath = stored.path;
+      await cleanupUploadFile(() => unlink(storedPath));
+    }
     const errorMsg =
       error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };

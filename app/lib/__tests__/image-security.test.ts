@@ -6,7 +6,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import sharp from "sharp";
-import { normalizeImage, saveImageUpload } from "../image-security";
+import {
+  cleanupUploadFile,
+  normalizeImage,
+  saveImageUpload,
+} from "../image-security";
 
 const clean = {
   nsfw_score: 0,
@@ -246,6 +250,36 @@ test("storage exhaustion or an unavailable disk measurement rejects before any f
       },
       (res) => res.end(JSON.stringify(clean)),
     );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("upload cleanup removes obsolete files", async () => {
+  const root = await mkdtemp(join(tmpdir(), "image-cleanup-"));
+  const old = join(root, "old.webp");
+  try {
+    await fs.writeFile(old, "old raster");
+    await cleanupUploadFile(() => fs.unlink(old));
+    assert.deepEqual(await readdir(root), []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("upload cleanup failure resolves and logs no private filesystem details", async (context) => {
+  const root = await mkdtemp(join(tmpdir(), "image-private-cleanup-"));
+  const messages: unknown[][] = [];
+  context.mock.method(console, "error", (...args: unknown[]) =>
+    messages.push(args),
+  );
+  try {
+    // Unlinking a directory fails on both Linux and macOS.
+    await cleanupUploadFile(() => fs.unlink(root));
+    assert.deepEqual(messages, [
+      ["Image cleanup failed; a stored file may need removal."],
+    ]);
+    assert.equal(JSON.stringify(messages).includes(root), false);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

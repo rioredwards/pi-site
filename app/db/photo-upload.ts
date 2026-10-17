@@ -1,6 +1,10 @@
 import { count, eq } from "drizzle-orm";
 import { unlink } from "node:fs/promises";
-import { MAX_PHOTO_BYTES, saveImageUpload } from "../lib/image-security";
+import {
+  cleanupUploadFile,
+  MAX_PHOTO_BYTES,
+  saveImageUpload,
+} from "../lib/image-security";
 import { Photo } from "../lib/types";
 import { getDb } from "./drizzle";
 import { photos, users } from "./schema";
@@ -29,6 +33,11 @@ export async function uploadPhotoForUser(
       .select({ count: count() })
       .from(photos);
     const photoCount = photoCountResult[0]?.count || 0;
+    const [user] = await getDb()
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
 
     const [photo] = await getDb()
       .insert(photos)
@@ -47,11 +56,6 @@ export async function uploadPhotoForUser(
     }
 
     persisted = true;
-    const [user] = await getDb()
-      .select()
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1);
 
     return {
       error: undefined,
@@ -67,7 +71,10 @@ export async function uploadPhotoForUser(
       },
     };
   } catch (error) {
-    if (stored && !persisted) await unlink(stored.path);
+    if (stored && !persisted) {
+      const storedPath = stored.path;
+      await cleanupUploadFile(() => unlink(storedPath));
+    }
     const errorMsg =
       error instanceof Error ? error.message : "Request failed...";
     return { data: undefined, error: errorMsg };
