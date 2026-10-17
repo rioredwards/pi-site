@@ -1,6 +1,10 @@
 "use server";
 
-import { devLog } from "@/lib/utils";
+import {
+  analyzeRaster,
+  MAX_PHOTO_BYTES,
+  normalizeImage,
+} from "./lib/image-security";
 import {
   deletePhoto,
   getPhotos,
@@ -27,40 +31,6 @@ export async function analyzeImageAction(
     throw new Error("No image file provided");
   }
 
-  // Prefer explicit env override; otherwise pick a sensible default.
-  const validatorBaseUrl = process.env.PUBLIC_IMG_VALIDATOR_BASE_URL!;
-
-  const validatorUrl = `${validatorBaseUrl.replace(/\/+$/, "")}/analyze`;
-  devLog("[analyzeImageAction] validatorUrl:", validatorUrl);
-
-  const outbound = new FormData();
-  outbound.append("file", file);
-
-  const response = await fetch(validatorUrl, {
-    method: "POST",
-    body: outbound,
-  });
-
-  if (!response.ok) {
-    let detail = response.statusText || "Analysis failed";
-    try {
-      const errorData = await response.json();
-      if (typeof errorData?.detail === "string") {
-        detail = errorData.detail;
-      }
-    } catch {
-      // ignore JSON parse errors, fall back to status text
-    }
-    throw new Error(detail);
-  }
-
-  const data = (await response.json()) as AnalysisResult;
-
-  return {
-    filename: data.filename,
-    nsfw_score: data.nsfw_score,
-    is_nsfw: data.is_nsfw,
-    dog_probability: data.dog_probability,
-    is_dog: data.is_dog,
-  };
+  const bytes = await normalizeImage(file, MAX_PHOTO_BYTES);
+  return analyzeRaster(bytes);
 }

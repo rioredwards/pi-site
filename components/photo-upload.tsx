@@ -595,7 +595,7 @@ export default function PhotoUpload({ addPhoto }: Props) {
                   <Input
                     id="photo"
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp"
                     onChange={handleFileChange}
                     className="hidden"
                     ref={fileInputRef}

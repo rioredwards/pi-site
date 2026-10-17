@@ -3,6 +3,7 @@ import { type NextAuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import { getDb } from "./db/drizzle";
+import { safeAuthRedirect } from "./lib/auth-redirect";
 import { users } from "./db/schema";
 import { devLog } from "./lib/utils";
 
@@ -114,14 +115,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Clean up callback URLs and redirect to base URL after sign-in
-      if (url.startsWith(baseUrl)) {
-        // Remove nested callbackUrl parameters
-        const cleanUrl = new URL(url, baseUrl);
-        cleanUrl.searchParams.delete("callbackUrl");
-        return cleanUrl.pathname === "/" ? baseUrl : cleanUrl.toString();
-      }
-      return url.startsWith("/") ? `${baseUrl}${url}` : url;
+      return safeAuthRedirect(url, baseUrl);
     },
   },
 };
