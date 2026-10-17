@@ -16,7 +16,7 @@ Set `NEXTAUTH_URL` and `NEXT_PUBLIC_SITE_URL` to the dev URL reported by `dev-up
 OAuth providers must allow that callback URL. Set a local `AUTH_SECRET` and
 `SYSTEM_PROFILER_AUTH_TOKEN` before starting services.
 
-Start only the supporting services, separately from the HTTP startup deadline:
+For host-run Next, start only the supporting services:
 
 ```sh
 docker compose --env-file .env.local -p pi-site-dev up -d --build db ai-img-validator system-profiler docker-proxy
@@ -33,3 +33,8 @@ host and service metrics in development. Analytics is optional and is not starte
 Stop supporting services with
 `docker compose --env-file .env.local -p pi-site-dev down`.
 Stop the HTTP server with `dev-lease stop <lease>` using the token from `dev-up`.
+
+For Next running in Docker, use `npm run dev` and stop with `npm run dev:stop`.
+Compose derives the web container's database URL from `POSTGRES_USER`,
+`POSTGRES_PASSWORD`, and `POSTGRES_DB` at `db:5432` in every environment.
+The `.env.local` `DATABASE_URL` remains the host URL for Drizzle and host-run Next.

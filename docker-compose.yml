@@ -15,7 +15,7 @@ services:
         NEXT_PUBLIC_UMAMI_URL: ${NEXT_PUBLIC_UMAMI_URL}
         NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
     environment:
-      DATABASE_URL: ${DATABASE_URL:?Database URL required}
+      DATABASE_URL: postgres://${POSTGRES_USER:?Database user required}:${POSTGRES_PASSWORD:?Database password required}@db:5432/${POSTGRES_DB:?Database name required}
       AUTH_SECRET: ${AUTH_SECRET:?Auth secret required}
       NEXTAUTH_URL: ${NEXTAUTH_URL:?Auth URL required}
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
