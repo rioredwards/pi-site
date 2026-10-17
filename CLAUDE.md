@@ -193,7 +193,7 @@ The `/stats` page (`app/stats/`) displays live system metrics:
 - **Service Health**: Container status and health checks
 - **Charts**: ReCharts-powered visualizations
 
-Metrics are gathered by a separate system-profiler service that reads from `/proc`, `/sys`, and the Docker socket.
+The profiler reads selected host metric files and an allowlisted Docker metrics proxy, without host-root or Docker socket access.
 
 ### About Page
 
@@ -215,22 +215,18 @@ Service URL is configured via `PUBLIC_IMG_VALIDATOR_BASE_URL` env var:
 - Development: `http://localhost:8000`
 - Production: `http://ai-img-validator:8000`
 
-The validation runs before file processing in `uploadPhoto()` server action.
+Uploads are decoded to canonical WebP, then validated before storage.
 
 ### Static Asset Serving
 
 Images use the path `/api/assets/images/{filename}` in all environments.
 
-**Production**: Nginx intercepts `/api/assets/images/` requests and serves files directly from the Docker volume (`/var/lib/docker/volumes/pi-site_uploads_data/_data/`) with aggressive caching (1 year). This bypasses Node.js entirely.
-
-**Development**: The Next.js API route at `app/api/assets/[...dir]/route.ts` serves files with streaming and proper caching headers.
+The Next.js route at `app/api/assets/[...dir]/route.ts` verifies raster contents, rejects symlinks, and adds isolation and cache headers. Production Nginx proxies uploads to this route, including legacy extensionless images.
 
 Photos are stored in:
 
 - **Upload path**: `process.env.IMG_UPLOAD_DIR` (dev: `./.data/uploads/images`, prod: `/data/uploads/images`)
 - **Read path**: `/api/assets/images/{filename}` (both environments)
-
-This architecture prevents 503 errors by keeping image requests off the Node.js event loop in production.
 
 ## Environment Variables
 
