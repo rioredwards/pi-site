@@ -4,7 +4,7 @@ repo=$(cd "$(dirname "$0")/.." && pwd)
 fixture=$(mktemp -d)
 trap 'rm -rf "$fixture"' EXIT
 mkdir -p "$fixture/bin" "$fixture/etc/sites-available" "$fixture/etc/sites-enabled"
-export NGINX_CONFIG_DIR="$fixture/etc" TEST_STATE="$fixture"
+export NGINX_CONFIG_DIR="$fixture/etc" TEST_STATE="$fixture" TMPDIR="$fixture"
 export PATH="$fixture/bin:$PATH"
 cat > "$fixture/bin/sudo" <<'SH'
 #!/usr/bin/env bash
@@ -34,6 +34,11 @@ cat > "$fixture/bin/mkdir" <<'SH'
 #!/usr/bin/env bash
 for arg in "$@"; do [[ "$arg" != /var/cache/nginx/nextjs_images ]] || exit 0; done
 exec /bin/mkdir "$@"
+SH
+cat > "$fixture/bin/cp" <<'SH'
+#!/usr/bin/env bash
+if [[ -e "$TEST_STATE/restore-fails" && "$1" == -a && "${!#}" == "$NGINX_CONFIG_DIR/nginx.conf" ]]; then exit 1; fi
+exec /bin/cp "$@"
 SH
 chmod +x "$fixture/bin/"*
 printf 'LISTEN 0 511 127.0.0.1:80 0.0.0.0:*\n' > "$fixture/listeners"
@@ -74,6 +79,13 @@ for address in '[::]:80' '192.0.2.1:80'; do
   printf 'LISTEN 0 511 127.0.0.1:80 0.0.0.0:*\nLISTEN 0 511 %s *:*\n' "$address" > "$fixture/listeners"
   if NGINX_VERIFY_ATTEMPTS=1 "$installer"; then echo "FAIL: accepted $address"; exit 1; fi
 done
+# A failed restore must retain the only remaining copy of the original bytes.
+printf original-recovery-bytes > "$NGINX_CONFIG_DIR/nginx.conf"
+touch "$fixture/invalid" "$fixture/restore-fails"
+if "$installer" 2> "$fixture/recovery-error"; then echo 'FAIL: restore failure accepted'; exit 1; fi
+recovery=$(sed -n 's/^Recovery backup retained at: //p' "$fixture/recovery-error")
+[[ -n "$recovery" && -f "$recovery/0" ]] || { echo 'FAIL: recovery backup discarded'; exit 1; }
+[[ $(cat "$recovery/0") == original-recovery-bytes ]]
 # Every mutating entry point delegates to the paired installer.
 for caller in deploy.sh scripts/update-prod.sh .github/workflows/deploy.yml; do
   grep -q 'scripts/install-nginx.sh' "$repo/$caller"

@@ -21,31 +21,38 @@ loopback_only() {
 paths=("$config_dir/nginx.conf" "$config_dir/sites-available/pi-site"
   "$config_dir/sites-enabled/pi-site" "$config_dir/sites-enabled/myapp"
   "$config_dir/sites-enabled/dogtownUSA" "$config_dir/sites-enabled/default")
-backup=$(mktemp -d)
+backup=$(mktemp -d "${TMPDIR:-/tmp}/pi-site-nginx.XXXXXXXXXX")
 changed=0
 activated=0
 committed=0
 # Called indirectly by the EXIT trap.
 # shellcheck disable=SC2329
 rollback() {
-  local status=$? index
+  local status=$? index recovery_failed=0
   trap - EXIT
   if [[ "$committed" -eq 0 && "$changed" -eq 1 ]]; then
     echo 'Nginx installation failed; restoring previous configuration' >&2
     for index in "${!paths[@]}"; do
-      sudo rm -f -- "${paths[$index]}" || status=1
+      sudo rm -f -- "${paths[$index]}" || { status=1; recovery_failed=1; }
       if [[ -e "$backup/$index" || -L "$backup/$index" ]]; then
-        sudo cp -a -- "$backup/$index" "${paths[$index]}" || status=1
+        sudo cp -a -- "$backup/$index" "${paths[$index]}" || { status=1; recovery_failed=1; }
       fi
     done
     if [[ "$activated" -eq 1 ]]; then
       if ! sudo nginx -t || ! sudo systemctl restart nginx; then
         echo 'Nginx rollback activation failed' >&2
         status=1
+        recovery_failed=1
       fi
     fi
   fi
-  sudo rm -rf -- "$backup"
+  if [[ "$recovery_failed" -eq 1 ]]; then
+    echo "Recovery backup retained at: $backup" >&2
+    echo 'Restore the numbered entries in path order, then remove this directory after recovery.' >&2
+    printf '%s\n' "${paths[@]}" >&2
+  else
+    sudo rm -rf -- "$backup"
+  fi
   exit "$status"
 }
 trap rollback EXIT
