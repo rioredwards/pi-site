@@ -102,7 +102,13 @@ cd ~/pi-site
 ./update.sh
 ```
 
-Or simply re-run `./deploy.sh` - it's safe to run repeatedly.
+Both deployment paths install the global and site Nginx settings together. The installer
+checks syntax, restarts when port 80 is not loopback-only, and verifies the running
+listener. Changed settings reload only when the listener is already safe; unchanged
+settings do not restart Nginx. Failures restore the previous configuration and stop
+the deployment. A listener migration briefly interrupts Nginx.
+
+To update only Nginx, run `./scripts/install-nginx.sh` on the server.
 
 ## Project Structure
 

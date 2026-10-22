@@ -29,6 +29,11 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
+      - name: Check Nginx deployment scripts
+        run: |
+          bash -n deploy.sh scripts/update-prod.sh scripts/install-nginx.sh scripts/test-nginx-deploy.sh
+          shellcheck deploy.sh scripts/update-prod.sh scripts/install-nginx.sh scripts/test-nginx-deploy.sh
+          ./scripts/test-nginx-deploy.sh
 
   deploy:
     name: Build & Deploy
@@ -180,9 +185,7 @@ jobs:
           fi
 
           echo "▶ Updating nginx..."
-          sudo cp nginx/nginx.conf /etc/nginx/nginx.conf
-          sudo cp nginx/pi-site.conf /etc/nginx/sites-available/pi-site
-          sudo nginx -t && sudo systemctl reload nginx
+          ./scripts/install-nginx.sh
 
           echo "▶ Starting services..."
           docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build --wait --wait-timeout 180
