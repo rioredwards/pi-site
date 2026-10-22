@@ -44,8 +44,7 @@ git -C "$APP_DIR" merge --ff-only "origin/$BRANCH"
 
 # Update nginx config if changed
 log "Updating nginx config..."
-sudo cp "${APP_DIR}/nginx/pi-site.conf" /etc/nginx/sites-available/pi-site
-sudo nginx -t && sudo systemctl reload nginx
+"${APP_DIR}/scripts/install-nginx.sh"
 
 cd "$APP_DIR"
 
@@ -68,7 +67,7 @@ sleep 5
 
 # Quick health check
 if ! docker compose "${COMPOSE_FILES[@]}" ps | grep -q "Up"; then
-  die "Containers may not have started correctly. Check: docker compose "${COMPOSE_FILES[@]}" logs"
+  die "Containers may not have started correctly. Check: docker compose ${COMPOSE_FILES[*]} logs"
 fi
 
 log "Cleaning up dangling images only..."

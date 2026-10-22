@@ -29,7 +29,6 @@ need_cmd() {
 # -------------------------
 export APP_DIR="${HOME}/pi-site"
 export BRANCH="main"
-SITE_NAME="pi-site"
 DOCKER_ARCH="arm64"
 
 # -------------------------
@@ -71,48 +70,7 @@ install_nginx_if_needed() {
 configure_nginx() {
   log "Configuring Nginx..."
 
-  # Use version-controlled configs from repo
-  local main_conf="${APP_DIR}/nginx/nginx.conf"
-  local site_conf="${APP_DIR}/nginx/pi-site.conf"
-
-  [[ -f "$main_conf" ]] || die "Missing nginx config: $main_conf"
-  [[ -f "$site_conf" ]] || die "Missing nginx config: $site_conf"
-
-  # Backup existing nginx.conf if it differs
-  if [[ -f /etc/nginx/nginx.conf ]] && ! diff -q "$main_conf" /etc/nginx/nginx.conf >/dev/null 2>&1; then
-    log "Backing up existing nginx.conf..."
-    sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
-  fi
-
-  # Copy main nginx.conf
-  sudo cp "$main_conf" /etc/nginx/nginx.conf
-
-  # Copy site config
-  sudo cp "$site_conf" "/etc/nginx/sites-available/${SITE_NAME}"
-
-  # Enable our site config
-  sudo ln -sf \
-    "/etc/nginx/sites-available/${SITE_NAME}" \
-    "/etc/nginx/sites-enabled/${SITE_NAME}"
-
-  # Remove old/stale site configs that aren't managed by this repo
-  log "Cleaning up old nginx site configs..."
-  for old_config in myapp dogtownUSA default; do
-    if [[ -L "/etc/nginx/sites-enabled/${old_config}" ]]; then
-      log "  Removing sites-enabled/${old_config}"
-      sudo rm -f "/etc/nginx/sites-enabled/${old_config}"
-    fi
-  done
-
-  # Create cache directory for Next.js optimized images
-  if [[ ! -d /var/cache/nginx/nextjs_images ]]; then
-    log "Creating nginx cache directory..."
-    sudo mkdir -p /var/cache/nginx/nextjs_images
-    sudo chown www-data:www-data /var/cache/nginx/nextjs_images
-  fi
-
-  sudo nginx -t || die "Nginx config test failed"
-  sudo systemctl reload nginx || sudo systemctl start nginx
+  "${APP_DIR}/scripts/install-nginx.sh"
 }
 
 configure_cron() {
